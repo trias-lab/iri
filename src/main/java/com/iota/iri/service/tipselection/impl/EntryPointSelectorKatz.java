@@ -18,9 +18,7 @@ import java.io.PrintStream;
 
 
 /**
- * Implementation of <tt>EntryPointSelector</tt> that given a depth N, returns a N-deep milestone.
- * Meaning <CODE>milestone(latestSolid - depth)</CODE>
- * Used to as a starting point for the random walk.
+ * This is different from the traditional entry point selector, because it ignores the milestone.
  */
 public class EntryPointSelectorKatz implements EntryPointSelector {
 
