@@ -13,7 +13,7 @@ import com.iota.iri.model.Hash;
 import com.iota.iri.storage.rocksDB.RocksDBPersistenceProvider;
 import com.iota.iri.utils.collections.interfaces.UnIterableMap;
 import com.iota.iri.model.persistables.Transaction;
-import com.iota.iri.model.persistables.Bundle;;
+import com.iota.iri.model.persistables.Bundle;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
