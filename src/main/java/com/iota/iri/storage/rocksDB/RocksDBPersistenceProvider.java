@@ -341,12 +341,13 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
                     }
                 });
 
-                WriteOptions writeOptions = new WriteOptions()
+                    try(WriteOptions writeOptions = new WriteOptions()
                         //We are explicit about what happens if the node reboots before a flush to the db
                         .setDisableWAL(false)
                         //We want to make sure deleted data was indeed deleted
-                        .setSync(true);
+                        .setSync(true)) {
                 db.write(writeOptions, writeBatch);
+                }
             }
         }
     }
@@ -490,6 +491,10 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         } catch (Exception e) {
             log.error("Error while initializing RocksDb", e);
             IotaIOUtils.closeQuietly(db);
+        } finally {
+            options.close();
+            mergeOperator.close();
+            columnFamilyOptions.close();
         }
     }
 
@@ -512,36 +517,42 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
 
     // 2018 March 28 - Unused Code
     private void fillMissingColumns(List<ColumnFamilyDescriptor> familyDescriptors, String path) throws Exception {
+            try {
+                Options options = new Options().setCreateIfMissing(true)
+            List<ColumnFamilyDescriptor> columnFamilies = RocksDB.listColumnFamilies(options, path)
+                    .stream()
+                    .map(b -> new ColumnFamilyDescriptor(b, new ColumnFamilyOptions()))
+                    .collect(Collectors.toList());
 
-        List<ColumnFamilyDescriptor> columnFamilies = RocksDB.listColumnFamilies(new Options().setCreateIfMissing(true), path)
-            .stream()
-            .map(b -> new ColumnFamilyDescriptor(b, new ColumnFamilyOptions()))
-            .collect(Collectors.toList());
+            columnFamilies.add(0, familyDescriptors.get(0));
 
-        columnFamilies.add(0, familyDescriptors.get(0));
+            List<ColumnFamilyDescriptor> missingFromDatabase = familyDescriptors.stream().filter(d -> columnFamilies.stream().filter(desc -> new String(desc.columnFamilyName()).equals(new String(d.columnFamilyName()))).toArray().length == 0).collect(Collectors.toList());
+            List<ColumnFamilyDescriptor> missingFromDescription = columnFamilies.stream().filter(d -> familyDescriptors.stream().filter(desc -> new String(desc.columnFamilyName()).equals(new String(d.columnFamilyName()))).toArray().length == 0).collect(Collectors.toList());
 
-        List<ColumnFamilyDescriptor> missingFromDatabase = familyDescriptors.stream().filter(d -> columnFamilies.stream().filter(desc -> new String(desc.columnFamilyName()).equals(new String(d.columnFamilyName()))).toArray().length == 0).collect(Collectors.toList());
-        List<ColumnFamilyDescriptor> missingFromDescription = columnFamilies.stream().filter(d -> familyDescriptors.stream().filter(desc -> new String(desc.columnFamilyName()).equals(new String(d.columnFamilyName()))).toArray().length == 0).collect(Collectors.toList());
+            if (missingFromDatabase.size() != 0) {
+                missingFromDatabase.remove(familyDescriptors.get(0));
 
-        if (missingFromDatabase.size() != 0) {
-            missingFromDatabase.remove(familyDescriptors.get(0));
-
-            try (RocksDB rocksDB = db = RocksDB.open(options, path, columnFamilies, columnFamilyHandles)) {
-                for (ColumnFamilyDescriptor description : missingFromDatabase) {
-                    addColumnFamily(description.columnFamilyName(), rocksDB);
+                try (RocksDB rocksDB = db = RocksDB.open(options, path, columnFamilies, columnFamilyHandles)) {
+                    for (ColumnFamilyDescriptor description : missingFromDatabase) {
+                        addColumnFamily(description.columnFamilyName(), rocksDB);
+                    }
                 }
             }
-        }
-        if (missingFromDescription.size() != 0) {
-            familyDescriptors.addAll(missingFromDescription);
+            if (missingFromDescription.size() != 0) {
+                familyDescriptors.addAll(missingFromDescription);
+            }
+        } catch (Exception e) {
+            log.error("result in a resource leak: ", e);
+        } finally {
+            Options().close();
         }
     }
 
     // 2018 March 28 - Unused Code
     private void addColumnFamily(byte[] familyName, RocksDB db) throws RocksDBException {
-        final ColumnFamilyHandle columnFamilyHandle = db.createColumnFamily(
-            new ColumnFamilyDescriptor(familyName, new ColumnFamilyOptions()));
-
-        assert (columnFamilyHandle != null);
+        try(final ColumnFamilyHandle columnFamilyHandle = db.createColumnFamily(
+            new ColumnFamilyDescriptor(familyName, new ColumnFamilyOptions()))) {
+            assert (columnFamilyHandle != null);
+        }
     }
 }
