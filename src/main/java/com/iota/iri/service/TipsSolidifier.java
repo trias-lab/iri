@@ -42,7 +42,6 @@ public class TipsSolidifier {
                         }
                     }
                 } catch (Exception e) {
-                    Thread.currentThread().interrupt();
                     log.error("Error during solidity scan : {}", e);
                 }
                 try {
