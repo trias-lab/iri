@@ -20,6 +20,8 @@ iota_seed = cf.get("iota", "seed")
 enable_ipfs = cf.getboolean("iota", "enableIpfs")
 enable_compression = cf.getboolean("iota", "enableCompression")
 enable_batching = cf.getboolean("iota", "enableBatching")
+listen_port = cf.get("iota", "listenPort")
+listen_address = cf.get("iota", "listenAddress")
 cache = IotaCache(iota_addr, iota_seed)
 
 # txs buffer. dequeue is thread-safe
@@ -46,13 +48,13 @@ def compress_str(data):
     else:
         return data
 
-def send(tx_string, tx_num=1):
+def send(tx_string, tx_num=1, tag='TR'):
     if enable_ipfs == True:
-        send_to_ipfs_iota(tx_string, tx_num)
+        send_to_ipfs_iota(tx_string, tx_num, tag)
     else:
-        send_to_iota(tx_string, tx_num)
+        send_to_iota(tx_string, tx_num, tag)
 
-def send_to_ipfs_iota(tx_string, tx_num):
+def send_to_ipfs_iota(tx_string, tx_num, tag):
     global lock
     with lock:
         filename = 'json'
@@ -61,7 +63,11 @@ def send_to_ipfs_iota(tx_string, tx_num):
         f.flush()
         f.close()
 
-        ipfs_hash = commands.getoutput(' '.join(['ipfs', 'add', filename, '-q']))
+        (status, ipfs_hash) = commands.getstatusoutput(' '.join(['ipfs', 'add', filename, '-q']))
+        if status != 0:
+            print("[ERROR]Sending to ipfs failed -- '%s'" % ipfs_hash, file=sys.stderr)
+            return
+
         print("[INFO]Cache json %s in ipfs, the hash is %s." % (tx_string, ipfs_hash), file=sys.stderr)
 
         if tx_num == 1:
@@ -69,30 +75,25 @@ def send_to_ipfs_iota(tx_string, tx_num):
         else:
             data = json.dumps({"address": ipfs_hash, "tx_num": tx_num}, sort_keys=True)
 
-        cache.cache_txn_in_tangle_simple(data, TagGenerator.get_current_tag("TR"))
+        cache.cache_txn_in_tangle_simple(data, TagGenerator.get_current_tag(tag))
         print("[INFO]Cache hash %s in tangle, the tangle tag is %s." % (ipfs_hash, TagGenerator.get_current_tag("TR")), file=sys.stderr)
 
-def send_to_iota(tx_string, tx_num):
+def send_to_iota(tx_string, tx_num, tag):
     global lock
     with lock:
         data = json.dumps({"txn_content": tx_string, "tx_num": tx_num}, sort_keys=True)
 
         if enable_batching is False:
-            cache.cache_txn_in_tangle_simple(data, TagGenerator.get_current_tag("TR"))
+            cache.cache_txn_in_tangle_simple(data, TagGenerator.get_current_tag(tag))
         else:
             compressed_data = compress_str(data)
-            cache.cache_txn_in_tangle_message(compressed_data)
+            cache.cache_txn_in_tangle_message(compressed_data, TagGenerator.get_current_tag(tag))
 
-        print("[INFO]Cache data in tangle, the tangle tag is %s." % (TagGenerator.get_current_tag("TR")), file=sys.stderr)
+        print("[INFO]Cache data in tangle, the tangle tag is %s." % (TagGenerator.get_current_tag(tag)), file=sys.stderr)
 
 def get_cache():
     if enable_batching is False:
         return
-
-    # timer
-    global timer_thread
-    timer_thread = threading.Timer(TIMER_INTERVAL, get_cache)
-    timer_thread.start()
 
     global cache_lock
     with cache_lock:
@@ -100,13 +101,26 @@ def get_cache():
         if nums == 0:
             return
 
-        list = []
+        tx_list = []
+        tr_list = []
+        num_tr = 0
+        num_tx = 0
         for i in range(nums):
             tx = txn_cache.popleft()
-            list.append(tx)
+            req_json = json.loads(tx)
+            if not req_json.has_key(u'tag'):
+                tr_list.append(tx)
+                num_tr += 1
+            elif req_json[u'tag'] == 'TX':
+                tx_list.append(tx)
+                num_tx += 1
 
-    all_txs = json.dumps(list)
-    send(all_txs, nums)
+        tr_txs = json.dumps(tr_list)
+        tx_txs = json.dumps(tx_list)
+        if num_tx != 0:
+            send(tx_txs, num_tx, 'TX')
+        if num_tr != 0:
+            send(tr_txs, num_tr, 'TR')
 
 
 app = Flask(__name__)
@@ -116,6 +130,24 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello World!'
 
+@app.route('/get_balance', methods=['GET'])
+def get_balance():
+    req_json = request.get_json()
+
+    if req_json is None:
+        return 'error'
+
+    if not req_json.has_key(u'account'):
+        print("[ERROR]Account is needed.", file=sys.stderr)
+        return 'error'
+
+    account = req_json[u'account']
+    resp = cache.get_balance('StreamNetCoin', account)
+
+    balance = resp[u'balances'][0]
+    print("Balance of '%s' is [%s]" % (account, balance), file=sys.stderr)
+    return balance
+
 @app.route('/put_file', methods=['POST'])
 def put_file():
     req_json = request.get_json()
@@ -123,7 +155,10 @@ def put_file():
     if req_json is None:
         return 'error'
 
-    send(json.dumps(req_json, sort_keys=True))
+    if not req_json.has_key(u'tag'):
+        send(json.dumps(req_json, sort_keys=True))
+    else:
+        send(json.dumps(req_json, sort_keys=True), tag=req_json[u'tag'])
 
     return 'ok'
 
@@ -142,9 +177,7 @@ def put_cache():
     txn_cache.append(tx_string)
 
     if len(txn_cache) >= BATCH_SIZE:
-        # ring-buffer is full, send to ipfs and iota directly.
-        t = threading.Thread(target=get_cache)
-        t.start()
+        get_cache()
 
     return 'ok'
 
@@ -193,6 +226,73 @@ def put_action():
     wasm.exec_action(ipfs_addr)
     return 'ok'
 
+@app.route('/add_neighbors', methods=['POST'])
+def add_neighbors():
+    req_json = request.get_json()
+    if req_json is None:
+        return 'error'
+    if not req_json.has_key(u'uris'):
+        print("[ERROR] Uris are needed.", file=sys.stderr)
+        return 'error'
+    uris = req_json[u'uris']
+    resp = cache.add_neighbors(uris)
+    return resp
+
+@app.route('/get_block_content', methods=['GET'])
+def get_block_content():
+    req_json = request.get_json()
+    if req_json is None:
+        return 'error'
+    if not req_json.has_key(u'hashes'):
+        print("[ERROR] Hashes are needed.", file=sys.stderr)
+        return 'error'
+    hashes = req_json[u'hashes']
+    resp = cache.get_block_content(hashes)
+    print(resp, file=sys.stderr)
+    ret_list = [x.encode('ascii') for x in resp[u'trytes']]
+    return str(ret_list)
+
+@app.route('/get_dag', methods=['GET'])
+def get_dag():
+    req_json = request.get_json()
+    if req_json is None:
+        return 'error'
+    if not req_json.has_key(u'type'):
+        print("[ERROR] Hashes are needed.", file=sys.stderr)
+        return 'error'
+    dag_type = req_json[u'type']
+    resp = cache.get_dag(dag_type)
+    if req_json.has_key(u'file_save'):
+        file_save = req_json[u'file_save'].encode("ascii")
+        f = open(file_save, 'w')
+        f.write(resp[u'dag'])
+        f.close()
+    return resp[u'dag']
+
+@app.route('/get_utxo', methods=['GET'])
+def get_utxo():
+    req_json = request.get_json()
+    if req_json is None:
+        return 'error'
+    if not req_json.has_key(u'type'):
+        print("[ERROR] Hashes are needed.", file=sys.stderr)
+        return 'error'
+    dag_type = req_json[u'type']
+    resp = cache.get_utxo(dag_type)
+    if req_json.has_key(u'file_save'):
+        file_save = req_json[u'file_save'].encode("ascii")
+        f = open(file_save, 'w')
+        f.write(resp[u'dag'])
+        f.close()
+    return resp[u'dag']
+
+@app.route('/get_total_order', methods=['GET'])
+def get_total_order():
+    resp = cache.get_total_order()
+    return resp[u'totalOrder']
+
 if __name__ == '__main__':
-    get_cache()
-    app.run()
+    # timer
+    timer_thread = threading.Timer(TIMER_INTERVAL, get_cache)
+    timer_thread.start()
+    app.run(host=listen_address, port=listen_port)

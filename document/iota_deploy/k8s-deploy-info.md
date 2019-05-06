@@ -1,12 +1,12 @@
-# k8s环境搭建说明  
+# k8s环境搭建说明 #
 
-## 安装环境  
+## 安装环境 ##
 操作系统:Ubuntu 16.04  
 三台机器  
 192.168.50.128 master  
 192.168.50.129 node  
 192.168.50.130 node  
-## 安装步骤   
+## 安装步骤 ##
 步骤1.安装docker添加docker官方源    
 
 ```
@@ -178,11 +178,12 @@ kubectl get nodes
 ```  
 集群创建成功
 
-步骤22.验证集群功能  
+步骤22.验证集群功能。
 
-``` 
- kubectl run nginx-deploy --image=nginx:1.14-alpine --port=80 --replicas=2
-```  
+
+```
+kubectl run nginx-deploy --image=nginx:1.14-alpine --port=80 --replicas=2;
+```
 
 ps:步骤1-7,11-13是在所有节点上执行，
    步骤8-10，14-19，21-22在master节点执行

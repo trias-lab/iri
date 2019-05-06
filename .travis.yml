@@ -35,16 +35,13 @@ install:
     - sudo pip install docker
     - sudo pip install mock
     - sudo pip install cryptography==2.5
+    - sudo pip install sh
+    - sudo pip install six --upgrade
   # install ipfs
     - wget https://dist.ipfs.io/go-ipfs/v0.4.18/go-ipfs_v0.4.18_linux-amd64.tar.gz
       && tar xf go-ipfs_v0.4.18_linux-amd64.tar.gz
       && cd go-ipfs/
       && sudo ./install.sh
-      && cd ..
-  # private-iota-testnet milestone
-    - git clone https://github.com/schierlm/private-iota-testnet.git --depth 1
-      && cd private-iota-testnet
-      && mvn package
       && cd ..
 
 before_script:
@@ -54,12 +51,12 @@ before_script:
 script:
   #run tests and integration tests
   # see  https://stackoverflow.com/questions/34405047/how-do-you-merge-into-another-branch-using-travis-with-git-commands?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-  - build_head=$(git rev-parse HEAD) 
+  - build_head=$(git rev-parse HEAD)
   - git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
   - git fetch origin $TRAVIS_BRANCH
   - git checkout -f $TRAVIS_BRANCH
   - git checkout $build_head
-  - git merge $TRAVIS_BRANCH
+  #- git merge $TRAVIS_BRANCH
   - mvn integration-test -Dlogging-level=INFO
   #run jar sanity tests
   - VERSION=$(mvn help:evaluate -Dexpression=project.version | grep -E '^[0-9.]+')
@@ -68,17 +65,18 @@ script:
   - JACOCO_V=$(mvn help:evaluate -Dexpression=jacoco.version | grep -E '^[0-9.]+')
   - export _JAVA_OPTIONS="$_JAVA_OPTIONS -javaagent:$HOME/.m2/repository/org/jacoco/org.jacoco.agent/$JACOCO_V/org.jacoco.agent-$JACOCO_V-runtime.jar=destfile=$PWD/target/jacoco.exec,output=file,append=true,dumponexit=true"
   - echo $_JAVA_OPTIONS
-  - git clone https://github.com/lhfbc/iri-regression-tests.git
+  - git clone https://github.com/triasteam/iri-regression-tests.git
   - cd iri-regression-tests
   #- git checkout -f master
   - mkdir iri
   - cp -rf ../target iri/target
+  - cp -rf ../scripts iri/scripts
   - bash run_all_stable_tests.sh $VERSION
   - cd ..
   #jacoco append to report
   - mvn jacoco:report
   - cd scripts/iota_cache/
-  - python iota_cache_test.py  
+  - python iota_cache_test.py
 
 after_success:
   #codacy-coverage send report. Uses Travis Env variable (CODACY_PROJECT_TOKEN)

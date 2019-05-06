@@ -3,15 +3,18 @@ package com.iota.iri.storage;
 import com.iota.iri.conf.BaseIotaConfig;
 import com.iota.iri.model.Hash;
 import com.iota.iri.storage.localinmemorygraph.LocalInMemoryGraphProvider;
+import com.iota.iri.model.StateDiff;
+import com.iota.iri.model.persistables.*;
 import com.iota.iri.utils.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.List;
 import java.util.Set;
+
 
 /**
  * Created by paul on 3/3/17 for iri.
@@ -19,18 +22,23 @@ import java.util.Set;
 public class Tangle {
     private static final Logger log = LoggerFactory.getLogger(Tangle.class);
 
-    // TODO: make 'txnCount' persistable.
-    private static AtomicLong txnCount = new AtomicLong(0);;
+    public static final Map<String, Class<? extends Persistable>> COLUMN_FAMILIES =
+            new LinkedHashMap<String, Class<? extends Persistable>>() {{
+                put("transaction", Transaction.class);
+                put("milestone", Milestone.class);
+                put("stateDiff", StateDiff.class);
+                put("address", Address.class);
+                put("approvee", Approvee.class);
+                put("bundle", Bundle.class);
+                put("obsoleteTag", ObsoleteTag.class);
+                put("tag", Tag.class);
+            }};
 
-    public void addTxnCount(long count) {
-        txnCount.addAndGet(count);
-    }
-
-    public long getTxnCount() {
-        return txnCount.get();
-    }
+    public static final Map.Entry<String, Class<? extends Persistable>> METADATA_COLUMN_FAMILY =
+            new AbstractMap.SimpleImmutableEntry<>("transaction-metadata", Transaction.class);
 
     private final List<PersistenceProvider> persistenceProviders = new ArrayList<>();
+
 
     public void addPersistenceProvider(PersistenceProvider provider) {
         this.persistenceProviders.add(provider);
@@ -235,8 +243,8 @@ public class Tangle {
     }
 
     public Hash getMaxScoreHashOnLevel(int depth){
-        for(PersistenceProvider provider : persistenceProviders){
-            if (provider instanceof  LocalInMemoryGraphProvider){
+        for(PersistenceProvider provider : persistenceProviders) {
+            if (provider instanceof  LocalInMemoryGraphProvider) {
                 return provider.getPivotalHash(depth);
             }
         }
@@ -277,6 +285,33 @@ public class Tangle {
         }
         return -1;
     }
+
+    public Set<Hash> getChild(Hash block) {
+        for(PersistenceProvider provider : persistenceProviders){
+            if (provider instanceof  LocalInMemoryGraphProvider){
+                return provider.getChild(block);
+            }
+        }
+        return null;
+    }
+
+    public Boolean contains(Hash block) {
+        for(PersistenceProvider provider : persistenceProviders){
+            if (provider instanceof  LocalInMemoryGraphProvider){
+                return ((LocalInMemoryGraphProvider)provider).containsKeyInGraph(block);
+            }
+        }
+        return false;
+    }
+
+    public Double getScore(Hash block) {
+        for(PersistenceProvider provider : persistenceProviders){
+            if (provider instanceof  LocalInMemoryGraphProvider){
+                return ((LocalInMemoryGraphProvider)provider).getScore(block);
+            }
+        }
+        return 0.0;
+    }
     /*
     public boolean merge(Persistable model, Indexable index) throws Exception {
         boolean exists = false;
@@ -290,4 +325,26 @@ public class Tangle {
         return exists;
     }
     */
+
+    public void addTxnCount(long count) {
+        for (PersistenceProvider provider : this.persistenceProviders) {
+            provider.addTxnCount(count);
+        }
+    }
+
+    public long getTxnCount() {
+        long count = -1;
+        for (PersistenceProvider provider : this.persistenceProviders) {
+            try {
+                if ((count = provider.getTotalTxns()) != 0) {
+                    break;
+                }
+            } catch (Exception e) {
+
+                e.printStackTrace();
+                count = 0;
+            }
+        }
+        return count;
+    }
 }

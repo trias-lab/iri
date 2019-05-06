@@ -74,14 +74,60 @@ def findTransactions(url, tags):
 def getTransactionsToApprove(url):
     cmd = {
         "command": "getTransactionsToApprove",
-        "depth" : 10 
+        "depth" : 10
     }
     return API(cmd, url)
 
-def storeMessage(url, address, message):
+def storeMessage(url, address, message, tag):
     cmd = {
         "command": "storeMessage",
         "address": address,
-        "message": message
+        "message": message,
+        "tag": tag
     }
     return API(cmd, url)
+
+def getBalance(url, address, coin_type, account):
+    cmd = {
+        "command": "getBalances",
+        "address": address,
+        "cointype": coin_type,
+        "account": account
+    }
+    return API(cmd, url)
+
+def addNeighbors(url,uris):
+    cmd = {
+        "command": "addNeighbors",
+        "uris":uris
+    }
+    return API(cmd,url)
+
+def getBlockContent(url,hashes):
+    cmd = {
+        "command": "getBlockContent",
+        "hashes":hashes
+    }
+    return API(cmd,url)
+
+def getDAG(url,dag_type):
+    cmd = {
+        "command": "getDAG",
+        "type":dag_type
+    }
+    return API(cmd,url)
+
+def getUTXO(url,dag_type):
+    cmd = {
+        "command": "getUTXO",
+        "type":dag_type
+    }
+    return API(cmd,url)
+
+
+
+def getTotalOrder(url):
+    cmd = {
+        "command": "getTotalOrder"
+    }
+    return API(cmd,url)

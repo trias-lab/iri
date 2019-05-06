@@ -21,6 +21,13 @@ import com.iota.iri.pluggables.utxo.*;
 import com.iota.iri.hash.Sponge;
 import com.iota.iri.hash.SpongeFactory;
 
+import com.iota.iri.model.TransactionHash;
+import com.iota.iri.model.Hash;
+
+import com.google.gson.Gson;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 public class IotaIOUtils extends IOUtils {
 
     private static final Logger log = LoggerFactory.getLogger(IotaIOUtils.class);
@@ -76,11 +83,11 @@ public class IotaIOUtils extends IOUtils {
                     return null;
                 }
 
-                TransactionData.getInstance().readFromStr(txnObj.toString());
-                Transaction tx = TransactionData.getInstance().getLast();
-                tmpBatch.addTxn(tx);
+                List<Txn> list = TransactionData.getInstance().readFromStr(txnObj.toString());
+                tmpBatch.addTxn(list.get(0));
                 String s = StringUtils.rightPad(tmpBatch.getTryteString(tmpBatch), size, '9');
                 ret.append(s);
+                TransactionData.getInstance().addTxn(list.get(0));
             }else if (json instanceof JSONArray) {
                 JSONArray jsonArray = (JSONArray) json;
                 if (jsonArray.length() != txnCount) {
@@ -89,18 +96,21 @@ public class IotaIOUtils extends IOUtils {
                 }
 
                 for (Object object : jsonArray) {
-                    TransactionData.getInstance().readFromStr(object.toString());
-                    Transaction tx = TransactionData.getInstance().getLast();
+                    List<Txn> list =  TransactionData.getInstance().readFromStr(object.toString());
+                    Txn tx = list.get(0);
                     if (tmpBatch.getTryteStringLen(tmpBatch) + tx.getTryteStringLen(tx) > size) {
                         String s = StringUtils.rightPad(tmpBatch.getTryteString(tmpBatch), size, '9');
                         ret.append(s);
+                        TransactionData.getInstance().createTmpStorageForBlock(tmpBatch);
                         tmpBatch.clear();
                     }
                     tmpBatch.addTxn(tx);
+                    TransactionData.getInstance().addTxn(tx);
                 }
                 if(tmpBatch.tx_num > 0) {
                     String s = StringUtils.rightPad(tmpBatch.getTryteString(tmpBatch), size, '9');
                     ret.append(s);
+                    TransactionData.getInstance().createTmpStorageForBlock(tmpBatch);
                     tmpBatch.clear();
                 }
             } else {
@@ -112,6 +122,68 @@ public class IotaIOUtils extends IOUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public static byte [] processTxnTrytes(byte [] trits) {
+        byte [] ret = trits;
+        TransactionViewModel model = new TransactionViewModel(trits, 
+            TransactionHash.calculate(trits, TransactionViewModel.TRINARY_SIZE, SpongeFactory.create(SpongeFactory.Mode.CURLP81)));
+        // check tag, if it's dag UTXO transaction, do accoridng process
+        try {
+            Hash tag = model.getTagValue();
+            String tagStr = Converter.trytesToAscii(Converter.trytes(tag.trits()));
+            String type = tagStr.substring(8, 10);
+            if(type.equals("TX") && !BaseIotaConfig.getInstance().isEnableIPFSTxns()) {
+                String sig = Converter.trytes(model.getSignature());
+                String txnsStr = Converter.trytesToAscii(sig);
+                if(!txnsStr.contains("inputs") && !txnsStr.contains("outputs")) { // check if already been processed
+                    BatchTxns tmpBatch = new BatchTxns();
+                    int sigSize = TransactionViewModel.SIGNATURE_MESSAGE_FRAGMENT_TRINARY_OFFSET/3;
+                    JSONObject jo = new JSONObject(txnsStr);
+                    txnsStr = jo.get("txn_content").toString();
+                    List<Txn> tx = TransactionData.getInstance().readFromStr(txnsStr);
+                    tmpBatch.addTxn(tx.get(0));
+
+                    String s = StringUtils.rightPad(tmpBatch.getTryteString(tmpBatch), sigSize, '9');
+                    byte[] sigTrits = new byte[TransactionViewModel.SIGNATURE_MESSAGE_FRAGMENT_TRINARY_SIZE];
+                    Converter.trits(s, sigTrits, 0);
+                    System.arraycopy(sigTrits, 0, ret, TransactionViewModel.SIGNATURE_MESSAGE_FRAGMENT_TRINARY_OFFSET, TransactionViewModel.SIGNATURE_MESSAGE_FRAGMENT_TRINARY_SIZE);
+                }
+            }
+            return ret;
+        } catch(IllegalArgumentException e) {
+            return ret;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ret;
+        }
+    }
+
+    public static void processReceivedTxn(TransactionViewModel model) {
+        try {
+            Hash tag = model.getTagValue();
+            String tagStr = Converter.trytesToAscii(Converter.trytes(tag.trits()));
+            String type = tagStr.substring(8, 10);
+            if(type.equals("TX") && !BaseIotaConfig.getInstance().isEnableIPFSTxns()) {
+                byte[] sigTrits = model.getSignature();
+                String sigTrytes = Converter.trytes(sigTrits);
+                String txnInfo = Converter.trytesToAscii(sigTrytes);
+                Pattern pattern = Pattern.compile("\\{.*\\}");
+                Matcher matcher = pattern.matcher(txnInfo);
+                if (matcher.find()) {
+                    String info = matcher.group(0);
+                    BatchTxns tx = new Gson().fromJson(info, BatchTxns.class);
+                    for(Txn txn : tx.txn_content) {
+                        TransactionData.getInstance().addTxn(txn);
+                        TransactionData.getInstance().putIndex(txn, model.getHash());
+                    }
+                }
+            }
+        } catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch(Exception e) {
+            e.printStackTrace();
         }
     }
 }

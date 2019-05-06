@@ -54,6 +54,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
     //Node
     protected boolean wasmSupport = Defaults.WASM_SUPPORT;
     protected boolean streamingGraphSupport = Defaults.STREAMING_GRAPH_SUPPORT;
+    protected long numBlocksPerPeriod = Defaults.NUM_BLOCKS_PER_PERIOD;
 
     //DB
     protected String dbPath = Defaults.DB_PATH;
@@ -90,6 +91,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
     private String weightCalAlgo = Defaults.WEIGHT_CAL_ALGO;
     private String entryPointSelAlgo = Defaults.ENTRY_POINT_CAL_ALGO;
     private String tipSelectorAlgo = Defaults.TIP_SELECTOR_ALGO;
+    private String confluxScoreAlgo = Defaults.CONFLUX_SCORE_ALGO;
     private String walkValidator = Defaults.WALK_VALIDATOR;
     private String ledgerValidator = Defaults.LEDGER_VALIDATOR;
 
@@ -773,6 +775,17 @@ public abstract class BaseIotaConfig implements IotaConfig {
     }
 
     @Override
+    public long getNumBlocksPerPeriod() {
+        return numBlocksPerPeriod;
+    }
+
+    @JsonProperty("PERIOD_SIZE")
+    @Parameter(names = "--num-blocks-per-period", description = NodeConfig.Descriptions.PERIOD_SIZE)
+    public void setNumBlocksPerPeriod(Long numBlocksPerPeriod) {
+        this.numBlocksPerPeriod = numBlocksPerPeriod;
+    }
+
+    @Override
     public double getAlpha() {
         return alpha;
     }
@@ -819,6 +832,17 @@ public abstract class BaseIotaConfig implements IotaConfig {
     @Override
     public String getTipSelector() {
         return tipSelectorAlgo;
+    }
+
+    @JsonProperty
+    @Parameter(names = "--conflux-score-algo", description = TipSelConfig.Descriptions.CONFLUX_SCORE_ALGO)
+    public void setConfluxScoreAlgo(String confluxScoreAlgo) {
+        this.confluxScoreAlgo = confluxScoreAlgo;
+    }
+
+    @Override
+    public String getConfluxScoreAlgo() {
+        return confluxScoreAlgo;
     }
 
     @JsonProperty
@@ -887,6 +911,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
         // Node
         boolean WASM_SUPPORT = false;
         boolean STREAMING_GRAPH_SUPPORT = false;
+        long NUM_BLOCKS_PER_PERIOD = 100;
 
         //DB
         String DB_PATH = "mainnetdb";
@@ -927,6 +952,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
         String WEIGHT_CAL_ALGO = "CUM_WEIGHT";
         String ENTRY_POINT_CAL_ALGO = "DEFAULT";
         String TIP_SELECTOR_ALGO = "MCMC";
+        String CONFLUX_SCORE_ALGO = "CUM_WEIGHT";
         String WALK_VALIDATOR = "DEFAULT";
         String LEDGER_VALIDATOR = "DEFAULT";
 

@@ -1,9 +1,10 @@
+from __future__ import print_function
 import sys
 sys.path.append("..")
 import time
 from iota import Iota, Address, ProposedTransaction, Tag, Transaction, TryteString, TransactionTrytes, ProposedBundle, Nonce, BundleHash,TransactionHash, Fragment
 from six import binary_type, moves as compat, text_type
-from iota_api.api import attachToTangle, storeMessage
+from iota_api.api import attachToTangle, storeMessage, getBalance, addNeighbors, getBlockContent, getDAG, getUTXO, getTotalOrder
 
 class IotaCache(object):
 
@@ -17,7 +18,7 @@ class IotaCache(object):
         else:
             self.seed = seed
         self.api = Iota(self.uri, self.seed, testnet=True)
-        self.mwm = 1 
+        self.mwm = 1
         self.depth = 15
 
     def cache_txn_in_tangle_sdk(self, ipfs_addr, tag):
@@ -52,9 +53,14 @@ class IotaCache(object):
         res = self.api.broadcast_and_store(attach_trytes[u'trytes'])
         return res
 
-    def cache_txn_in_tangle_message(self, data):
+    def cache_txn_in_tangle_message(self, data, tag):
         address = "JVSVAFSXWHUIZPFDLORNDMASGNXWFGZFMXGLCJQGFWFEZWWOA9KYSPHCLZHFBCOHMNCCBAGNACPIGHVYX"
-        res = storeMessage(self.uri, address, data)
+        res = storeMessage(self.uri, address, data, tag)
+        return res
+
+    def get_balance(self, coin_type, account):
+        address = "JVSVAFSXWHUIZPFDLORNDMASGNXWFGZFMXGLCJQGFWFEZWWOA9KYSPHCLZHFBCOHMNCCBAGNACPIGHVYX"
+        res = getBalance(self.uri, address, coin_type, account)
         return res
 
     def get_approved_txns(self, tag):
@@ -99,3 +105,22 @@ class IotaCache(object):
         result = self.cache_txn_in_tangle_sdk(ipfs_addr, tag+b"CONSUMED")
         return result
 
+    def add_neighbors(self, uris):
+        res = addNeighbors(self.uri, uris)
+        return res
+
+    def get_block_content(self, hashes):
+        res = getBlockContent(self.uri, hashes)
+        return res
+
+    def get_dag(self, dag_type):
+        res = getDAG(self.uri, dag_type)
+        return res
+
+    def get_utxo(self, dag_type):
+        res = getUTXO(self.uri, dag_type)
+        return res
+
+    def get_total_order(self):
+        res = getTotalOrder(self.uri)
+        return res

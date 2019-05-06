@@ -11,12 +11,15 @@ import com.iota.iri.model.persistables.Bundle;
 import com.iota.iri.model.persistables.ObsoleteTag;
 import com.iota.iri.model.persistables.Tag;
 import com.iota.iri.model.persistables.Transaction;
+import com.iota.iri.pluggables.utxo.TransactionData;
 import com.iota.iri.storage.Indexable;
 import com.iota.iri.storage.Persistable;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.utils.Pair;
 import org.apache.commons.lang3.StringUtils;
+import com.iota.iri.pluggables.utxo.BatchTxns;
+import com.iota.iri.pluggables.utxo.Txn;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -337,6 +340,10 @@ public class TransactionViewModel {
 
     public long getCurrentIndex() {
         return transaction.currentIndex;
+    }
+
+    public long getLastIndex() {
+        return transaction.lastIndex;
     }
 
     public byte[] getSignature() {

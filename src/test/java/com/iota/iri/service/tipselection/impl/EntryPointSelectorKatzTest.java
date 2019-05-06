@@ -14,7 +14,6 @@ import com.iota.iri.storage.localinmemorygraph.LocalInMemoryGraphProvider;
 import com.iota.iri.model.Hash;
 import com.iota.iri.storage.rocksDB.RocksDBPersistenceProvider;
 import com.iota.iri.utils.collections.interfaces.UnIterableMap;
-import com.sun.tools.internal.ws.processor.model.jaxb.JAXBModel;
 import com.iota.iri.model.persistables.Transaction;
 import com.iota.iri.model.persistables.Bundle;
 import org.junit.AfterClass;
@@ -41,6 +40,8 @@ public class EntryPointSelectorKatzTest {
     private static Tangle tangle2;
     private static EntryPointSelectorKatz selector1;
     private static EntryPointSelectorKatz selector2;
+    private static LocalInMemoryGraphProvider provider1;
+    private static LocalInMemoryGraphProvider provider2;
 
     @AfterClass
     public static void tearDown() throws Exception {
@@ -60,13 +61,16 @@ public class EntryPointSelectorKatzTest {
         dbFolder1.create();
         logFolder1.create();
         tangle1.addPersistenceProvider(new RocksDBPersistenceProvider(dbFolder.getRoot().getAbsolutePath(), logFolder
-                    .getRoot().getAbsolutePath(), 1000));
-        tangle1.addPersistenceProvider(new LocalInMemoryGraphProvider("", tangle1));
+                    .getRoot().getAbsolutePath(), 1000, Tangle.COLUMN_FAMILIES, Tangle.METADATA_COLUMN_FAMILY));
+        provider1 = new LocalInMemoryGraphProvider("", tangle1);
+        tangle1.addPersistenceProvider(provider1);
         tangle1.init();
         tangle2.addPersistenceProvider(new RocksDBPersistenceProvider(dbFolder1.getRoot().getAbsolutePath(), logFolder1
-                    .getRoot().getAbsolutePath(), 1000));
-        tangle2.addPersistenceProvider(new LocalInMemoryGraphProvider("", tangle2));
+                    .getRoot().getAbsolutePath(), 1000, Tangle.COLUMN_FAMILIES, Tangle.METADATA_COLUMN_FAMILY));
+        provider2 = new LocalInMemoryGraphProvider("", tangle2);
+        tangle2.addPersistenceProvider(provider2);
         tangle2.init();
+        BaseIotaConfig.getInstance().setConfluxScoreAlgo("KATZ");
     }
 
     @Test
@@ -97,7 +101,7 @@ public class EntryPointSelectorKatzTest {
         tag.put(F.getHash(), "F");
         tag.put(G.getHash(), "G");
         tag.put(H.getHash(), "H");
-        LocalInMemoryGraphProvider.setNameMap(tag);
+        provider1.setNameMap(tag);
 
         A.store(tangle1);
         B.store(tangle1);
@@ -114,22 +118,21 @@ public class EntryPointSelectorKatzTest {
         Hash ret = selector1.getEntryPoint(-1);
         Assert.assertEquals(tag.get(A.getHash()),tag.get(ret));
         ret = selector1.getEntryPoint(2);
-        Assert.assertEquals(tag.get(D.getHash()),tag.get(ret));
-        ret = selector1.getEntryPoint(3);
         Assert.assertEquals(tag.get(B.getHash()),tag.get(ret));
+        ret = selector1.getEntryPoint(3);
+        Assert.assertEquals(tag.get(A.getHash()),tag.get(ret));
 
         // Compute with streaming graph
         BaseIotaConfig.getInstance().setStreamingGraphSupport(true);
         ret = selector1.getEntryPoint(-1);
         Assert.assertEquals(tag.get(A.getHash()),tag.get(ret));
         ret = selector1.getEntryPoint(2);
-        Assert.assertEquals(tag.get(D.getHash()),tag.get(ret));
-        ret = selector1.getEntryPoint(3);
         Assert.assertEquals(tag.get(B.getHash()),tag.get(ret));
+        ret = selector1.getEntryPoint(3);
+        Assert.assertEquals(tag.get(A.getHash()),tag.get(ret));
 
         // reset in memory graph
-        LocalInMemoryGraphProvider provider = new LocalInMemoryGraphProvider("", tangle1);
-        provider.close();
+        provider1.close();
     }
 
     @Test
@@ -251,25 +254,24 @@ public class EntryPointSelectorKatzTest {
         // Compute without streaming graph
         BaseIotaConfig.getInstance().setStreamingGraphSupport(false);
         selector2 = new EntryPointSelectorKatz(tangle2, tag);
-        Hash ret = selector2.getEntryPoint(-1);     
+        Hash ret = selector2.getEntryPoint(-1);
         Assert.assertEquals(tag.get(A.getHash()),tag.get(ret));
         ret = selector2.getEntryPoint(3);
-        Assert.assertEquals(tag.get(M.getHash()),tag.get(ret));
+        Assert.assertEquals(tag.get(I.getHash()),tag.get(ret));
         ret = selector2.getEntryPoint(4);
-        Assert.assertEquals(tag.get(J.getHash()),tag.get(ret));
+        Assert.assertEquals(tag.get(G.getHash()),tag.get(ret));
 
         // Compute with streaming graph
-        LocalInMemoryGraphProvider.setNameMap(tag);
+        provider2.setNameMap(tag);
         BaseIotaConfig.getInstance().setStreamingGraphSupport(true);
-        ret = selector2.getEntryPoint(-1);     
+        ret = selector2.getEntryPoint(-1);
         Assert.assertEquals(tag.get(A.getHash()),tag.get(ret));
         ret = selector2.getEntryPoint(3);
-        Assert.assertEquals(tag.get(M.getHash()),tag.get(ret));
+        Assert.assertEquals(tag.get(I.getHash()),tag.get(ret));
         ret = selector2.getEntryPoint(4);
-        Assert.assertEquals(tag.get(J.getHash()),tag.get(ret));
+        Assert.assertEquals(tag.get(G.getHash()),tag.get(ret));
 
         // reset in memory graph
-        LocalInMemoryGraphProvider provider = new LocalInMemoryGraphProvider("", tangle2);
-        provider.close();
+        provider2.close();
     }
 }

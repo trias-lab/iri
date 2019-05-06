@@ -220,12 +220,6 @@
             <version>1.2.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.28</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.json/json -->
         <dependency>
             <groupId>org.json</groupId>
@@ -432,6 +426,7 @@
                         <exclude>integration/*.java</exclude>
                         <exclude>benchmarks/**/*</exclude>
                     </excludes>
+                    <argLine>-XX:-OmitStackTraceInFastThrow -Xms1024m -Xmx2048m @{argLine}</argLine>
                 </configuration>
                 <executions>
                     <execution>

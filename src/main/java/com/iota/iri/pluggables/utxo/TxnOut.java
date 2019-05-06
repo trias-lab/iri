@@ -1,6 +1,6 @@
 package com.iota.iri.pluggables.utxo;
 
-public class TransactionOut {
+public class TxnOut {
     long amount;
     String userAccount;
 
@@ -10,5 +10,9 @@ public class TransactionOut {
 
     public String getUserAccount() {
         return userAccount;
+    }
+
+    public String toString() {
+        return "account: " + userAccount + ", amount: " + amount;
     }
 }
