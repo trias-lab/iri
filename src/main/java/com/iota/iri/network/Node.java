@@ -475,8 +475,8 @@ public class Node {
                     recentSeenBytes.put(digest, receivedTransactionHash);
                 }
 
-                if(checkIfBundle(receivedTransactionViewModel)) {
-                    if(addBundleAndCheckIfReady(receivedTransactionViewModel, neighbor)) {
+                if (checkIfBundle(receivedTransactionViewModel)) {
+                    if (addBundleAndCheckIfReady(receivedTransactionViewModel, neighbor)) {
                         persistBundle(receivedTransactionViewModel.getBundleHash());
                     }
                 } else {
@@ -808,9 +808,9 @@ public class Node {
                             System.arraycopy(pair.getKey().bytes(), 0, sendingReqHash.getData(), requestFlag.length(), reqHashSize);
 
                             if (pair.getValue() != null) {
-                                pair.getValue().send(tipRequestingPacket);
+                                pair.getValue().send(sendingReqHash);
                             } else {
-                                neighbors.forEach(n -> n.send(tipRequestingPacket));
+                                neighbors.forEach(n -> n.send(sendingReqHash));
                             }
                         } else {
                             final TransactionViewModel transactionViewModel = TransactionViewModel.fromHash(tangle, pair.getKey());
