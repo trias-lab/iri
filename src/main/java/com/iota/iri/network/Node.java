@@ -395,7 +395,7 @@ public class Node {
         }
     }
 
-    private Hash proProcessReceivedTransaction(byte[] receivedData, SocketAddress senderAddress, Neighbor neighbor) {
+    private Hash preProcessReceivedTransaction(byte[] receivedData, Neighbor neighbor) throws RuntimeException {
         TransactionViewModel receivedTransactionViewModel = null;
         Hash receivedTransactionHash = null;
         boolean cached = false;
@@ -444,11 +444,11 @@ public class Node {
             log.error(e.getMessage());
             log.error("Received an Invalid TransactionViewModel. Dropping it...");
             neighbor.incInvalidTransactions();
-            receivedTransactionHash = null;
+            throw e;
         }
 
         //recentSeenBytes statistics
-        if (receivedTransactionHash != null && log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             printStatistics(cached);
         }
 
@@ -471,8 +471,9 @@ public class Node {
                     break;
                 }
 
-                receivedTransactionHash = proProcessReceivedTransaction(receivedData, senderAddress, neighbor);
-                if (receivedTransactionHash == null) {
+                try {
+                    receivedTransactionHash = preProcessReceivedTransaction(receivedData, neighbor);
+                } catch (RuntimeException e) {
                     break;
                 }
 
