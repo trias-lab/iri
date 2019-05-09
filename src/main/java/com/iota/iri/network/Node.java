@@ -448,7 +448,7 @@ public class Node {
         }
 
         //recentSeenBytes statistics
-        if (log.isDebugEnabled()) {
+        if (receivedTransactionHash != null && log.isDebugEnabled()) {
             printStatistics(cached);
         }
 
