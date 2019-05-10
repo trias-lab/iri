@@ -274,8 +274,8 @@ public class TransactionValidator {
             boolean solid = true;
 
             Hash genesis = ((LocalInMemoryGraphProvider)tangle.getPersistenceProvider("LOCAL_GRAPH")).getGenesis();
-            if (transactionViewModel.getHash() == genesis) {
-                log.info("Genesis needn't to check trunk and branch hash.");
+            if (transactionViewModel.getHash().equals(genesis)) {
+                log.debug("Genesis needn't to check trunk and branch hash.");
             } else {
                 if (!checkApproovee(transactionViewModel.getTrunkTransaction(tangle))) {
                     solid = false;
