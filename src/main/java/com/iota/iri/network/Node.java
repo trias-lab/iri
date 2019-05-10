@@ -859,7 +859,9 @@ public class Node {
                     processReceivedDataFromQueue();
                     if(count++==500) {
                         checkPersist();
-                        checkAlreadyPersisted();
+                        if (optimizeNetworkEnabled) {
+                            checkAlreadyPersisted();
+                        }
                         count = 0;
                     }
                     Thread.sleep(1);
