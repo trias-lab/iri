@@ -26,7 +26,7 @@ def cluster_deploy():
         log_file = "cluster_deploy.log"
         shcmd('run_experiment.sh', topology, image_tag, enableflag,_out=log_file,_bg=False)
         return 'sucess'
-    except Exception as e:
+    except Exception:
         return 'error'
 
 @app.route('/stress_experiment', methods=['POST'])
@@ -47,7 +47,7 @@ def stress_experiment():
         try:
             shcmd('run.sh',image_tag)
             return 'sucess'
-        except:
+        except Exception:
             return 'false'
     else:
         try:
@@ -55,7 +55,7 @@ def stress_experiment():
             file_log = "stress_test.log"
             shcmd('run_stress_test.sh',topology,image_tag,exp_data,_out=file_log,_bg=True)
 	    return 'sucess'
-        except:
+        except Exception:
             return 'false'
 
 
