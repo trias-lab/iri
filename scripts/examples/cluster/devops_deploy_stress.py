@@ -47,17 +47,15 @@ def stress_experiment():
         try:
             shcmd('run.sh',image_tag)
             return 'sucess'
-        except Exception as e:
-	    print(e)
+        except:
             return 'false'
     else:
         try:
 	    print("stress test begin")
-            file_log = "stress_test.log"       
+            file_log = "stress_test.log"
             shcmd('run_stress_test.sh',topology,image_tag,exp_data,_out=file_log,_bg=True)
 	    return 'sucess'
-        except Exception as e:
-	    print(e)
+        except:
             return 'false'
 
 
