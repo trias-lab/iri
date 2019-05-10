@@ -552,8 +552,81 @@ public class Node {
         }
     }
 
-    public void preProcessReceivedOptimizedData(byte[] receivedData, SocketAddress senderAddress, String uriScheme) {
+    private void preProcessReceivedBroadcastHash(byte[] receivedData, Neighbor neighbor) {
+        boolean cached = false;
 
+        Hash hash = HashFactory.TRANSACTION.create(receivedData, broadcastFlag.length(), reqHashSize);
+
+        //check if cached
+        synchronized (recentSeenBytes) {
+            cached = recentSeenBytes.containValue(hash);
+        }
+
+        if (cached) {
+            log.info("Received broadcast hash {}, have seen.", hash);
+        } else if(((LocalInMemoryGraphProvider)tangle.getPersistenceProvider("LOCAL_GRAPH")).hasBlock(hash)) {
+            log.info("Received broadcast hash {}, found in db", hash);
+            /*
+            // add it to the 'recentSeenBytes'???
+            try {
+                transactionViewModel = TransactionViewModel.fromHash(tangle, HashFactory.TRANSACTION.create(hash.bytes(), 0, reqHashSize));
+                ByteBuffer digest = getBytesDigest(transactionViewModel.getBytes());
+                recentSeenBytes.put(digest, hash);
+            } catch (Exception e) {
+                log.error("Error add transaction to recentSeenBytes.", e);
+            }*/
+
+        } else {
+            log.info("Received unkown broadcast hash {}, request", hash);
+            try {
+                transactionRequester.requestTransaction(hash, neighbor, false);
+            } catch (Exception e) {
+                log.error("Error adding transaction to request.", e);
+            }
+        }
+    }
+
+    private void preProcessReceivedRequestHash(byte[] receivedData, Neighbor neighbor) {
+
+        //Request bytes
+        Hash requestedHash = HashFactory.TRANSACTION.create(receivedData, requestFlag.length(), reqHashSize);
+
+        log.info("received request hash {} from {}", requestedHash, neighbor == null?null:neighbor.getAddress());
+
+        //add request to reply queue (requestedHash, neighbor)
+        addReceivedDataToReplyQueue(requestedHash, neighbor);
+    }
+
+    public void preProcessReceivedOptimizedData(byte[] receivedData, SocketAddress senderAddress, String uriScheme) {
+        log.info("Received data length = {}", receivedData.length);
+        boolean addressMatch = false;
+        boolean cached = false;
+
+        for (final Neighbor neighbor : getNeighbors()) {
+            addressMatch = neighbor.matches(senderAddress);
+            if (addressMatch) {
+                //Validate transaction
+                neighbor.incAllTransactions();
+
+                if (receivedData.length == transactionSize) {
+                    try {
+                        preProcessReceivedTransaction(receivedData, neighbor);
+                    } catch (RuntimeException e) {
+                        break;
+                    }
+                } else if (receivedData.length == broadcastHashSize) {
+                    preProcessReceivedBroadcastHash(receivedData, neighbor);
+                } else if (receivedData.length == requestHashSize) {
+                    preProcessReceivedRequestHash(receivedData, neighbor);
+                }
+
+                break;
+            }
+        }
+
+        if (!addressMatch && configuration.isTestnet()) {
+            addNeighborFromReceivedData(senderAddress, uriScheme);
+        }
     }
 
     public void addReceivedDataToReceiveQueue(TransactionViewModel receivedTransactionViewModel, Neighbor neighbor) {
