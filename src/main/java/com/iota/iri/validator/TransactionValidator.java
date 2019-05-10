@@ -273,7 +273,11 @@ public class TransactionValidator {
         if(!transactionViewModel.isSolid()) {
             boolean solid = true;
 
-            Hash genesis = ((LocalInMemoryGraphProvider)tangle.getPersistenceProvider("LOCAL_GRAPH")).getGenesis();
+            Hash genesis = null;
+            LocalInMemoryGraphProvider provider = (LocalInMemoryGraphProvider)tangle.getPersistenceProvider("LOCAL_GRAPH");
+            if (provider != null) {
+                genesis = provider.getGenesis();
+            }
             if (transactionViewModel.getHash().equals(genesis)) {
                 log.debug("Genesis needn't to check trunk and branch hash.");
             } else {
