@@ -48,16 +48,18 @@ def stress_experiment():
             shcmd('run.sh',image_tag)
             return 'sucess'
         except Exception as e:
+	    print(e)
             return 'false'
     else:
         try:
 	    print("stress test begin")
-            file_log = "stress_test.log"            
+            file_log = "stress_test.log"       
             shcmd('run_stress_test.sh',topology,image_tag,exp_data,_out=file_log,_bg=True)
 	    return 'sucess'
         except Exception as e:
+	    print(e)
             return 'false'
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='127.0.0.1', port=8080)
