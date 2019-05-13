@@ -563,9 +563,9 @@ public class Node {
         }
 
         if (cached) {
-            log.info("Received broadcast hash {}, have seen.", hash);
+            log.debug("Received broadcast hash {}, have seen.", hash);
         } else if(((LocalInMemoryGraphProvider)tangle.getPersistenceProvider("LOCAL_GRAPH")).hasBlock(hash)) {
-            log.info("Received broadcast hash {}, found in db", hash);
+            log.debug("Received broadcast hash {}, found in db", hash);
             /*
             // add it to the 'recentSeenBytes'???
             try {
@@ -577,7 +577,7 @@ public class Node {
             }*/
 
         } else {
-            log.info("Received unkown broadcast hash {}, request", hash);
+            log.debug("Received unkown broadcast hash {}, request", hash);
             try {
                 transactionRequester.requestTransaction(hash, neighbor, false);
             } catch (Exception e) {
@@ -591,14 +591,13 @@ public class Node {
         //Request bytes
         Hash requestedHash = HashFactory.TRANSACTION.create(receivedData, requestFlag.length(), reqHashSize);
 
-        log.info("received request hash {} from {}", requestedHash, neighbor == null?null:neighbor.getAddress());
+        log.debug("received request hash {} from {}", requestedHash, neighbor == null?null:neighbor.getAddress());
 
         //add request to reply queue (requestedHash, neighbor)
         addReceivedDataToReplyQueue(requestedHash, neighbor);
     }
 
     public void preProcessReceivedOptimizedData(byte[] receivedData, SocketAddress senderAddress, String uriScheme) {
-        log.info("Received data length = {}", receivedData.length);
         boolean addressMatch = false;
         boolean cached = false;
 
@@ -725,7 +724,7 @@ public class Node {
                 //transactionViewModel = TransactionViewModel.find(Arrays.copyOf(requestedHash.bytes(), TransactionRequester.REQUEST_HASH_SIZE));
                 if(((LocalInMemoryGraphProvider)tangle.getPersistenceProvider("LOCAL_GRAPH")).hasBlock(requestedHash)) {
                     transactionViewModel = TransactionViewModel.fromHash(tangle, HashFactory.TRANSACTION.create(requestedHash.bytes(), 0, reqHashSize));
-                    log.info("Requested Hash: " + requestedHash + " \nFound: " + transactionViewModel.getHash());
+                    log.debug("Requested Hash: " + requestedHash + " \nFound: " + transactionViewModel.getHash());
                 }
             } catch (Exception e) {
                 log.error("Error while searching for transaction.", e);
