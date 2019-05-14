@@ -1,6 +1,6 @@
-## Portainer 部署
+## Portainer 部署  
 
-### 部署环境
+### 部署环境  
 操作系统：ubuntu 14.04.5  
 节点个数：7(1个manager,6个worker)  
 docker：18.06.1-ce  
