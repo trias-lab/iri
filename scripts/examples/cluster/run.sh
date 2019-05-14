@@ -28,7 +28,7 @@ do
         elif [ ${TOPOLOGY} != "4_clique" -a ${TOPOLOGY} != "4_circle" -a ${TOPOLOGY} != "3_clique" ];
         then
             echo "configure 7" ${TOPOLOGY} ${DATA}
-            sudo cp conf_info/nginx/aws/nginx7.conf /etc/nginx/nginx.confls -lrt
+            sudo cp conf_info/nginx/aws/nginx7.conf /etc/nginx/nginx.conf
         fi
         sudo nginx -s stop
         sleep 2
