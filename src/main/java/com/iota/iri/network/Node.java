@@ -566,16 +566,6 @@ public class Node {
             log.debug("Received broadcast hash {}, have seen.", hash);
         } else if(((LocalInMemoryGraphProvider)tangle.getPersistenceProvider("LOCAL_GRAPH")).hasBlock(hash)) {
             log.debug("Received broadcast hash {}, found in db", hash);
-            /*
-            // add it to the 'recentSeenBytes'???
-            try {
-                transactionViewModel = TransactionViewModel.fromHash(tangle, HashFactory.TRANSACTION.create(hash.bytes(), 0, reqHashSize));
-                ByteBuffer digest = getBytesDigest(transactionViewModel.getBytes());
-                recentSeenBytes.put(digest, hash);
-            } catch (Exception e) {
-                log.error("Error add transaction to recentSeenBytes.", e);
-            }*/
-
         } else {
             log.debug("Received unkown broadcast hash {}, request", hash);
             try {
@@ -797,7 +787,7 @@ public class Node {
 
         synchronized (packet) {
             if (optimizeNetworkEnabled) {
-                if (packet == sendingTransaction) {
+                if (packet.equals(sendingTransaction)) {
                     //log.info("Sending transaction {} to {}...", transactionViewModel.getHash(), neighbor.getAddress());
                     System.arraycopy(transactionViewModel.getBytes(), 0, packet.getData(), 0, TransactionViewModel.SIZE);
                     neighbor.send(packet);
