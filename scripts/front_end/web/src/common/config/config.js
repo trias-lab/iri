@@ -78,7 +78,7 @@ export default {
             }
         };
 
-        Vue.prototype.oauthResource = "http://localhost:8081/trias-resource";
+        Vue.prototype.oauthResource = "http://localhost:9081/trias-resource";
     },
-    oauthResource : "http://localhost:8081/trias-resource"
+    oauthResource : "http://localhost:9081/trias-resource"
 }

@@ -13,7 +13,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.trias.oauth.mapper.UserDetailsMapper;
 import com.trias.oauth.model.CustomUserDetails;
-import com.trias.oauth.model.LocalUser;
 import com.trias.oauth.model.vo.LocalUserRoleVO;
 import com.trias.oauth.service.TriasUserDetailsService;
 

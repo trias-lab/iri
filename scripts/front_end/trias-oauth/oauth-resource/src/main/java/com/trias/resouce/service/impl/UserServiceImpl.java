@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import com.trias.resouce.body.request.OauthLoginRequestBody;
 import com.trias.resouce.body.response.UserInfo;
 import com.trias.resouce.body.response.UserResourceResponseBody;
+import com.trias.resouce.config.LocalConfig;
 import com.trias.resouce.exception.OauthNoResposeException;
 import com.trias.resouce.mapper.UserInfoMapper;
 import com.trias.resouce.model.Resource;
@@ -56,6 +57,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private UserInfoMapper userInfoMapper;
+	
+	@Autowired
+	private LocalConfig localConfig;
 
 	@Override
 	public UserResourceResponseBody getUserResources(Authentication authentication) {
@@ -95,7 +99,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 			CloseableHttpClient closeableHttpClient = httpClientBuilder.build();
-			HttpPost httpPost = new HttpPost(OAUTH_SERVER + OAUTH_ACTION);
+			HttpPost httpPost = new HttpPost(localConfig.getOuathServerUrl() + OAUTH_ACTION);
 			httpPost.addHeader("Authorization", getHeader());
 			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 			builder.addPart("scope", new StringBody(SCOPE, ContentType.MULTIPART_FORM_DATA));
@@ -118,7 +122,6 @@ public class UserServiceImpl implements UserService {
 				e.printStackTrace();
 			}
 			closeableHttpClient.close();
-			System.out.println(result);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
