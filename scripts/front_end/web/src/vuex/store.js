@@ -22,6 +22,8 @@ const mutations = {
     },
     setUserInfo(state, userInfo) {
         let resourceList = userInfo.resourceList;
+        state.rootMap = {};
+        state.pathMap = {};
         for (let i in resourceList) {
             state.rootMap[resourceList[i]["rootName"]] = 1;
             state.pathMap[resourceList[i]["path"]] = 1;
