@@ -10,8 +10,8 @@ RSA
 ### 1.3 Hash
 
 比特币使用了 SHA256 哈希算法，而以太坊目前则使用的是 Keccak256 哈希算法。
--    SHA256 指的是 SHA2-256
--    Keccak 是 SHA3 采用的 hash 算法，之前 Keccak 和 SHA3 是同义词。在 2015.8 SHA3 最终标准化时，NIST 调整了填充算法，所以标准的 SHA3 与原先的 Keccak 算法就有区别了。Ethereum 中现在用 “Keccak256” 作为函数名，来区别于标准的 SHA3.
+-	SHA256 指的是 SHA2-256
+-	Keccak 是 SHA3 采用的 hash 算法，之前 Keccak 和 SHA3 是同义词。在 2015.8 SHA3 最终标准化时，NIST 调整了填充算法，所以标准的 SHA3 与原先的 Keccak 算法就有区别了。Ethereum 中现在用 “Keccak256” 作为函数名，来区别于标准的 SHA3.
 
 ### 1.4 签名
 椭圆曲线签名 ECDSA
