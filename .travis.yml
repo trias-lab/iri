@@ -75,6 +75,7 @@ script:
   - cp -rf ../target iri/target
   - cp -rf ../scripts iri/scripts
   #- bash run_all_stable_tests.sh $VERSION
+  - go version
   - bash 11_vue_interface_test.sh
   - cd ..
   #jacoco append to report
