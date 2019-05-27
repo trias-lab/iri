@@ -6,7 +6,7 @@
 matrix:
   include:
     - language: go
-      go: 1.11.x
+      go: 1.11.5
     - language: java
       jdk: oraclejdk8
 
