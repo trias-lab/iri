@@ -1,8 +1,14 @@
-language: java
-jdk:
-  - oraclejdk8
-  - openjdk8
-  - oraclejdk9
+#language: java
+#jdk:
+#  - oraclejdk8
+#  - openjdk8
+#  - oraclejdk9
+matrix:
+  include:
+    - language: go
+      go: 1.11.x
+    - language: java
+      jdk: oraclejdk8
 
 cache:
   apt: true
@@ -15,13 +21,6 @@ addons:
   apt:
     packages:
     - jq
-
-matrix:
-  include:
-    - language: go
-      go: 1.11 
-    - language: java
-      jdk: oraclejdk8
 
 install:
   # install python env
