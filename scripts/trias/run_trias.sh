@@ -180,11 +180,10 @@ cp /opt/core/deploy/file/Trias          /etc/init.d/ && chmod 775 /etc/init.d/Tr
 cp /opt/core/deploy/file/start-tpmd     /etc/init.d/ && chmod 775 /etc/init.d/start-tpmd
 cp /opt/core/deploy/file/BlackBoxClient /etc/init.d/ && chmod 775 /etc/init.d/BlackBoxClient
 
-# 15 Startup services
+# 15 Startup services. After inputting the three commands below, the services can startup automaticlly after reboot.
 update-rc.d BlackBoxClient defaults
 update-rc.d start-tpmd defaults
 update-rc.d Trias defaults
-# reboot
 
 # 16 Flying...
 /etc/init.d/start-tpmd     start
@@ -192,10 +191,14 @@ update-rc.d Trias defaults
 /etc/init.d/BlackBoxClient start
 
 # 17 Testing...
-curl -S "http://$IP:46657/tri_bc_tx_commit?tx=\"789\""
-## get the transaction hash
-#HASH=
-#curl -S "http://localhost:46657/tri_block_tx?hash=0x$HASH"
+# You can test the services as following..
+#
+#    curl -S "http://$IP:46657/tri_bc_tx_commit?tx=\"789\""
+#
+#    get the transaction hash from the outputs
+#    HASH=.....
+#
+#    curl -S "http://localhost:46657/tri_block_tx?hash=0x$HASH"
 
 
 
