@@ -1,7 +1,7 @@
 package main
 
 import (
-	v "./vue"
+	v "github.com/triasteam/StreamNet/scripts/front_end/server/vue"
 	"encoding/json"
 	"fmt"
 	"log"

@@ -17,8 +17,11 @@ addons:
     - jq
 
 matrix:
-  allow_failures:
-    - jdk: oraclejdk9
+  include:
+    - language: go
+      go: 1.11.10
+    - language: java
+      jdk: oraclejdk8
 
 install:
   # install python env
