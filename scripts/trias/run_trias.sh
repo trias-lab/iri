@@ -47,11 +47,9 @@ cd /opt/
 wget --quiet https://dl.google.com/go/go1.11.linux-amd64.tar.gz
 tar -C /usr/local -xzf go1.11.linux-amd64.tar.gz
 mkdir /opt/go
-echo '
-export GOPATH=/opt/go
-export GOROOT=/usr/local/go
-export PATH=$GOROOT/bin/:$PATH
-' >> /etc/profile
+echo "export GOPATH=/opt/go"          >> /etc/profile
+echo "export GOROOT=/usr/local/go"    >> /etc/profile
+echo 'export PATH=$GOROOT/bin/:$PATH' >> /etc/profile
 source /etc/profile
 
 # 4 install pip3 and modules
@@ -119,7 +117,7 @@ useradd -m -s /bin/bash ubuntu
 
 ## copy 'tendermint' and 'triascode_app'
 cp /opt/go/bin/triascode_app /usr/local/bin/ && chown ubuntu:ubuntu /usr/local/bin/triascode_app && chmod 755 /usr/local/bin/triascode_app
-cp /opt/go/bin/tendermint /usr/local/bin/ && chown ubuntu:ubuntu /usr/local/bin/tendermint && chmod 755 /usr/local/bin/tendermint
+cp /opt/go/bin/tendermint    /usr/local/bin/ && chown ubuntu:ubuntu /usr/local/bin/tendermint    && chmod 755 /usr/local/bin/tendermint
 
 mkdir -p /trias/log /trias/.ethermint/keystore /trias/.ethermint/tendermint
 chown -R ubuntu:ubuntu /trias
@@ -133,8 +131,8 @@ cp -av /opt/python/core/TCserver/worker/blackbox_agent/dist/blackbox_agent /8lab
 cp -R /opt/core/deploy/file/configure.json /8lab/conf/
 ## change ip address
 IP=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')
-sed -i -r "s/(\"SeverIP\": \")[^\"]*/\1$IP/" /8lab/conf/configure.json
-sed -i -r "s/(\"RestIP\": \")[^\"]*/\1$IP/" /8lab/conf/configure.json
+sed -i -r "s/(\"SeverIP\": \")[^\"]*/\1$IP/"      /8lab/conf/configure.json
+sed -i -r "s/(\"RestIP\": \")[^\"]*/\1$IP/"       /8lab/conf/configure.json
 sed -i -r "s/(\"TrueClientIP\": \")[^\"]*/\1$IP/" /8lab/conf/configure.json
 
 ## copy attestation
@@ -144,9 +142,9 @@ cp -R /opt/python/attestation /
 ##  'Trias' starts up 'tendermint' and 'triascode_app',
 ##  'start-tpmd' starts up tpmd and tcsd,
 ##  'BlackBoxClient' starts up 'blackbox', 'blackbox_agent' and 'attestation'.
-cp /opt/core/deploy/file/Trias /etc/init.d/Trias && chmod 775 /etc/init.d/Trias
-cp /opt/core/deploy/file/start-tpmd /etc/init.d/start-tpmd && chmod 775 /etc/init.d/start-tpmd
-cp /opt/core/deploy/file/BlackBoxClient /etc/init.d/BlackBoxClient && chmod 775 /etc/init.d/BlackBoxClient
+cp /opt/core/deploy/file/Trias          /etc/init.d/ && chmod 775 /etc/init.d/Trias
+cp /opt/core/deploy/file/start-tpmd     /etc/init.d/ && chmod 775 /etc/init.d/start-tpmd
+cp /opt/core/deploy/file/BlackBoxClient /etc/init.d/ && chmod 775 /etc/init.d/BlackBoxClient
 
 # 12 Startup services
 update-rc.d BlackBoxClient defaults
@@ -155,8 +153,8 @@ update-rc.d Trias defaults
 # reboot
 
 # 13 Flying...
-/etc/init.d/start-tpmd start
-/etc/init.d/Trias start
+/etc/init.d/start-tpmd     start
+/etc/init.d/Trias          start
 /etc/init.d/BlackBoxClient start
 
 # 14 Testing...
