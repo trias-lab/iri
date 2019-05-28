@@ -75,7 +75,7 @@ script:
   - go version
   - go env
   - which gimme
-  - gimme -f 1.11.5
+  - gimme --force-known-update 1.11.5
   - which go
   - go version
   - go env
