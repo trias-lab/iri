@@ -5,26 +5,26 @@ set -e
 # 0 check
 ## check input parameters
 if [ $# -ne 2 ]; then
-	echo "usage: ./run_trias.sh GITHUB_USER_NAME GITHUB_PASSWORD"
-	echo
-	echo "As it will clone some repositories from github."
-	exit -1
+    echo "usage: ./run_trias.sh GITHUB_USER_NAME GITHUB_PASSWORD"
+    echo
+    echo "As it will clone some repositories from github."
+    exit -1
 else
-	USER_NAME=$1
-	PASSWD=$2
+    USER_NAME=$1
+    PASSWD=$2
 fi
 
 ## check if the user is root
 if [ "$USER" != "root" ]; then
-	echo "This script should be run by root"
-	exit -1
+    echo "This script should be run by root"
+    exit -1
 fi
 
 ## check ubuntu version
 cat /etc/*release  | grep "Ubuntu 14.04.5"
 if [ $? -ne 0 ]; then
-	echo "The OS should be 'Ubuntu 14.04.5'"
-	exit -1
+    echo "The OS should be 'Ubuntu 14.04.5'"
+    exit -1
 fi
 
 # 1 download trias core
@@ -32,8 +32,18 @@ fi
 apt-get update
 apt-get install -y git
 
+## download core
 cd /opt/
 git clone https://${USER_NAME}:${PASSWD}@github.com/trias-lab/core.git --depth 1
+
+## check commit version
+cd core
+COMMIT=$(git log | head -n 1 | awk '{print $2}')
+if [ "$COMMIT" != "d408c094fc8ac4a3b2d4e01e0e6c7fc654e9f437" ]; then
+    echo "The repository 'core' has been updated yet. Please check it before you run this script"
+    exit -1
+fi
+cd ..
 
 # 2 change apt source and install some packages
 cp -av /etc/apt/sources.list /etc/apt/sources.list_backup
