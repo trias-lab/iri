@@ -1,14 +1,8 @@
-#language: java
-#jdk:
-#  - oraclejdk8
-#  - openjdk8
-#  - oraclejdk9
-matrix:
-  include:
-    - language: go
-      go: 1.11.5
-    - language: java
-      jdk: oraclejdk8
+language: java
+jdk:
+  - oraclejdk8
+  - openjdk8
+  - oraclejdk9
 
 cache:
   apt: true
@@ -21,6 +15,10 @@ addons:
   apt:
     packages:
     - jq
+
+#matrix:
+#  allow_failures:
+#    - jdk: oraclejdk9
 
 install:
   # install python env
@@ -76,6 +74,7 @@ script:
   #- bash run_all_stable_tests.sh $VERSION
   - go version
   - which gimme
+  - gimme 1.11.5
   - bash 11_vue_interface_test.sh
   - cd ..
   #jacoco append to report
