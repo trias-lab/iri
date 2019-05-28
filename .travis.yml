@@ -16,9 +16,9 @@ addons:
     packages:
     - jq
 
-#matrix:
-#  allow_failures:
-#    - jdk: oraclejdk9
+matrix:
+  allow_failures:
+    - jdk: oraclejdk9
 
 install:
   # install python env
@@ -43,6 +43,9 @@ install:
       && cd go-ipfs/
       && sudo ./install.sh
       && cd ..
+  # update go version
+    - gimme 1.11.5
+    - source ~/.gimme/envs/go1.11.5.env
 
 before_script:
   - ipfs init
@@ -71,17 +74,7 @@ script:
   - mkdir iri
   - cp -rf ../target iri/target
   - cp -rf ../scripts iri/scripts
-  #- bash run_all_stable_tests.sh $VERSION
-  - go version
-  - go env
-  - which gimme
-  - gimme 1.11.5
-  - source ~/.gimme/envs/go1.11*.env
-  - where go
-  - which go
-  - go version
-  - go env
-  - bash 11_vue_interface_test.sh
+  - bash run_all_stable_tests.sh $VERSION
   - cd ..
   #jacoco append to report
   - mvn jacoco:report
