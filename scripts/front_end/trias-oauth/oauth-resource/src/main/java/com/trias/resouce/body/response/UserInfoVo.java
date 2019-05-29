@@ -1,6 +1,6 @@
 package com.trias.resouce.body.response;
 
-public class UserInfo {
+public class UserInfoVo {
 	private String username;
 
 	public String getUsername() {
