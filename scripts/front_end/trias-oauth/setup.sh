@@ -8,7 +8,5 @@ echo 'create database and write data'
 mysql < /mysql/create_write.sql
 echo '2.create and write done....'
 sleep 3
-echo `service mysql status`
-echo `mysql docker start done`
 
 tail -f /dev/null
