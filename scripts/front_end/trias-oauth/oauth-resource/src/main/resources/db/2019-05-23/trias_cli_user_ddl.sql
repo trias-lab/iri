@@ -1,7 +1,7 @@
 CREATE TABLE `trias_cli_user` (
 `id`  int ZEROFILL NOT NULL AUTO_INCREMENT ,
 `username`  varchar(255) NOT NULL ,
-`account`  varchar(255) NOT NULL DEFAULT '' ,
+`account`  varchar(255) NULL DEFAULT '' ,
 `sex`  varchar(255) NULL ,
 `email`  varchar(255) NULL ,
 PRIMARY KEY (`id`),
