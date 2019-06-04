@@ -79,6 +79,11 @@ public class UserServiceImpl implements UserService {
 		List<Resource> resourceList = userInfoMapper.getResourceByUserRole(nameList);
 		responseBody.setResourceList(resourceList);
 		User user = userInfoMapper.getUserByName(authentication.getName());
+		if(user == null) {
+			user = new User();
+			user.setUsername(authentication.getName());
+			userInfoMapper.insertUser(user);
+		}
 		responseBody.setUserInfo(user);
 		return responseBody;
 	}
