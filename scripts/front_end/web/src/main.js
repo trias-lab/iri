@@ -42,12 +42,12 @@ router.beforeEach((to, from, next) => {
         if (to.path === '/addition') {
             next();
         } else {
-            let action = "/user/getUserInfo";
+            let url = "/trias-resource/user/getUserInfo";
             let settings = {
                 "async": false,
                 "crossDomain": true,
                 "timeout": 60000,
-                "url": localConfig.oauthResource + action,
+                "url": url,
                 "method": "GET",
                 "headers": {
                     "Authorization": "bearer " + token,

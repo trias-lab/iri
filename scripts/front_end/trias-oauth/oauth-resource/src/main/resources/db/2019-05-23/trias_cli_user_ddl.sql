@@ -13,6 +13,6 @@ DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci
 ;
 
 
-ALTER TABLE `trias_user`
+ALTER TABLE `trias_cli_user`
 ADD COLUMN `create_time`  datetime NULL AFTER `role_id`,
 ADD COLUMN `update_time`  datetime NULL AFTER `create_time`;

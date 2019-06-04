@@ -75,8 +75,8 @@
                 this.$refs.ruleForm.validate((valid) => {
                     if (valid) {
                         // let request = {username: this.ruleForm2.username, password: this.ruleForm2.password};
-                        let action = "/user/register";
-                        this.axios.post(this.oauthResource + action, this.ruleForm).then((res) => {
+                        let url = "/trias-resource/user/register";
+                        this.axios.post(url, this.ruleForm).then((res) => {
                             if (res.data["code"] === 1) {
                                 this.$alert("success", this.messageOption.success);
                                 this.$router.push("/login");

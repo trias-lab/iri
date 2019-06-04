@@ -58,8 +58,8 @@
             userRegister() {
                 this.$refs.ruleForm.validate((valid) => {
                     if (valid) {
-                        let action = "/user/addition";
-                        this.axios.post(this.oauthResource + action, this.ruleForm, {headers:{'Authorization': 'Bearer ' + Cookies.get("UserToken")}}).then((res) => {
+                        let url = "/trias-resource/user/addition";
+                        this.axios.post(url, this.ruleForm, {headers:{'Authorization': 'Bearer ' + Cookies.get("UserToken")}}).then((res) => {
                             if (res.data["code"] === 1) {
                                 this.$alert("success", this.messageOption.success);
                                 this.$router.push("/");

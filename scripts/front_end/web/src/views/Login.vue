@@ -43,9 +43,9 @@
                     if (valid) {
                         this.logining = true;
                         let request = {username: this.ruleForm2.username, password: this.ruleForm2.password};
-                        let action = "/user/oauthLogin";
+                        let url = "/trias-resource/user/oauthLogin";
                         console.log(this.messageOption.error);
-                        this.axios.post(this.oauthResource + action, request).then((res) => {
+                        this.axios.post(url, request).then((res) => {
                             if (res.data["code"] === 1) {
                                 Cookies.set("UserToken", res.data["data"]);
                                 this.$router.push("/");
