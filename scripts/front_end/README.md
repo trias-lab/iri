@@ -23,7 +23,7 @@ source trias_server-init.sql
 source trias-server_ddl.sql
 
 
-cd scripts/front_end/trias-oauth/oauth-resource/src/main/resources/db 
+cd scripts/front_end/trias-oauth/oauth-resource/src/main/resources/db/
 mysql -u trias -p trias_cli
 source trias_cli-init.sql 
 source trias_cli_user_ddl.sql
@@ -36,10 +36,10 @@ start oauth and oauth cli
 ```bash
 $TRIAS_OAUTH_CLIENT=/opt/trias/oauth/client
 mkdir -p $TRIAS_OAUTH_CLIENT
-cp scripts/front_end/trias-oauth/oauth-resource/target/oauth-resource-1.0-SNAPSHOT.jar $TRIAS_OAUTH
-cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/application.yml   $TRIAS_OAUTH
-cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/logback-spring.xml  $TRIAS_OAUTH
-cd $TRIAS_OAUTH
+cp scripts/front_end/trias-oauth/oauth-resource/target/oauth-resource-1.0-SNAPSHOT.jar $TRIAS_OAUTH_CLIENT
+cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/application.yml   $TRIAS_OAUTH_CLIENT
+cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/logback-spring.xml  $TRIAS_OAUTH_CLIENT
+cd $TRIAS_OAUTH_CLIENT
 java -jar oauth-resource-1.0-SNAPSHOT.jar  &
 
 $TRIAS_OAUTH_SERVER=/opt/trias/oauth/server
@@ -64,7 +64,7 @@ vi scripts/front_end/web/src/common/config/config.js
 # install dependencies
 npm install
 
-# serve with hot reload at localhost:8081
+# serve with hot reload at localhost:9081
 npm run dev
 
 # build for production with minification
