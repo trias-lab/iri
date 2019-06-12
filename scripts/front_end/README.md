@@ -34,7 +34,7 @@ source trias_cli_user_ddl.sql
 
 start oauth and oauth cli
 ```bash
-$TRIAS_OAUTH=/opt/trias/oauth/client
+$TRIAS_OAUTH_CLIENT=/opt/trias/oauth/client
 mkdir -p $TRIAS_OAUTH_CLIENT
 cp scripts/front_end/trias-oauth/oauth-resource/target/oauth-resource-1.0-SNAPSHOT.jar $TRIAS_OAUTH
 cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/application.yml   $TRIAS_OAUTH
@@ -42,7 +42,7 @@ cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/logback-sprin
 cd $TRIAS_OAUTH
 java -jar oauth-resource-1.0-SNAPSHOT.jar  &
 
-$TRIAS_OAUTH_SERVER
+$TRIAS_OAUTH_SERVER=/opt/trias/oauth/server
 mkdir -p $TRIAS_OAUTH_SERVER
 cp scripts/front_end/trias-oauth/oauth-server/target/oauth-server-1.0-SNAPSHOT.jar $TRIAS_OAUTH_SERVER
 cp scripts/front_end/trias-oauth/oauth-server/src/main/resources/application.yml  $TRIAS_OAUTH_SERVER
@@ -56,11 +56,12 @@ java -jar oauth-server-1.0-SNAPSHOT.jar &
 This document is based ontemplate for [vue-cli](https://github.com/vuejs/vue-cli)
 
 ``` bash
-# install dependencies
-modify the config
-vi scripts/front_end/web/src/common/config/config.js
-Replace the ip address with the local ip address
 
+# modify the config
+vi scripts/front_end/web/src/common/config/config.js
+# Replace the ip address with the local ip address
+
+# install dependencies
 npm install
 
 # serve with hot reload at localhost:8081
