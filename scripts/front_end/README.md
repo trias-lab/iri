@@ -34,19 +34,20 @@ source trias_cli_user_ddl.sql
 
 start oauth and oauth cli
 ```bash
-
-mkdir -p /opt/trias/oauth/client
-cp scripts/front_end/trias-oauth/oauth-resource/target/oauth-resource-1.0-SNAPSHOT.jar /opt/trias/oauth/client/
-cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/application.yml   /opt/trias/oauth/client/
-cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/logback-spring.xml  /opt/trias/oauth/client/
-cd /opt/trias/oauth/client
+$TRIAS_OAUTH=/opt/trias/oauth/client
+mkdir -p $TRIAS_OAUTH_CLIENT
+cp scripts/front_end/trias-oauth/oauth-resource/target/oauth-resource-1.0-SNAPSHOT.jar $TRIAS_OAUTH
+cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/application.yml   $TRIAS_OAUTH
+cp scripts/front_end/trias-oauth/oauth-resource/src/main/resources/logback-spring.xml  $TRIAS_OAUTH
+cd $TRIAS_OAUTH
 java -jar oauth-resource-1.0-SNAPSHOT.jar  &
 
-mkdir -p /opt/trias/oauth/server
-cp scripts/front_end/trias-oauth/oauth-server/target/oauth-server-1.0-SNAPSHOT.jar /opt/trias/oauth/server/
-cp scripts/front_end/trias-oauth/oauth-server/src/main/resources/application.yml  /opt/trias/oauth/server/
-cp scripts/front_end/trias-oauth/oauth-server/src/main/resources/logback-spring.xml  /opt/trias/oauth/server/
-cd /opt/trias/oauth/server/
+$TRIAS_OAUTH_SERVER
+mkdir -p $TRIAS_OAUTH_SERVER
+cp scripts/front_end/trias-oauth/oauth-server/target/oauth-server-1.0-SNAPSHOT.jar $TRIAS_OAUTH_SERVER
+cp scripts/front_end/trias-oauth/oauth-server/src/main/resources/application.yml  $TRIAS_OAUTH_SERVER
+cp scripts/front_end/trias-oauth/oauth-server/src/main/resources/logback-spring.xml  $TRIAS_OAUTH_SERVER
+cd $TRIAS_OAUTH_SERVER
 java -jar oauth-server-1.0-SNAPSHOT.jar &
 ```
 
@@ -56,6 +57,10 @@ This document is based ontemplate for [vue-cli](https://github.com/vuejs/vue-cli
 
 ``` bash
 # install dependencies
+modify the config
+vi scripts/front_end/web/src/common/config/config.js
+Replace the ip address with the local ip address
+
 npm install
 
 # serve with hot reload at localhost:8081
@@ -107,4 +112,3 @@ npm run build
 You should use your own nginx root config  and configure the nginx.conf first.
 ## License
 [MIT](http://opensource.org/licenses/MIT)
-
