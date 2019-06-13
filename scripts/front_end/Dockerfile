@@ -1,3 +1,4 @@
+FROM iotacafe/maven:3.5.4.oracle8u181.1.webupd8.1.1-1
 RUN mkdir /oauth_web
 COPY ./ /oauth_web
 WORKDIR /oauth_web/trias-oauth
@@ -18,9 +19,9 @@ RUN mkdir -p /opt/trias/oauth/client  /opt/trias/oauth/server \
 WORKDIR /oauth_web/web
 RUN npm install --unsafe-perm=true \
     && npm run build  \
-    && mkdir -p /var/www/html/trias-dag/
+    && mkdir -p /usr/share/nginx/html/trias-dag/
 WORKDIR /oauth_web/web/dist/
-RUN cp  -r index.html static /var/www/html/trias-dag/
+RUN cp  -r index.html static /usr/share/nginx/html/trias-dag/
 WORKDIR /oauth_web/server
 RUN go get -u github.com/triasteam/noderank
 RUN apt-get install software-properties-common -y \
