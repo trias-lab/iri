@@ -26,7 +26,7 @@ install:
     - sudo apt-get install python-pip
     - sudo pip install ipfsapi
     - sudo pip install flask
-    - sudo pip install pyOpenSSL
+    - sudo pip install pyopenssl
     - sudo pip install pyota
     - sudo pip install docker
     - sudo pip install mock
