@@ -379,7 +379,6 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                         score.put(vet, (double)(lastIndex-currentIndex+1));
                         parentScore.put(vet, (double)(lastIndex-currentIndex+1));
                     }
-                    freshScore = false;
                 } else if (BaseIotaConfig.getInstance().getConfluxScoreAlgo().equals("KATZ")) {	
                     score.put(vet, 1.0 / (score.size() + 1));	
                     KatzCentrality centrality = new KatzCentrality(graph, revGraph, 0.5);	
@@ -387,6 +386,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                     score = centrality.compute();	
                     parentScore = CumWeightScore.updateParentScore(parentGraph, parentScore, vet, 1.0);	
                 }
+                freshScore = false;
             }
         } catch (Exception e) {
             e.printStackTrace(new PrintStream(System.out));
@@ -443,9 +443,12 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                     }
                     // FIXME add parent score here
                 } else if (BaseIotaConfig.getInstance().getConfluxScoreAlgo().equals("KATZ")) {
-                    KatzCentrality centrality = new KatzCentrality(graph, revGraph, 0.5);
-                    score = centrality.compute();
-                    // FIXME add parent score here
+                    if(!freshScore) {
+                        KatzCentrality centrality = new KatzCentrality(graph, revGraph, 0.5);
+                        score = centrality.compute();
+                        // FIXME add parent score here
+                        freshScore = true;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -613,11 +616,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
             return cachedTotalOrder;
         }
 
-        List<Hash> totalOrder = tangle.getTotalOrder();
-        if (CollectionUtils.isNotEmpty(totalOrder)){
-            return totalOrder;
-        }
-        totalOrder = confluxOrder(getPivot(getGenesis()));
+        List<Hash> totalOrder = confluxOrder(getPivot(getGenesis()));
         cachedTotalOrder = totalOrder;
         tangle.storeTotalOrder(totalOrder);
         return totalOrder;
