@@ -2,6 +2,12 @@ FROM iotacafe/maven:3.5.4.oracle8u181.1.webupd8.1.1-1
 RUN mkdir /oauth_web
 COPY ./ /oauth_web
 WORKDIR /oauth_web/trias-oauth
+ARG HOST_IP=localhost
+ENV HOST_IP ${HOST_IP} 
+RUN sed -i "s/localhost/${HOST_IP}/g" ../web/config/proxyConfig.js
+RUN sed -i "18s/localhost/${HOST_IP}/g" oauth-resource/src/main/resources/application.yml 
+RUN sed -i "s/localhost/${HOST_IP}/g" oauth-server/src/main/resources/application.yml 
+RUN sed -i "s/localhost/${HOST_IP}/g" /oauth_web/nginx.conf
 RUN mvn clean package
 RUN add-apt-repository ppa:longsleep/golang-backports -y
 RUN apt-get update && apt-get install golang-go -y \
