@@ -36,9 +36,6 @@ install:
     - sudo pip install sh
     - sudo pip install six --upgrade
     - sudo pip install ecdsa
-    - which nginx
-    - which jmeter
-    - ps -aux | grep nginx
   # update go version
     - gimme 1.11.5
     - source ~/.gimme/envs/go1.11.5.env
