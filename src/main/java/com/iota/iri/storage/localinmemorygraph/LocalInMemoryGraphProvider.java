@@ -39,6 +39,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
     private HashMap<Integer, Set<Hash>> topOrder;
     private HashMap<Integer, Set<Hash>> topOrderStreaming;
 
+    public Map<Hash, Set<Hash>> subGraph;
+    public Map<Hash, Set<Hash>> subRevGraph;
+    public Map<Hash, Hash> subParentGraph;
+    public Map<Hash, Set<Hash>> subParentRevGraph;
+
     private Map<Hash, Integer> lvlMap;
     private HashMap<Hash, String> nameMap;
     private Map<Hash, Pair<Hash,Integer>> bundleMap;
@@ -50,6 +55,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
 
     boolean freshScore;
     List<Hash> cachedTotalOrder;
+    List<Hash> stableOrder;
 
     private boolean available;
 
@@ -74,6 +80,12 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         parentScore = new ConcurrentHashMap<>();
         totalDepth = 0;
         freshScore = false;
+        stableOrder = new LinkedList<>();
+
+        subGraph = new ConcurrentHashMap<>();
+        subRevGraph = new ConcurrentHashMap<>();
+        subParentGraph = new ConcurrentHashMap<>();
+        subParentRevGraph = new ConcurrentHashMap<>();
     }
 
     //FIXME for debug
@@ -94,6 +106,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         lvlMap.clear();
         bundleMap.clear();
         bundleContent.clear();
+        stableOrder.clear();
     }
 
     public void init() throws Exception {
@@ -110,7 +123,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
-    private void loadAncestorGraph() {
+    private void loadAncestorGraph() throws Exception{
         Stack<Hash> ancestors = tangle.getAncestors();
         if (null == ancestors || CollectionUtils.isEmpty(ancestors)) {
             return;
@@ -248,7 +261,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                         degs.put(branch, 0);
                     }
                     updateTopologicalOrder(key, trunk, branch);
-                    updateScore(key);
+
+                    long currentIndex = model.getCurrentIndex();
+                    long lastIndex = model.getLastIndex();
+                    updateScore(key, currentIndex, lastIndex); //TODO check if updateScore works or not after [fix #85]
+
                 }finally {
                     graphLock.writeLock().unlock();
                 }
@@ -313,7 +330,9 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                     degs.put(branch, 0);
                 }
 
-                updateScore(model.getHash());
+                long currentIndex = model.getCurrentIndex();
+                long lastIndex = model.getLastIndex();
+                updateScore(model.getHash(), currentIndex, lastIndex);
                 one = tangle.next(Transaction.class, one.low);
             }
             computeToplogicalOrder();
@@ -361,19 +380,25 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
-    private void updateScore(Hash vet) {
+    private void updateScore(Hash vet, long currentIndex, long lastIndex) {
         try {
             if(BaseIotaConfig.getInstance().getStreamingGraphSupport()){
                 if (BaseIotaConfig.getInstance().getConfluxScoreAlgo().equals("CUM_WEIGHT")) {
-                    score = CumWeightScore.update(graph, score, vet);
-                    parentScore = CumWeightScore.updateParentScore(parentGraph, parentScore, vet);
+                    // TODO tunning these two functions
+                    if(currentIndex == 0) {
+                        score = CumWeightScore.update(graph, score, vet, lastIndex + 1);
+                        parentScore = CumWeightScore.updateParentScore(parentGraph, parentScore, vet, lastIndex + 1);
+                    } else {
+                        score.put(vet, (double)(lastIndex-currentIndex+1));
+                        parentScore.put(vet, (double)(lastIndex-currentIndex+1));
+                    }
                     freshScore = false;
-                } else if (BaseIotaConfig.getInstance().getConfluxScoreAlgo().equals("KATZ")) {
-                    score.put(vet, 1.0 / (score.size() + 1));
-                    KatzCentrality centrality = new KatzCentrality(graph, revGraph, 0.5);
-                    centrality.setScore(score);
-                    score = centrality.compute();
-                    parentScore = CumWeightScore.updateParentScore(parentGraph, parentScore, vet);
+                } else if (BaseIotaConfig.getInstance().getConfluxScoreAlgo().equals("KATZ")) {	
+                    score.put(vet, 1.0 / (score.size() + 1));	
+                    KatzCentrality centrality = new KatzCentrality(graph, revGraph, 0.5);	
+                    centrality.setScore(score);	
+                    score = centrality.compute();	
+                    parentScore = CumWeightScore.updateParentScore(parentGraph, parentScore, vet, 1.0);	
                 }
             }
         } catch (Exception e) {
@@ -427,6 +452,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                         parentScore = CumWeightScore.computeParentScore(parentGraph, parentRevGraph);
                         freshScore = true;
                         cachedTotalOrder = confluxOrder(getPivot(getGenesis()));
+                        tangle.storeTotalOrder(cachedTotalOrder);
                     }
                     // FIXME add parent score here
                 } else if (BaseIotaConfig.getInstance().getConfluxScoreAlgo().equals("KATZ")) {
@@ -496,6 +522,14 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
             }
         } catch(Exception e) {
             e.printStackTrace();
+        }
+        return ret;
+    }
+
+    public String printOrder(List<Hash> order) {
+        String ret = "";
+        for(Hash h : order) {
+            ret += IotaUtils.abbrieviateHash(h, 6) + "\n";
         }
         return ret;
     }
@@ -595,11 +629,33 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return 0;
     }
 
+    private List<Hash> combineOrder() {
+        List<Hash> ret = new ArrayList<>();
+
+        for(int i=0; i<stableOrder.size(); i++) {
+            ret.add(stableOrder.get(i));
+        }
+
+        for(int i=0; i<cachedTotalOrder.size(); i++) {
+            ret.add(cachedTotalOrder.get(i));
+        }
+
+        return ret;
+    }
+
     public List<Hash> totalTopOrder() {
         if(freshScore) {
-            return cachedTotalOrder;
+            return combineOrder();
         }
-        return confluxOrder(getPivot(getGenesis()));
+
+        List<Hash> totalOrder = tangle.getTotalOrder();
+        if (CollectionUtils.isNotEmpty(totalOrder)){
+            return totalOrder;
+        }
+        totalOrder = confluxOrder(getPivot(getGenesis()));
+        cachedTotalOrder = totalOrder;
+        tangle.storeTotalOrder(totalOrder);
+        return combineOrder();
     }
 
     public List<Hash> confluxOrder(Hash block) {
@@ -715,7 +771,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                 return ancestors.peek();
             }
             for (Hash key : parentGraph.keySet()) {
-                if (!parentGraph.keySet().contains(parentGraph.get(key))) {
+                if (!parentGraph.keySet().contains(parentGraph.get(key))) { // FIXME this is too complicated
                     return key;
                 }
             }
@@ -883,11 +939,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return this.parentRevGraph;
     }
 
-    public void induceGraphFromAncestor(Hash curAncestor) {
-        Map<Hash, Set<Hash>> subGraph = new HashMap<>();
-        Map<Hash, Set<Hash>> subRevGraph = new HashMap<>();
-        Map<Hash, Hash> subParentGraph = new HashMap<>();
-        Map<Hash, Set<Hash>> subParentRevGraph = new HashMap<>();
+    public void buildTempGraphs(List<Hash> totalOrderBefore, Hash curAncestor) {
+        subGraph.clear();
+        subRevGraph.clear();
+        subParentGraph.clear();
+        subParentRevGraph.clear();
         degs.clear();
 
         LinkedList<Hash> queue = new LinkedList<>();
@@ -939,26 +995,151 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }	
         subParentGraph.putIfAbsent(curAncestor, parentGraph.get(curAncestor));	
         subParentRevGraph.putIfAbsent(subParentGraph.get(curAncestor),new HashSet(){{add(curAncestor);}});
+    }
 
+    public void reserveTempGraphs(List<Hash> totalOrderBefore, Hash curAncestor) {
+        int start = 0;
+        for(int i=0; i<totalOrderBefore.size(); i++) {
+            if(totalOrderBefore.get(i).equals(curAncestor)) {
+                start = i;
+                break;
+            }
+        }
+
+        for(int i= start; i < totalOrderBefore.size(); i++) {
+            Hash vet = totalOrderBefore.get(i);
+            if(!subGraph.containsKey(vet)) {
+                Set<Hash> st = graph.get(totalOrderBefore.get(i));
+                subGraph.put(vet, st);
+
+                Hash parent = parentGraph.get(vet);
+                subParentGraph.put(vet, parent);
+                if(!subParentRevGraph.containsKey(parent)) {
+                    subParentRevGraph.put(parent, new HashSet<>());
+                }
+                Set<Hash> ps = subParentRevGraph.get(parent);
+                ps.add(vet);
+                subParentRevGraph.put(parent, ps);
+
+                for(Hash h : st) {
+                    if(!subRevGraph.containsKey(h)) {
+                        subRevGraph.put(h, new HashSet<>());
+                    }
+                    Set<Hash> s = subRevGraph.get(h);
+                    s.add(vet);
+                    subRevGraph.put(h, s);
+                }
+            }
+        }
+        for(int i= start; i < totalOrderBefore.size(); i++) {
+            Hash vet = totalOrderBefore.get(i);
+            if(revGraph.containsKey(vet)) {
+                Set<Hash> missed = revGraph.get(vet);
+                subRevGraph.put(vet, missed);
+                for(Hash h : missed) {
+                    if(!subGraph.containsKey(h)) {
+                        subGraph.put(h, new HashSet<>());
+                    }
+                    Set<Hash> st1 = subGraph.get(h);
+                    st1.add(vet);
+                    subGraph.put(h, st1);
+                }
+            }
+        }
+    }
+
+    public void shiftTempGraphs() {
+        graph.clear();
+        revGraph.clear();
+        parentGraph.clear();
+        parentRevGraph.clear();
+
+        graph = new ConcurrentHashMap<>(subGraph);
+        revGraph = new ConcurrentHashMap<>(subRevGraph);
+        parentGraph = new ConcurrentHashMap<>(subParentGraph);
+        parentRevGraph = new ConcurrentHashMap<>(subParentRevGraph);
+
+        topOrder.clear();
+        computeToplogicalOrder();
+        computeScore();
+        buildPivotChain();
+    }
+
+    // TODO 1) need to have a unit test of this function
+    //      2) need to cache the total order as well
+    //      3) need to persist the total order into RocksDB
+    public void induceGraphFromAncestor(Hash curAncestor) throws Exception{
         graphLock.writeLock().lock();
+        String gBefore="", gAfter="", order1="", order2="";
         try {
-            graph.clear();
-            revGraph.clear();
-            parentGraph.clear();
-            parentRevGraph.clear();
+            List<Hash> totalOrderBefore = confluxOrder(getPivot(getGenesis()));
+            gBefore = printGraph(graph, "DOT");
+            order1 = printOrder(totalOrderBefore);
 
-            graph = new ConcurrentHashMap<>(subGraph);
-            revGraph = new ConcurrentHashMap<>(subRevGraph);
-            parentGraph = new ConcurrentHashMap<>(subParentGraph);
-            parentRevGraph = new ConcurrentHashMap<>(subParentRevGraph);
+            buildTempGraphs(totalOrderBefore, curAncestor);
+            reserveTempGraphs(totalOrderBefore, curAncestor);
+            shiftTempGraphs();
 
-            topOrder.clear();
-            computeToplogicalOrder();
-            computeScore();
-        }finally {
+            gAfter = printGraph(graph, "DOT");
+            List<Hash> totalOrderAfter = confluxOrder(getPivot(getGenesis()));
+            order2 = printOrder(totalOrderAfter);
+
+            insertStableTotalOrder(totalOrderBefore, totalOrderAfter);
+        } catch(RuntimeException e) { 
+            BufferedWriter writer = new BufferedWriter(new FileWriter("before"+ ".dot"));
+            BufferedWriter writer1 = new BufferedWriter(new FileWriter("after" + ".dot"));
+            BufferedWriter writer2 = new BufferedWriter(new FileWriter("order1"));
+            BufferedWriter writer3 = new BufferedWriter(new FileWriter("order2"));
+            writer.write(gBefore);
+            writer1.write(gAfter);
+            writer2.write(order1);
+            writer3.write(order2);
+            writer.close();
+            writer1.close();
+            writer2.close();
+            writer3.close();
+            throw e;
+        } finally {
             graphLock.writeLock().unlock();
         }
-        buildPivotChain();
+    }
+
+    // before: [A, B, C, D, E, F, G, H]
+    // after: [F, G, H]
+    // should append [A, B, C, D, E] to stable order
+    public void insertStableTotalOrder(List<Hash> before, List<Hash> after) throws Exception {
+        // check first
+        int checkPt = -1;
+        for(int i=0; i<before.size(); i++) {
+            if(before.get(i).equals(after.get(0))) {
+                if((i+after.size()) == before.size()-1) {
+                    throw new RuntimeException("after should be a substring of before");
+                } else {
+                    int j =0;
+                    while(j<after.size()) {
+                        if(!before.get(i+j).equals(after.get(j))) {
+                            throw new RuntimeException("after should be a substring of before");
+                        }
+                        j++;
+                    }
+                    checkPt = i;
+                    break;
+                }
+            }
+        }
+
+        if(checkPt == -1) {
+            throw new RuntimeException("after should be a substring of before");
+        }
+
+        // insert later
+        for(int i=0; i<checkPt; i++) {
+            stableOrder.add(before.get(i));
+        }
+    }
+
+    public List<Hash> getStableOrder() {
+        return stableOrder;
     }
 
     class AncestorEngine implements Runnable {
@@ -1013,7 +1194,8 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
             return null;
         }
 
-        void refreshGraph() {
+        void refreshGraph() throws Exception {
+            Hash gen = getGenesis();
            log.debug("=========begin to refresh ancestor node==========");
             long begin = System.currentTimeMillis();
             Stack<Hash> ancestors = tangle.getAncestors();
@@ -1031,10 +1213,13 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
                 return;
             }
 
-            printAllGraph("before_" + ancestors.size(), curAncestor);
             ancestors = appendNewAncestor(ancestors, curAncestor);
             tangle.storeAncestors(ancestors);
-            induceGraphFromAncestor(curAncestor);
+
+            
+            if(!gen.equals(curAncestor)) {
+                induceGraphFromAncestor(curAncestor);
+            }
         }
 
         private void printAllGraph(String tag, Hash ancestor) {
@@ -1062,7 +1247,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
     }
 
     public boolean hasBlock(Hash h) {
-        return graph.containsKey(h);
+        return graph.containsKey(h) || revGraph.containsKey(h);
     }
 }
 

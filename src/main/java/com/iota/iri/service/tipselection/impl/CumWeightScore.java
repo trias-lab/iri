@@ -5,10 +5,14 @@ import com.iota.iri.model.Hash;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CumWeightScore
 {
-    public static Map<Hash, Double> update(Map<Hash, Set<Hash>> graph, Map<Hash, Double> score, Hash newVet) {
+    private static final Logger log = LoggerFactory.getLogger(CumWeightScore.class);
 
+    public static Map<Hash, Double> update(Map<Hash, Set<Hash>> graph, Map<Hash, Double> score, Hash newVet, double weight) {
         Map<Hash, Double> ret = score;
         LinkedList<Hash> queue = new LinkedList<>();
 
@@ -25,23 +29,23 @@ public class CumWeightScore
                 }
             }
             if(ret.get(h)==null) {
-                ret.put(h, 1.0);
+                ret.put(h, weight);
             } else if(ret.get(h) != null) {
-                ret.put(h, ret.get(h)+1.0);
+                ret.put(h, ret.get(h) + weight);
             }
 
         }
         return ret;
     }
 
-    public static Map<Hash, Double> updateParentScore(Map<Hash, Hash> parentGraph, Map<Hash, Double> parentScore, Hash newVet) {
+    public static Map<Hash, Double> updateParentScore(Map<Hash, Hash> parentGraph, Map<Hash, Double> parentScore, Hash newVet, double weight) {
         Map<Hash, Double> ret = parentScore;
         Hash start = newVet;
         Set<Hash> visited = new HashSet<>();
 
         while(parentGraph.get(start) != null) {
             if (visited.contains(start)) {
-                System.out.println("Circle exist: " + start);
+                log.error("Circle exist: " + start);
                 break;
             } else {
                 visited.add(start);
@@ -50,7 +54,7 @@ public class CumWeightScore
             if(parentScore.get(start) == null) {
                 parentScore.put(start, 0.0);
             }
-            parentScore.put(start, parentScore.get(start)+1.0);
+            parentScore.put(start, parentScore.get(start)+weight);
             start = parentGraph.get(start);
         }
 
@@ -95,7 +99,7 @@ public class CumWeightScore
                     }
                 }
             }
-            ret = update(graph, ret, h);
+            ret = update(graph, ret, h, 1.0);
         }
         return ret;
     }

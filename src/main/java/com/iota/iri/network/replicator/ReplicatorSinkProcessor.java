@@ -1,6 +1,7 @@
 package com.iota.iri.network.replicator;
 
 import com.iota.iri.network.TCPNeighbor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,15 @@ class ReplicatorSinkProcessor implements Runnable {
         this.replicatorSinkPool = replicatorSinkPool;
         this.port = port;
         this.transactionPacketSize = transactionPacketSize;
+    }
+
+    private boolean isMessageValid(byte[] message) {
+        if (replicatorSinkPool.node.optimizeNetworkEnabled) {
+            return (message.length == replicatorSinkPool.node.transactionSize || message.length == replicatorSinkPool.node.broadcastHashSize
+                    || message.length == replicatorSinkPool.node.requestHashSize);
+        } else {
+            return (message.length == transactionPacketSize);
+        }
     }
 
     @Override
@@ -87,7 +97,7 @@ class ReplicatorSinkProcessor implements Runnable {
 
                                         byte[] bytes = message.array();
 
-                                        if (bytes.length == transactionPacketSize) {
+                                        if (isMessageValid(bytes)) {
                                             try {
                                                 CRC32 crc32 = new CRC32();
                                                 crc32.update(message.array());
@@ -95,8 +105,15 @@ class ReplicatorSinkProcessor implements Runnable {
                                                 while (crc32String.length() < CRC32_BYTES) {
                                                     crc32String = "0"+crc32String;
                                                 }
-                                                out.write(message.array());
-                                                out.write(crc32String.getBytes());
+
+                                                if (replicatorSinkPool.node.optimizeNetworkEnabled) {
+                                                    byte[] both = (byte[]) ArrayUtils.addAll(bytes, crc32String.getBytes());
+                                                    out.write(both);
+                                                } else {
+                                                    out.write(message.array());
+                                                    out.write(crc32String.getBytes());
+                                                }
+
                                                 out.flush();
                                                 neighbor.incSentTransactions();
                                             } catch (IOException e2) {
