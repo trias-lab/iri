@@ -16,7 +16,6 @@ addons:
     packages:
     - jq
     - nginx
-    - jmeter
 
 install:
   # install python env
@@ -39,6 +38,15 @@ install:
   # update go version
     - gimme 1.11.5
     - source ~/.gimme/envs/go1.11.5.env
+  # install jmeter
+    - wget -c http://mirrors.tuna.tsinghua.edu.cn/apache//jmeter/binaries/apache-jmeter-5.1.1.zip
+      && mv apache-jmeter-5.1.1.zip /opt
+      && cd /opt
+      && unzip apache-jmeter-5.1.1.zip
+      && export JMETER_HOME=/opt/apache-jmeter-5.1.1
+      && export CLASSPATH=$CLASSPATH:$JMETER_HOME/lib
+      && export PATH=$PATH:$JMETER_HOME/bin
+      && cd -
 
 before_script:
   - ipfs init
