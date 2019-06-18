@@ -39,7 +39,7 @@ install:
     - gimme 1.11.5
     - source ~/.gimme/envs/go1.11.5.env
   # install jmeter
-    - wget -c http://mirrors.tuna.tsinghua.edu.cn/apache//jmeter/binaries/apache-jmeter-5.1.1.zip
+    - wget -c https://github.com/triasteam/utils/raw/master/software/apache-jmeter-5.1.1.zip
       && mv apache-jmeter-5.1.1.zip /opt
       && cd /opt
       && unzip apache-jmeter-5.1.1.zip
