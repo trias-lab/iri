@@ -1506,6 +1506,7 @@ public class API {
                     if(instance.timeOutCache.containsKey(decoded)) {
                         long time = instance.timeOutCache.get(decoded);
                         long diffTime = tStart - time;
+			log.info("[zhaoming] diff time = {}", diffTime);
                         if(diffTime/2000 > 60) {
                             instance.timeOutCache.put(decoded, tStart);
                             processed = Converter.asciiToTrytes(message);
