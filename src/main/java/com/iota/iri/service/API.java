@@ -1500,8 +1500,26 @@ public class API {
                     }
                     break;
                 case "TEE" :
-                    processed = Converter.asciiToTrytes(message);
+		{
+                    String decoded = java.net.URLDecoder.decode(StringUtils.trim(message), StandardCharsets.UTF_8.name());
+		    log.info("[zhaoming] come here to check {}", decoded);
+                    if(instance.timeOutCache.containsKey(decoded)) {
+                        long time = instance.timeOutCache.get(decoded);
+                        long diffTime = tStart - time;
+                        if(diffTime/1000 > 60) {
+                            instance.timeOutCache.put(decoded, tStart);
+                            processed = Converter.asciiToTrytes(message);
+			    log.info("[zhaoming] come here to process {}", decoded);
+                        } else {
+                            return AbstractResponse.createEmptyResponse();
+                        }
+                    } else {
+                        instance.timeOutCache.put(decoded, tStart);
+                        processed = Converter.asciiToTrytes(message);
+			log.info("[zhaoming] come here to process {}", decoded);
+                    }
                     break;
+		}
                 default:
                     processed = Converter.asciiToTrytes(message);
             }
