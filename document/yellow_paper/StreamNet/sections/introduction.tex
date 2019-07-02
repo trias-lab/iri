@@ -1,20 +1,21 @@
 \section{Introduction}
 Ever since bitcoin \cite{nakamoto2008bitcoin} has been proposed, blockchain technology has been widely studied for $10$ years. 
 Extensive adoptions of blockchain technologies was seen in real world applications such as 
-financial services with potential regulation challenges \cite{michael2018blockchain, tapscott2017blockchain}, 
+financial services \cite{michael2018blockchain, tapscott2017blockchain}, 
 supply chains \cite{korpela2017digital,tian2016agri, abeyratne2016blockchain}, 
 health cares \cite{azaria2016medrec,yue2016healthcare} and IOT devices \cite{christidis2016blockchains}.
 The core of blockchain technology depends on the consensus algorithms applying to the open distributed computing world.
 Where computers can join and leave the network and these computers can cheat.
 
-As the first protocol that can solve the so called Byzantine general's problem, 
+As the first protocol that can solve the so called Byzantine general's problem in a permissionless network, 
 bitcoin system suffers from the problem of low transaction rate with a transaction per second (TPS) of approximately $7$, and long confirmation time (about an hour).
 As more and more machines joined the network, they are competing for the privileges to attach the block (miners) which result in huge waste of electric power.
 While sky rocketing fees are payed to make sure the transfers of money will be placed in the chain.
-On par, there are multiple proposals to solve the low transaction speed issue. 
-One method intends to solve the speed problem without changing the chain data structure, for instance segregated witness \cite{lombrozo2015segregated} 
+On par, there are multiple Bitcoin Improvement Proposals (BIP) to solve the low transaction speed issue. 
+One method intends to solve the speed problem in a soft fork manner, for instance segregated witness \cite{lombrozo2015segregated} 
 or off chain technologies such as lightning network \cite{poon2016bitcoin} or plasma \cite{poon2017plasma}. 
-Another hard fork way changed the bitcoin protocol such as the bitcoin cash tries to improve the throughput of the system by enlarging the data size of each block from $1$ Mb to $4$ Mb. 
+Another hard fork way changed the bitcoin protocol such as the bitcoin cash tries to improve the throughput of the system 
+by enlarging the data size of each block from $1$ Mb to $4$ Mb. 
 
 To minimize the computational cost of POW, a series of proof of stake method POS \cite{duffield2018dash, tron2018, david2017ouroboros, wood2014ethereum, goodman2014tezos} 
 are proposed to make sure that those who have the privilege to attach the block proportional to their token shares.
@@ -35,15 +36,16 @@ chains \cite{sompolinsky2013accelerating}, which results in the well known GHOST
 If one block links to $\geq 2$ previous blocks, then the data structure grows like a DAG instead of tree \cite{lewenberg2015inclusive}, 
 SPECTRE \cite{sompolinsky2016spectre} and PHANTOM \cite{sompolinskyphantom} are such type of systems.
 Byteball \cite{churyumov2016byteball} is the system that construct a main chain, 
-and leverage this main chain to help infer the total order, nontheless, 
+and leverage this main chain to help infer the total order, nonetheless, 
 the selection of main chain is dependent on a role called witness, which is purely centralized.
 Conflux is a improvement of the GHOST based DAG algorithm which also utilises pivotal (main) chain 
 without the introduction of witness and claim to achieve $6000$ of TPS in reality \cite{li2018scaling}.
 IOTA tried to avoid finality of constructing a linear total order by introducing the probabilistic confirmation in the network \cite{popov2016tangle}. 
 Aforementioned systems are permissionless chains, in the permissioned chains, DAG technology is also applied. 
-HashGraph \cite{baird2016swirlds} is the system that utilises the $gossip\ on\ gossip$ algorithm to propagete the block graph structure, and achieve the
+HashGraph \cite{baird2016swirlds} is the system that utilises the $gossip\ on\ gossip$ algorithm to propagate the block graph structure, and achieve the
 consensus by link analysis in the DAG, this method is proved to be Byzantine fault tolerant and is not relied on voting.
-Blockmainia \cite{danezis2018blockmania} is based on the original PBFT design, but it's underlying log is DAG based.
+Blockmainia \cite{danezis2018blockmania} is based on the original PBFT protocol except for that it does not have checkpoint mechanism.
+Due to its underlying DAG based log replication, it's leaderless and can achieve high throughput.
 Some of the side chain methods also borrows the idea of DAG, such as nano \cite{lemahieu2018nano} and vite \cite{liuvite}.
 These system in reality are rely on centralized methods to maintain their stability.
 
