@@ -1611,7 +1611,7 @@ public class API {
 //        List<Hash> retOrder = provider.totalTopOrder().subList(blocksPerPeriod*(p-1), blocksPerPeriod*p);
         List<Hash> totalTopOrders = provider.totalTopOrder();
         int totalSize = totalTopOrders.size();
-        int pageNum = totalSize / blocksPerPeriod + totalSize % blocksPerPeriod > 0 ? 1 : 0;
+        int pageNum = totalSize / blocksPerPeriod + (totalSize % blocksPerPeriod > 0 ? 1 : 0);
         // current page
         int p;
         if(period <= 0){
