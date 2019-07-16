@@ -668,7 +668,7 @@ public class API {
 
     // FIXME add comments
     private synchronized AbstractResponse getBlockContentStatement(List<Hash> hashes) throws Exception {
-        
+
 
         final List<String> elements = new LinkedList<>();
         String info = "";
@@ -722,7 +722,7 @@ public class API {
         String graph = TransactionData.getInstance().getUTXOGraph(type);
         return GetDAGResponse.create(graph);
     }
-    
+
     // FIXME add comments
     private synchronized AbstractResponse getTotalOrderStatement() throws Exception {
         LocalInMemoryGraphProvider prov = (LocalInMemoryGraphProvider)instance.tangle.getPersistenceProvider("LOCAL_GRAPH");
@@ -1509,7 +1509,7 @@ public class API {
                     if(instance.timeOutCache.containsKey(digest)) {
                         long time = instance.timeOutCache.get(digest);
                         long diffTime = tStart - time;
-                        if(diffTime / 2000 > 60) {
+                        if(diffTime / 10000 > 60) {
                             instance.timeOutCache.put(digest, tStart);
                             processed = Converter.asciiToTrytes(message);
                         } else {
