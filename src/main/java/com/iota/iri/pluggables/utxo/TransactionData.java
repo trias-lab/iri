@@ -473,7 +473,7 @@ public class TransactionData {
         }
     }
 
-    public void persistFixedTxns(List<Hash> fixedBlocks) {
+    public synchronized void persistFixedTxns(List<Hash> fixedBlocks) {
         // Based on blocks, find all txns to be removed
         List<Txn> toBeRemoved = new ArrayList<>();
         for(Hash h : fixedBlocks) {
