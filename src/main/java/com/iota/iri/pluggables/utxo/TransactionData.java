@@ -473,7 +473,7 @@ public class TransactionData {
         }
     }
 
-    public synchronized void persistFixedTxns(List<Hash> fixedBlocks) {
+    public void persistFixedTxns(List<Hash> fixedBlocks) {
         // Based on blocks, find all txns to be removed
         List<Txn> toBeRemoved = new ArrayList<>();
         for(Hash h : fixedBlocks) {
@@ -538,5 +538,15 @@ public class TransactionData {
             }
         }
         utxoGraph = new UTXOGraph(transactions);
+    }
+
+    public List<Hash> siftIncludeTransactionBlock(List<Hash> toPersistBlock){
+        List<Hash> result = new ArrayList<>();
+        for (Hash b : toPersistBlock){
+            if (tangleToTxnMap.keySet().contains(b)){
+                result.add(b);
+            }
+        }
+        return result;
     }
 }
