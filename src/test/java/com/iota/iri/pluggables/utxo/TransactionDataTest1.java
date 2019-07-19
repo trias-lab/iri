@@ -128,4 +128,95 @@ public class TransactionDataTest1 {
         Assert.assertEquals(3, transactionData.getTangleToTxnMapSize());
         Assert.assertEquals(10, transactionData.getTxnToTangleMapSize()); // should be 10 because genesis is not included
     }
+
+    @Test
+    public void test1(){
+        TransactionViewModel a, b, c, d;
+        a = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
+        b = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        d = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(b.getHash(),
+                b.getHash()), getRandomTransactionHash());
+        c = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(d.getHash(),
+                b.getHash()), getRandomTransactionHash());
+
+        List<Txn> list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"b\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // persist
+        transactionData.putIndex(list.get(0), a.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"m\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // persist
+        transactionData.putIndex(list.get(0), a.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"d\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // persist
+        transactionData.putIndex(list.get(0), a.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"e\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // persist
+        transactionData.putIndex(list.get(0), a.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"b\",\"to\":\"h\",\"amnt\":50}");
+        transactionData.addTxn(list.get(0)); // persist
+        transactionData.putIndex(list.get(0), b.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"h\",\"to\":\"f\",\"amnt\":50}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), b.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"b\",\"to\":\"f\",\"amnt\":50}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), b.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"e\",\"to\":\"z\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // persist
+        transactionData.putIndex(list.get(0), b.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"z\",\"to\":\"k\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), c.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"d\",\"to\":\"c\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), c.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"d\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), c.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"m\",\"to\":\"e\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), c.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"b\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), d.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"c\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), d.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"d\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), d.getHash());
+
+        list = transactionData.readFromStr("{\"from\":\"A\",\"to\":\"e\",\"amnt\":100}");
+        transactionData.addTxn(list.get(0)); // not-persist
+        transactionData.putIndex(list.get(0), d.getHash());
+
+        List<Hash> fixed = new ArrayList<>();
+        fixed.add(a.getHash());
+        fixed.add(b.getHash());
+        fixed.add(c.getHash());
+
+        Assert.assertEquals(3, transactionData.siftIncludeTransactionBlock(fixed).size());
+
+        TransactionViewModel e = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(d.getHash(),
+                b.getHash()), getRandomTransactionHash());
+        fixed.add(e.getHash());
+        Assert.assertEquals(3, transactionData.siftIncludeTransactionBlock(fixed).size());
+
+        fixed.clear();
+        Assert.assertEquals(0, transactionData.siftIncludeTransactionBlock(fixed).size());
+    }
 }

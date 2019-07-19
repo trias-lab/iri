@@ -1062,7 +1062,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
             order2 = printOrder(totalOrderAfter);
 
             List<Hash> toBePersisted = insertStableTotalOrder(totalOrderBefore, totalOrderAfter);
-            TransactionData.getInstance().persistFixedTxns(toBePersisted);
+            toBePersisted = TransactionData.getInstance().siftIncludeTransactionBlock(toBePersisted);
+            if (!toBePersisted.isEmpty()){
+                TransactionData.getInstance().persistFixedTxns(toBePersisted);
+            }
         } catch(RuntimeException e) {
             BufferedWriter writer = new BufferedWriter(new FileWriter("before"+ ".dot"));
             BufferedWriter writer1 = new BufferedWriter(new FileWriter("after" + ".dot"));

@@ -539,4 +539,14 @@ public class TransactionData {
         }
         utxoGraph = new UTXOGraph(transactions);
     }
+
+    public List<Hash> siftIncludeTransactionBlock(List<Hash> toPersistBlock){
+        List<Hash> result = new ArrayList<>();
+        for (Hash b : toPersistBlock){
+            if (tangleToTxnMap.keySet().contains(b)){
+                result.add(b);
+            }
+        }
+        return result;
+    }
 }
