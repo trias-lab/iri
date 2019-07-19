@@ -93,5 +93,8 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+### Go Patch ###
+#/vendor/
+#!/vendor/vendor.json
 
 # End of https://www.gitignore.io/api/osx,linux,windows
