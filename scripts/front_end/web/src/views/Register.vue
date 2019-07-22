@@ -10,18 +10,6 @@
             <el-input type="password" v-model="ruleForm.password" auto-complete="off"
                       placeholder="password"></el-input>
         </el-form-item>
-        <!--<el-form-item prop="account">-->
-        <!--<el-input type="text" v-model="ruleForm.account" auto-complete="off" placeholder="account"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item prop="email">-->
-        <!--<el-input type="text" v-model="ruleForm.email" auto-complete="off" placeholder="email"></el-input>-->
-        <!--</el-form-item>-->
-        <!--<el-form-item>-->
-        <!--<el-radio-group v-model="ruleForm.sex">-->
-        <!--<el-radio label="1">Male</el-radio>-->
-        <!--<el-radio label="0">Female</el-radio>-->
-        <!--</el-radio-group>-->
-        <!--</el-form-item>-->
         <el-form-item style="width:100%;">
             <el-button type="success" style="width: 100%;" @click.native.prevent="userRegister">Sign Up</el-button>
         </el-form-item>
@@ -29,29 +17,13 @@
 </template>
 
 <script>
-    import Cookies from "js-cookie";
 
     export default {
         data() {
-            let checkEmail = (rule, value, callback) => {
-                let reg = new RegExp(
-                    "^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$"
-                );
-                if (!value) {
-                    callback(new Error("邮箱地址不能为空"));
-                } else if (!reg.test(value)) {
-                    callback(new Error("请输入正确的邮箱地址"));
-                } else {
-                    callback();
-                }
-            };
             return {
                 ruleForm: {
                     username: '',
                     password: '',
-                    // account: '',
-                    // email: '',
-                    // sex: '1',
                 },
                 rules: {
                     username: [
@@ -60,13 +32,6 @@
                     password: [
                         {required: true, message: "Please type in password", trigger: "blur"},
                     ],
-                    // account: [
-                    //     {required: true, message: "Please type in account", trigger: "blur"},
-                    // ],
-                    // email: [
-                    //     {required: true, message: "Please type in email", trigger: "blur"},
-                    //     {required: true, validator: checkEmail, message: "Email not correct", trigger: "blur"}
-                    // ]
                 },
             };
         },

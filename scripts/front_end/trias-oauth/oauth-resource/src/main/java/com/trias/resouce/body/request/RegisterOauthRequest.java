@@ -7,18 +7,18 @@ public class RegisterOauthRequest extends OauthLoginRequestBody {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private String account;
+	private String address;
 
 	private String sex;
 
 	private String email;
 
-	public String getAccount() {
-		return account;
+	public String getAddress() {
+		return address;
 	}
 
-	public void setAccount(String account) {
-		this.account = account;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public String getSex() {

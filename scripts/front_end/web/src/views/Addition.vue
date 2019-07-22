@@ -2,9 +2,6 @@
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="left" label-width="0px"
              class="demo-ruleForm login-container">
         <h3 class="title">Perfect Information</h3>
-        <el-form-item prop="account">
-            <el-input type="text" v-model="ruleForm.account" auto-complete="off" placeholder="coin account"></el-input>
-        </el-form-item>
         <el-form-item prop="email">
             <el-input type="text" v-model="ruleForm.email" auto-complete="off" placeholder="email"></el-input>
         </el-form-item>
@@ -39,14 +36,10 @@
             };
             return {
                 ruleForm: {
-                    account: '',
                     email: '',
                     sex: '1',
                 },
                 rules: {
-                    account: [
-                        {required: true, message: "Please type in account", trigger: "blur"},
-                    ],
                     email: [
                         {required: true, message: "Please type in email", trigger: "blur"},
                         {required: true, validator: checkEmail, message: "Email not correct", trigger: "blur"}

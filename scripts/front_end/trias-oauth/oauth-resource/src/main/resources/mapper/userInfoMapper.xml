@@ -10,6 +10,20 @@
 		<result column="description" property="description"
 			jdbcType="VARCHAR" />
 	</resultMap>
+	
+	<resultMap type="com.trias.resouce.model.vo.UserDetailVo"
+		id="userDetail">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="username" property="username"/>
+		<result column="address" property="address"/>
+		<result column="sex" property="sex"/>
+		<result column="email" property="email"/>
+		<result column="role_type" property="roleType"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="private_key" property="privateKey"/>
+		
+	</resultMap>
 
 	<select id="getResourceByUserRole" resultMap="userResource"
 		parameterType="java.util.List">
@@ -34,7 +48,8 @@
 		SELECT
 			u.id,
 			u.username,
-			u.account,
+			u.address,
+			u.private_key as `privateKey`,
 			u.sex,
 			u.email,
 			u.create_time as `createTime`,
@@ -50,8 +65,8 @@
 	<update id="updateUserByName" parameterType="com.trias.resouce.model.User">
 		update trias_cli_user
 		<set>
-			<if test="user.account != null and user.account != ''">
-				account = #{user.account},
+			<if test="user.address != null and user.address != ''">
+				address = #{user.address},
 			</if>
 			<if test="user.sex != null and user.sex != ''">
 				sex = #{user.sex},
@@ -59,13 +74,79 @@
 			<if test="user.email != null and user.email != ''">
 				email = #{user.email},
 			</if>
+			<if test="user.privateKey != null and user.privateKey != ''">
+				private_key = #{user.privateKey},
+			</if>
 			update_time = now(),
 		</set>
 		where username = #{user.username}
 	</update>
 	
 	<insert id="insertUser">
-		INSERT INTO trias_cli_user(`username`,`account`,`sex`,`email`,`create_time`,`update_time`) VALUES 
-		(#{user.username},#{user.account},#{user.sex},#{user.email}, now(), now())
+		INSERT INTO trias_cli_user(`username`,`address`,`sex`,`email`,`create_time`,`update_time`) VALUES 
+		(#{user.username},#{user.address},#{user.sex},#{user.email}, now(), now())
 	</insert>
+	
+	<select id="getUserRoleByName" resultType="java.lang.String">
+		select a.role_type
+		from trias_role a inner join trias_user_role b on a.id = b.role_id 
+		inner join trias_cli_user c on c.id = b.user_id
+		where c.username = #{username} 
+	</select>
+	
+	<select id="getUserList" resultMap="userDetail" parameterType="com.trias.resouce.body.request.QueryUserRequest">
+		SELECT
+			a.id,
+			a.username,
+			a.address,
+			a.sex,
+			a.email,
+			a.create_time,
+			a.update_time,
+			c.role_type
+		FROM
+			trias_cli_user a
+		LEFT JOIN (trias_user_role b INNER JOIN trias_role c ON c.id = b.role_id)
+		 ON a.id = b.user_id
+		<where>
+			and a.username != 'admin'
+			<if test="address != null and address != ''">
+				and a.address like CONCAT('%',#{address},'%')
+			</if>
+			<if test="sex != null and sex != ''">
+				and a.sex = #{sex}
+			</if>
+			<if test="email != null and email != ''">
+				and a.email like CONCAT('%',#{email},'%')
+			</if>
+			<if test="username != null and username != ''">
+				and a.username like CONCAT('%',#{username},'%')
+			</if>
+		</where>
+		ORDER BY
+			a.update_time DESC
+		limit #{currentIndex},#{pageSize}
+	</select>
+	
+	<select id="getUserCount" resultType="java.lang.Integer" parameterType="com.trias.resouce.body.request.QueryUserRequest">
+		SELECT
+			count(a.id)
+		FROM
+			trias_cli_user a
+		<where>
+			and a.username != 'admin'
+			<if test="address != null and address != ''">
+				and a.address like CONCAT('%',#{address},'%')
+			</if>
+			<if test="sex != null and sex != ''">
+				and a.sex = #{sex}
+			</if>
+			<if test="email != null and email != ''">
+				and a.email like CONCAT('%',#{email},'%')
+			</if>
+			<if test="username != null and username != ''">
+				and a.username like CONCAT('%',#{username},'%')
+			</if>
+		</where>
+	</select>
 </mapper>

@@ -63,7 +63,7 @@ router.beforeEach((to, from, next) => {
                 } else {
                     let data = response["data"];
                     store.commit("setUserInfo", data);
-                    if (!data.userInfo.account) {
+                    if (!data.userInfo.email) {
                         next({path: "/addition"});
                         return;
                     }
@@ -73,6 +73,11 @@ router.beforeEach((to, from, next) => {
                     }
                     next();
                 }
+            }).fail(function (err) {
+                console.log(err);
+                Cookies.remove("UserToken");
+                console.log("Invalid user or token timeout,please login");
+                next({path: "/login"})
             });
         }
     } else {
