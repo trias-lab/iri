@@ -64,7 +64,7 @@ func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 
 func (o *OCli) GetRankFunction(request *QueryNodesRequest) Message {
 	mess := Message{}
-	teescore, teectx, err1 := nr.GetRank("", request.Period, request.NumRank)
+	teescore, teectx, err1 := nr.GetRank(request.Url, request.Period, request.NumRank)
 	if teectx == nil || err1 != nil || teescore == nil {
 		mess = Message{Code: 0, Message: "Failed to query node data"}
 		return mess
