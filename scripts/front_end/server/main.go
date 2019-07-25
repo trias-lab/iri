@@ -1,7 +1,7 @@
 package main
 
 import (
-	v "StreamNet/scripts/front_end/server/vue"
+	v "./vue"
 	"encoding/json"
 	"fmt"
 	"net/http"
