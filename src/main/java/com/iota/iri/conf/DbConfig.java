@@ -66,6 +66,11 @@ public interface DbConfig extends Config {
      */
     boolean isAncestorForwardEnable();
 
+    /**
+     * @return {@Value Descriptions#ANCESTOR_FORWARD_PERIOD}
+     */
+    long getAncestorForwardPeriod();
+
     interface Descriptions {
 
         String DB_PATH = "The folder where the DB saves its data.";
@@ -81,5 +86,6 @@ public interface DbConfig extends Config {
         String ENABLE_COMPRESSION_TXNS = "The message is compressed.";
         String ANCESTOR_CREATE_FREQUENCY = "Number of nodes to create a new ancestor.";
         String ANCESTOR_FORWARD_ENABLE = "Enable ancestor change forward. ";
+        String ANCESTOR_FORWARD_PERIOD = "The time of ancestor forwarding a period.";
     }
 }
