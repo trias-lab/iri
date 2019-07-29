@@ -115,7 +115,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
             buildGraph();
             if (BaseIotaConfig.getInstance().isAncestorForwardEnable()) {
                 loadAncestorGraph();
-                service.scheduleAtFixedRate(new AncestorEngine(), 10, 30, TimeUnit.SECONDS);
+                service.scheduleAtFixedRate(new AncestorEngine(), 10, BaseIotaConfig.getInstance().getAncestorForwardPeriod(), TimeUnit.SECONDS);
             }
         } catch (NullPointerException e) {
             e.printStackTrace();
