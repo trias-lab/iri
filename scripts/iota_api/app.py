@@ -45,6 +45,7 @@ def sign_message(data,address, base58_priv_key):
         message = json.dumps(data, sort_keys=True)
         signature = sign_input_message(address, message.replace(' ', ''), base58_priv_key)
         data['sign'] = signature
+        data['address'] = address
         return json.dumps(data, sort_keys=True)
     else:
         return json.dumps(data, sort_keys=True)
@@ -108,6 +109,7 @@ def get_cache():
 
     address = '14dD6ygPi5WXdwwBTt1FBZK3aD8uDem1FY'
     base58_priv_key = 'L41XHGJA5QX43QRG3FEwPbqD5BYvy6WxUxqAMM9oQdHJ5FcRHcGk'
+
     global cache_lock
     with cache_lock:
         nums = min(len(txn_cache), BATCH_SIZE)
@@ -121,8 +123,16 @@ def get_cache():
         for i in range(nums):
             tx = txn_cache.popleft()
             req_json = json.loads(tx)
+            if enable_crypto is True:
+                if req_json.has_key(u'private_key'):
+                    base58_priv_key = req_json.get('private_key')
+                    del req_json[u'private_key']
+                if req_json.has_key(u'address'):
+                    address = req_json.get('address')
+                    del req_json[u'address']
+
             if not req_json.has_key(u'tag'):
-                tr_list.append(tx)
+                tr_list.append(sign_message(req_json, address, base58_priv_key))
                 num_tr += 1
             elif req_json[u'tag'] == 'TX':
                 tx_list.append(sign_message(req_json, address, base58_priv_key))
@@ -171,6 +181,14 @@ def put_file():
 
     if req_json is None:
         return 'error'
+
+    if enable_crypto is True:
+        if req_json.has_key(u'private_key'):
+            base58_priv_key = req_json.get('private_key')
+            del req_json[u'private_key']
+        if req_json.has_key(u'address'):
+            base58_priv_key = req_json.get('address')
+            del req_json[u'address']
 
     if not req_json.has_key(u'tag'):
         send(sign_message(req_json, address, base58_priv_key))
