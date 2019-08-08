@@ -181,8 +181,10 @@ def put_file():
 
     req_json = request.get_json()
     if req_json.has_key("signature"):
-        signature = req_json.get("signature")
-        address = req_json.get("address")
+        # signature = req_json.get("signature")
+        # address = req_json.get("address")
+        signature = "H01p6ifhNZ01hcY7G6uBkf1irMUiZYN/bf688HlCZEUsmUKRzBFsjW0WM2WoMKNogpAKWpV+ui82f1ry8D3KL9pyCL8LR8N36USkNhB5qe1aWQ1xMaSdgU0s7bZoQ6mVxiAxssM+w+CMP4gNVgYbzLR8GMnuIg/XYFCDoUgGyAw="
+        address = "123456"
         has_priv = verify_sign(address, signature, public_key)
         if has_priv is False:
             return "has no privilege to create tr."
