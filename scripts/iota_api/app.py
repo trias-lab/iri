@@ -13,6 +13,7 @@ import StringIO
 import gzip
 from iota import TryteString
 from key_manager.signmessage import sign_input_message
+from auth import verify_sign
 
 cf = ConfigParser.ConfigParser()
 cf.read("conf")
@@ -24,6 +25,7 @@ enable_batching = cf.getboolean("iota", "enableBatching")
 enable_crypto = cf.getboolean("iota", "enableCrypto")
 listen_port = cf.get("iota", "listenPort")
 listen_address = cf.get("iota", "listenAddress")
+public_key = cf.get("auth", "publicKey")
 cache = IotaCache(iota_addr, iota_seed)
 
 # txs buffer. dequeue is thread-safe
@@ -178,6 +180,12 @@ def put_file():
     base58_priv_key = 'L41XHGJA5QX43QRG3FEwPbqD5BYvy6WxUxqAMM9oQdHJ5FcRHcGk'
 
     req_json = request.get_json()
+    if req_json.has_key("signature"):
+        signature = req_json.get("signature")
+        address = req_json.get("address")
+        has_priv = verify_sign(address, signature, public_key)
+        if has_priv is False:
+            return "has no privilege to create tr."
 
     if req_json is None:
         return 'error'
