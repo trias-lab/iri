@@ -65,110 +65,106 @@ service文件中的spec.selector.app 和deployment中labels要对应
 
 创建集群1
 
-新建iota_node_rc.yaml文件
+新建iota-server.yaml文件
 
 ```
-apiVersioe: v1
-kind: ReplicationController
+apiVersion: apps/v1beta1
+kind: Deployment
 metadata:
-  name: iota-node
-spec:
-  replicas: 1
-  selector:
-    app: iota-node
-  template:
-    metadata:
-      labels:
-        app: iota-node
-    spec:
-      containers:
-      - name: iota-node
-        image: stplaydog/iota-node:StreamNet_v1.0
-        ports:
+  name: iota-server
+  namespace: default
+  labels: 
+    app: iota-dt
+spec: 
+  template: 
+    metadata: 
+      labels: 
+        app: iota-dt
+    spec: 
+      containers: 
+      - name: iota-dt
+        image: iota-node:dev
+        ports: 
         - containerPort: 14700
-        env:
-        - name: API_PORT
-          value: "14700"
-        - name: UDP_PORT
-          value: "13600"
-        - name: TCP_PORT
-          value: "13600"
-```
-
-新建iota_node_sc.yaml
-
-```
+          name: iotaport
+        - containerPort: 13700
+          name: nerighborport
+        volumeMounts: 
+        - mountPath: /iri/data
+          name: iota-data
+      volumes: 
+      - name: iota-data
+        hostPath: 
+          path: /data/iri/stest 
+---
 apiVersion: v1
-
 kind: Service
-metadata:
-  name: iota-node
+metadata: 
+   name: iota-dt
+   namespace: default
 spec:
-  ports:
-  - name: iota-node
+  selector: 
+    app: iota-dt
+  ports: 
+  - name: iotaserverport
     port: 14700
-    targetPort: 14700
-    nodePort: 31000
-  selector:
-    app: iota-node
-  type: NodePort
-```  
+    targetPort: iotaport
 ```
-sudo kubectl create -f iota_cli_dp.yaml  
-sudo kubectl create -f iota_cli_sc.yaml
+
+```
+sudo kubectl apply -f iota_server.yaml
 ```
 
 创建集群2
 
-新建iota_cli_dp.yaml文件
+新建iota-cli-server.yaml文件
 
 ```
-apiVersion: v1
-kind: ReplicationController
+kind: Deployment
+apiVersion: extensions/v1beta1
 metadata:
   name: iota-cli
-spec:
-  replicas: 1
-  selector:
-    app: iota-cli
-  template:
-    metadata:
-      labels:
-        app: iota-cli
-    spec:
-      containers:
-        - name: iota-cli
-          image: 172.31.23.215:5000/trias-cli:StreamNet_v1.0.6
-          ports:
-          - containerPort: 4999
-          env:
-          - name: IOTA_NODE_SERVICE_HOST
-            value: '192.16.30.12'
-          - name: IOTA_NODE_SERVICE_PORT
-            value: '14700'
-```
-
-新建iota_cli_sc.yaml文件.
-
-```
+  namespace: default
+  labels: 
+    app: iota-cli-dt
+spec: 
+  template: 
+    metadata: 
+      labels: 
+        app: iota-cli-dt
+    spec: 
+      containers: 
+      - name: iota-cli-dt
+        image: iota-cli:v1
+        imagePullPolicy: IfNotPresent
+        ports: 
+        - containerPort: 5000
+          name: iotacliport
+        env: 
+        - name: ENABLE_BATCHING
+          value: 'true'
+        - name: HOST_IP
+          value: '10.105.229.214:14700'
+---
 apiVersion: v1
 kind: Service
-metadata:
-  name: iota-cli
+metadata: 
+   name: iota-cli-dt
+   namespace: default
 spec:
   type: NodePort
-  ports:
-    - port: 4999
-      nodePort: 31499
-  selector:
-    app: iota-cli
+  selector: 
+    app: iota-cli-dt
+  ports: 
+  - name: iotacliserverport
+    port: 5000
+    targetPort: iotacliport
 ```
 
 创建集群。
 
 ```
-sudo kubectl create -f iota_cli_dp.yaml;
-sudo kubectl create -f iota_cli_sc.yaml;
+sudo kubectl apply -f iota-cli-server.yaml;
 ```
 
-最后通过 clusterip 和port访问集群.
+最后通过 iota-cli的clusterip 和port访问集群.
