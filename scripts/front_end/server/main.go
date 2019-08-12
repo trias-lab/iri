@@ -1,6 +1,7 @@
 package main
 
 import (
+	auth "./auth"
 	v "./vue"
 	"encoding/json"
 	"fmt"
@@ -24,6 +25,15 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 			fmt.Println(err)
 		}
 	}()
+
+	address := "123456"
+	base64Sig := "w2TxCtk4mTVjauBgi8h8ZMtHBd71VyXTBMfMh25BsO1293mUt4UE7XYbL0M/9NQYjK8PwGknGCbQWNgwfcLj503vQzveSy7CSiIA9mN0CcbeQSWxwKH9nkxxchXG2pGLvqz1acsTqs+9tHDm/XoPrBwTHygiEJ3isMEgEYRfiWU="
+	var r auth.RSAUtil
+	b := r.VerifyPrivilege(address, base64Sig)
+	if b == false {
+		fmt.Println("has no privilege. address:", address)
+		return
+	}
 
 	var addNodeRequest *v.AddNodeRequest
 	if err := json.NewDecoder(request.Body).Decode(&addNodeRequest); err != nil {
