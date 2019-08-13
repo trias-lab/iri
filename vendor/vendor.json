@@ -1,0 +1,55 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "5Liz8eXUdbb4HrBDg0KQuyolgeI=",
+			"path": "github.com/awalterschulze/gographviz",
+			"revision": "fa59802746ab47bad3c8876d678d41299cdd1aaa",
+			"revisionTime": "2019-05-22T21:00:29Z"
+		},
+		{
+			"checksumSHA1": "1mVMvLC5htE6S5JhpfcN77yfGGI=",
+			"path": "github.com/awalterschulze/gographviz/ast",
+			"revision": "fa59802746ab47bad3c8876d678d41299cdd1aaa",
+			"revisionTime": "2019-05-22T21:00:29Z"
+		},
+		{
+			"checksumSHA1": "js+mR985UjPhxlIWCajgQakOIGg=",
+			"path": "github.com/awalterschulze/gographviz/internal/errors",
+			"revision": "fa59802746ab47bad3c8876d678d41299cdd1aaa",
+			"revisionTime": "2019-05-22T21:00:29Z"
+		},
+		{
+			"checksumSHA1": "KXDyRfth+z5VBiBfOjUNDDhR7VE=",
+			"path": "github.com/awalterschulze/gographviz/internal/lexer",
+			"revision": "fa59802746ab47bad3c8876d678d41299cdd1aaa",
+			"revisionTime": "2019-05-22T21:00:29Z"
+		},
+		{
+			"checksumSHA1": "ucGvv2+W1b8ydfMpsCctT9gglhU=",
+			"path": "github.com/awalterschulze/gographviz/internal/parser",
+			"revision": "fa59802746ab47bad3c8876d678d41299cdd1aaa",
+			"revisionTime": "2019-05-22T21:00:29Z"
+		},
+		{
+			"checksumSHA1": "+31fviZoNt2fGZVFdqaE96NEa3g=",
+			"path": "github.com/awalterschulze/gographviz/internal/token",
+			"revision": "fa59802746ab47bad3c8876d678d41299cdd1aaa",
+			"revisionTime": "2019-05-22T21:00:29Z"
+		},
+		{
+			"checksumSHA1": "YC+s1y5hmJ8PBRXJ9/d8rmEzGt4=",
+			"path": "github.com/triasteam/noderank",
+			"revision": "352f0fbf8c86e1d7b29ea6c46e3b6425a7ee9335",
+			"revisionTime": "2019-07-10T07:16:30Z"
+		},
+		{
+			"checksumSHA1": "/1vc+VgXtUJ/ontnVSiZWA8cBBU=",
+			"path": "github.com/triasteam/pagerank",
+			"revision": "d6805cd01d1bc4469c7d65588b1e958092ab70f4",
+			"revisionTime": "2019-03-01T07:42:43Z"
+		}
+	],
+	"rootPath": "StreamNet"
+}
