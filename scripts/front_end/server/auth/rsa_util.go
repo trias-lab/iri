@@ -24,15 +24,18 @@ type RSAUtil struct {
 //}
 
 func (r *RSAUtil) VerifyPrivilege(data string, base64_sig string) bool {
-	parser, perr := loadPublicKey("public_key.pem")
-	if perr != nil {
-		fmt.Errorf("could not sign request: %v", perr)
+	parser, err := loadPublicKey("public_key.pem")
+	if err != nil {
+		err := fmt.Errorf("could not sign request: %v", err)
+		fmt.Println(err.Error())
+		return false;
 	}
 
 	sig, _ := base64.StdEncoding.DecodeString(base64_sig)
 	unsigned, err := parser.Unsign(sig)
 	if err != nil {
-		fmt.Errorf("could not sign request: %v", err)
+		err := fmt.Errorf("could not sign request: %v", err)
+		fmt.Println(err.Error())
 		return false
 	}
 	fmt.Printf("Decrypted: %v\n", base64.StdEncoding.EncodeToString(unsigned))
