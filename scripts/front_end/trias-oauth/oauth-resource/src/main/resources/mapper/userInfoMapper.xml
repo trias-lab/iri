@@ -51,6 +51,7 @@
 			u.address,
 			u.private_key as `privateKey`,
 			u.sex,
+			u.sign,
 			u.email,
 			u.create_time as `createTime`,
 			u.update_time as `updateTime`
@@ -76,6 +77,9 @@
 			</if>
 			<if test="user.privateKey != null and user.privateKey != ''">
 				private_key = #{user.privateKey},
+			</if>
+			<if test="user.sign != null and user.sign != ''">
+				sign = #{user.sign},
 			</if>
 			update_time = now(),
 		</set>

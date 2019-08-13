@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50726
 File Encoding         : 65001
 
-Date: 2019-07-22 15:53:39
+Date: 2019-08-12 15:52:30
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -24,6 +24,7 @@ CREATE TABLE `trias_cli_user` (
   `username` varchar(255) NOT NULL,
   `address` varchar(255) DEFAULT '',
   `private_key` varchar(255) DEFAULT NULL,
+  `sign` varchar(1000) DEFAULT NULL,
   `sex` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
@@ -36,11 +37,11 @@ CREATE TABLE `trias_cli_user` (
 -- ----------------------------
 -- Records of trias_cli_user
 -- ----------------------------
-INSERT INTO `trias_cli_user` VALUES ('0000000001', 'niming_test', '1', null, '0', 'bac@123.com', '2019-05-28 15:43:20', '2019-07-03 16:56:24');
-INSERT INTO `trias_cli_user` VALUES ('0000000002', 'niming1', 'qwewqewq123', null, '1', '12312@123.com', '2019-05-29 15:29:41', '2019-05-29 23:15:53');
-INSERT INTO `trias_cli_user` VALUES ('0000000003', 'niming2', 'test', null, '0', 'qqq@123.com', '2019-05-30 14:30:55', '2019-07-03 16:55:43');
-INSERT INTO `trias_cli_user` VALUES ('0000000004', 'admin', 'testAccount', null, '1', 'new@163.com', '2019-06-12 16:48:21', '2019-06-18 15:49:49');
-INSERT INTO `trias_cli_user` VALUES ('0000000005', 'niming', '153kzokHD7WDfd3mtuEjt5w8b1pXZQMVq1', 'KyUXPn6hduF8TPhng8tZTcVHxyAJCqA9Sjt3cYD1oqzURqzEfPSC', '1', 'niming_2009@163.com', '2019-06-13 10:40:54', '2019-07-22 14:35:47');
+INSERT INTO `trias_cli_user` VALUES ('0000000001', 'niming_test', '1', null, null, '0', 'bac@123.com', '2019-05-28 15:43:20', '2019-07-03 16:56:24');
+INSERT INTO `trias_cli_user` VALUES ('0000000002', 'niming1', 'qwewqewq123', null, null, '1', '12312@123.com', '2019-05-29 15:29:41', '2019-05-29 23:15:53');
+INSERT INTO `trias_cli_user` VALUES ('0000000003', 'niming2', 'test', null, null, '0', 'qqq@123.com', '2019-05-30 14:30:55', '2019-07-03 16:55:43');
+INSERT INTO `trias_cli_user` VALUES ('0000000004', 'admin', 'testAccount', null, null, '1', 'new@163.com', '2019-06-12 16:48:21', '2019-06-18 15:49:49');
+INSERT INTO `trias_cli_user` VALUES ('0000000005', 'niming', '153kzokHD7WDfd3mtuEjt5w8b1pXZQMVq1', 'KyUXPn6hduF8TPhng8tZTcVHxyAJCqA9Sjt3cYD1oqzURqzEfPSC', null, '1', 'niming_2009@163.com', '2019-06-13 10:40:54', '2019-07-22 14:35:47');
 
 -- ----------------------------
 -- Table structure for trias_resource

@@ -26,6 +26,8 @@ public class User implements Serializable {
 
 	private String privateKey;
 
+	private String sign;
+
 	public Long getId() {
 		return id;
 	}
@@ -90,4 +92,12 @@ public class User implements Serializable {
 		this.privateKey = privateKey;
 	}
 
+	public String getSign() {
+		return sign;
+	}
+
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
+	
 }

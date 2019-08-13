@@ -49,6 +49,7 @@ import com.trias.resouce.model.User;
 import com.trias.resouce.service.UserService;
 import com.trias.resouce.util.HttpUtils;
 import com.trias.resouce.util.OauthUtil;
+import com.trias.resouce.util.RSAUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -96,6 +97,7 @@ public class UserServiceImpl implements UserService {
 			SecureInfo info = EcdsaUtils.generateSecureInfo();
 			user.setAddress(info.getAddress());
 			user.setPrivateKey(info.getPrivateKey());
+			user.setSign(RSAUtil.sign(user.getAddress()));
 			userInfoMapper.updateUserByName(user);
 		}
 		responseBody.setUserInfo(user);
@@ -234,4 +236,3 @@ public class UserServiceImpl implements UserService {
 	}
 
 }
-
