@@ -11,7 +11,7 @@ import (
 	"io/ioutil"
 )
 
-/** rsa util */
+/** RSAUtil is a rsa util */
 type RSAUtil struct {
 }
 
@@ -28,7 +28,7 @@ func main() {
 	fmt.Print(err)
 }
 
-/** used to sign */
+/** Sign returns a signature */
 func Sign(src []byte, hash crypto.Hash) ([]byte, error) {
 	h := hash.New()
 	h.Write(src)
@@ -37,7 +37,7 @@ func Sign(src []byte, hash crypto.Hash) ([]byte, error) {
 	return rsa.SignPKCS1v15(rand.Reader, privateKey, hash, hashed)
 }
 
-/** export method used to verify signature */
+/** Verify returns nil when verify success. */
 func (rsautil *RSAUtil) Verify(src []byte, sign []byte, hash crypto.Hash, pkPath string) error {
 	h := hash.New()
 	h.Write(src)
