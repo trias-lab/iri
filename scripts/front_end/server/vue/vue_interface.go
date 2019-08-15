@@ -24,12 +24,15 @@ type AddNodeRequest struct {
 	Score    string `json:"score,omitempty"`
 	Address  string `json:"address,omitempty"`
 	Url      string `json:"url,omitempty"`
+	Sign     string `json:"sign,omitempty"`
 }
 
 type QueryNodesRequest struct {
 	Period  int64  `json:"period"`
 	NumRank int64  `json:"numRank"`
 	Url     string `json:"url,omitempty"`
+	Address string `json:"address,omitempty"`
+	Sign     string `json:"sign,omitempty"`
 }
 
 type NodeDetailRequest struct {

@@ -1,8 +1,10 @@
 package main
 
 import (
-	auth "./auth"
 	v "./vue"
+	auth "./auth"
+	"crypto"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -26,19 +28,14 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 		}
 	}()
 
-	address := "123456"
-	base64Sig := "w2TxCtk4mTVjauBgi8h8ZMtHBd71VyXTBMfMh25BsO1293mUt4UE7XYbL0M/9NQYjK8PwGknGCbQWNgwfcLj503vQzveSy7CSiIA9mN0CcbeQSWxwKH9nkxxchXG2pGLvqz1acsTqs+9tHDm/XoPrBwTHygiEJ3isMEgEYRfiWU="
-	var r auth.RSAUtil
-	b := r.VerifyPrivilege(address, base64Sig)
-	if b == false {
-		fmt.Println("has no privilege. address:", address)
-		return
-	}
-
 	var addNodeRequest *v.AddNodeRequest
 	if err := json.NewDecoder(request.Body).Decode(&addNodeRequest); err != nil {
 		fmt.Println(err)
 		request.Body.Close()
+	}
+
+	if validPrivilege(addNodeRequest.Address, addNodeRequest.Sign) == false{
+		return;
 	}
 
 	var o v.OCli
@@ -61,12 +58,31 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 		request.Body.Close()
 	}
 
+	if validPrivilege(queryNodesRequest.Address, queryNodesRequest.Sign) == false{
+		return;
+	}
 	var o v.OCli
 	response := o.GetRankFunction(queryNodesRequest)
 
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
 		fmt.Println(err)
 	}
+}
+
+func validPrivilege(addr string, sign string) bool{
+	if sign != "" {
+		address := addr
+		base64Sig := sign
+		sig,_ := base64.StdEncoding.DecodeString(base64Sig);
+		var r auth.RSAUtil
+		b := r.Verify([]byte(address), sig, crypto.SHA256, "./auth/public_key.pem")
+		if b != nil {
+			fmt.Println("has no privilege. address:", address)
+			return false;
+		}
+		fmt.Println("privilege valid success !" )
+	}
+	return true;
 }
 
 func QueryNodeDetail(writer http.ResponseWriter, request *http.Request) {
