@@ -11,11 +11,11 @@ import (
 	"io/ioutil"
 )
 
-/** RSAUtil is a rsa util */
+// RSAUtil is a rsa util
 type RSAUtil struct {
 }
 
-/** make sure package name be changed to "main" when run this method */
+// make sure package name be changed to "main" when run this method
 func main() {
 	address := "123456"
 	sig, _ := Sign([]byte(address), crypto.SHA256)
@@ -28,7 +28,7 @@ func main() {
 	fmt.Print(err)
 }
 
-/** Sign returns a signature */
+// Sign returns a signature
 func Sign(src []byte, hash crypto.Hash) ([]byte, error) {
 	h := hash.New()
 	h.Write(src)
@@ -37,7 +37,7 @@ func Sign(src []byte, hash crypto.Hash) ([]byte, error) {
 	return rsa.SignPKCS1v15(rand.Reader, privateKey, hash, hashed)
 }
 
-/** Verify returns nil when verify success. */
+// Verify returns nil when verify success.
 func (rsautil *RSAUtil) Verify(src []byte, sign []byte, hash crypto.Hash, pkPath string) error {
 	h := hash.New()
 	h.Write(src)
