@@ -13,6 +13,7 @@ import StringIO
 import gzip
 from iota import TryteString
 from key_manager.signmessage import sign_input_message
+from auth import verify_sign
 
 cf = ConfigParser.ConfigParser()
 cf.read("conf")
@@ -24,6 +25,7 @@ enable_batching = cf.getboolean("iota", "enableBatching")
 enable_crypto = cf.getboolean("iota", "enableCrypto")
 listen_port = cf.get("iota", "listenPort")
 listen_address = cf.get("iota", "listenAddress")
+public_key = cf.get("auth", "publicKey")
 cache = IotaCache(iota_addr, iota_seed)
 
 # txs buffer. dequeue is thread-safe
@@ -45,6 +47,7 @@ def sign_message(data,address, base58_priv_key):
         message = json.dumps(data, sort_keys=True)
         signature = sign_input_message(address, message.replace(' ', ''), base58_priv_key)
         data['sign'] = signature
+        data['address'] = address
         return json.dumps(data, sort_keys=True)
     else:
         return json.dumps(data, sort_keys=True)
@@ -108,6 +111,7 @@ def get_cache():
 
     address = '14dD6ygPi5WXdwwBTt1FBZK3aD8uDem1FY'
     base58_priv_key = 'L41XHGJA5QX43QRG3FEwPbqD5BYvy6WxUxqAMM9oQdHJ5FcRHcGk'
+
     global cache_lock
     with cache_lock:
         nums = min(len(txn_cache), BATCH_SIZE)
@@ -121,8 +125,16 @@ def get_cache():
         for i in range(nums):
             tx = txn_cache.popleft()
             req_json = json.loads(tx)
+            if enable_crypto is True:
+                if req_json.has_key(u'private_key'):
+                    base58_priv_key = req_json.get('private_key')
+                    del req_json[u'private_key']
+                if req_json.has_key(u'address'):
+                    address = req_json.get('address')
+                    del req_json[u'address']
+
             if not req_json.has_key(u'tag'):
-                tr_list.append(tx)
+                tr_list.append(sign_message(req_json, address, base58_priv_key))
                 num_tr += 1
             elif req_json[u'tag'] == 'TX':
                 tx_list.append(sign_message(req_json, address, base58_priv_key))
@@ -168,9 +180,25 @@ def put_file():
     base58_priv_key = 'L41XHGJA5QX43QRG3FEwPbqD5BYvy6WxUxqAMM9oQdHJ5FcRHcGk'
 
     req_json = request.get_json()
+    if req_json.has_key("signature"):
+        # signature = req_json.get("signature")
+        # address = req_json.get("address")
+        signature = "H01p6ifhNZ01hcY7G6uBkf1irMUiZYN/bf688HlCZEUsmUKRzBFsjW0WM2WoMKNogpAKWpV+ui82f1ry8D3KL9pyCL8LR8N36USkNhB5qe1aWQ1xMaSdgU0s7bZoQ6mVxiAxssM+w+CMP4gNVgYbzLR8GMnuIg/XYFCDoUgGyAw="
+        address = "123456"
+        has_priv = verify_sign(address, signature, public_key)
+        if has_priv is False:
+            return "has no privilege to create tr."
 
     if req_json is None:
         return 'error'
+
+    if enable_crypto is True:
+        if req_json.has_key(u'private_key'):
+            base58_priv_key = req_json.get('private_key')
+            del req_json[u'private_key']
+        if req_json.has_key(u'address'):
+            base58_priv_key = req_json.get('address')
+            del req_json[u'address']
 
     if not req_json.has_key(u'tag'):
         send(sign_message(req_json, address, base58_priv_key))

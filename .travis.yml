@@ -25,6 +25,7 @@ install:
     - sudo add-apt-repository multiverse
     - sudo apt-get update
     - sudo apt-get install python-pip
+    - sudo apt-get install python-dev
     - sudo pip install ipfsapi
     - sudo pip install flask
     - sudo pip install -U pyOpenSSL
@@ -35,6 +36,7 @@ install:
     - sudo pip install sh
     - sudo pip install six --upgrade
     - sudo pip install ecdsa
+    - sudo pip install pycrypto
   # update go version
     - gimme 1.11.5
     - source ~/.gimme/envs/go1.11.5.env

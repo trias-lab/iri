@@ -250,7 +250,7 @@ public class API {
                     }
 
                     if (message.indexOf("sign") > 0){
-                        if(!verifySign(address, message)){
+                        if(!verifySign(message)){
                             log.error("Failed to verify signature!");
                             return AbstractResponse.createEmptyResponse();
                         }
@@ -1643,7 +1643,7 @@ public class API {
         }
     }
 
-    private boolean verifySign(String address, String requstJson){
+    private boolean verifySign(String requstJson){
         JSONObject json = new JSONObject(requstJson);
         Integer num = json.getInt("tx_num");
         if (num == null || num < 1){
@@ -1651,12 +1651,12 @@ public class API {
         }
         String contentStr = json.getString("txn_content");
         if(num == 1) {
-            return doVerify(address, contentStr);
+            return doVerify(contentStr);
         }
         else if (num > 1 ){
             JSONArray arr = new JSONArray(contentStr);
             for (Object obj : arr){
-                boolean r = doVerify(address, (String) obj);
+                boolean r = doVerify((String) obj);
                 if (!r){
                     return false;
                 }
@@ -1668,9 +1668,10 @@ public class API {
         }
     }
 
-    private boolean doVerify(String address, String contentStr){
+    private boolean doVerify(String contentStr){
         JSONObject content = new JSONObject(contentStr);
         String signature = (String) content.remove("sign");
+        String address = (String) content.remove("address");
         String message = EcdsaUtils.getSortedStringFrom(content);
         log.debug("[message] {}", message);
         return CryptoExecutor.getCryptoInstance().verify(signature, address, message);

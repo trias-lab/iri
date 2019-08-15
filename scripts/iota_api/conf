@@ -10,3 +10,12 @@ listenAddress = 0.0.0.0
 
 [tendermint]
 addr = http://localhost:26657
+
+[auth]
+publicKey: -----BEGIN PUBLIC KEY-----
+           MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC88tqCOKwlnMLhfq/yGyxfQ1rG
+           QXhcxYmnPhfsqkqD0IhMIgbVCoMY4SSUNuJolzxQDRcvdECB/4tGvNOVdRAffwXQ
+           f1aiV2WtTnqrDNlIHW+x365iKpsnvTTMPAIeFNhX/y0xT5rjyuAmRK4rdQ2+lVhW
+           nqwIjdtjRWneGhDwKQIDAQAB
+           -----END PUBLIC KEY-----
+
