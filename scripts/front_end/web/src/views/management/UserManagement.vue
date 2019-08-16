@@ -125,9 +125,6 @@
                     email: ""
                 },
                 rules: {
-                    address: [
-                        {required: true, message: "Please type in address", trigger: "blur"},
-                    ],
                     email: [
                         {required: true, message: "Please type in email", trigger: "blur"},
                         {required: true, validator: checkEmail, message: "Email not correct", trigger: "blur"}
