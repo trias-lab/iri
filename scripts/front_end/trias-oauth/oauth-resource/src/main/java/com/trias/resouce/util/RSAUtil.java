@@ -1,9 +1,13 @@
 package com.trias.resouce.util;
 
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.pkcs.RSAPrivateKeyStructure;
+
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 public class RSAUtil {
@@ -64,15 +68,11 @@ public class RSAUtil {
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			byte[] encodedKey = Base64.decode(publicKey);
 			PublicKey pubKey = keyFactory.generatePublic(new X509EncodedKeySpec(encodedKey));
-
-			java.security.Signature signature = java.security.Signature.getInstance(SIGN_ALGORITHMS);
-
+			java.security.Signature signature = java.security.Signature.getInstance("SHA256withRSA");
 			signature.initVerify(pubKey);
-			signature.update(content.getBytes("utf-8"));
-
+			signature.update(content.getBytes());
 			boolean bverify = signature.verify(Base64.decode(sign));
 			return bverify;
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -84,14 +84,15 @@ public class RSAUtil {
 		String charset = "utf-8";
 		try {
 			java.security.Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-			PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64.decode(privateKey));
+			RSAPrivateKeyStructure asn1PrivKey = new RSAPrivateKeyStructure((ASN1Sequence) ASN1Sequence.fromByteArray(Base64.decode(privateKey)));
+			RSAPrivateKeySpec rsaPrivKeySpec = new RSAPrivateKeySpec(asn1PrivKey.getModulus(), asn1PrivKey.getPrivateExponent());
 			KeyFactory keyf = KeyFactory.getInstance("RSA");
-			PrivateKey priKey = keyf.generatePrivate(priPKCS8);
+			PrivateKey priKey = keyf.generatePrivate(rsaPrivKeySpec);
 
-			java.security.Signature signature = java.security.Signature.getInstance(SIGN_ALGORITHMS);
+			java.security.Signature signature = java.security.Signature.getInstance("SHA256withRSA");
 
 			signature.initSign(priKey);
-			signature.update(content.getBytes(charset));
+			signature.update(content.getBytes());
 
 			byte[] signed = signature.sign();
 
