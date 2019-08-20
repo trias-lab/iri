@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 
 import com.trias.resouce.body.CommonResponse;
 import com.trias.resouce.body.request.OauthLoginRequestBody;
+import com.trias.resouce.body.request.QueryUserRequest;
 import com.trias.resouce.body.request.RegisterOauthRequest;
 import com.trias.resouce.body.response.UserResourceResponseBody;
 
@@ -16,5 +17,9 @@ public interface UserService {
 	CommonResponse registerOauthUser(RegisterOauthRequest request);
 
 	CommonResponse addition(RegisterOauthRequest request);
+
+	CommonResponse queryUserList(QueryUserRequest request);
+
+	CommonResponse updateUser(RegisterOauthRequest request);
 
 }

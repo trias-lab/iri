@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -25,16 +26,22 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.google.gson.Gson;
+import com.iri.utils.crypto.ellipticcurve.EcdsaUtils;
+import com.iri.utils.crypto.ellipticcurve.EcdsaUtils.SecureInfo;
 import com.trias.resouce.body.CommonResponse;
 import com.trias.resouce.body.request.OauthLoginRequestBody;
+import com.trias.resouce.body.request.QueryUserRequest;
 import com.trias.resouce.body.request.RegisterOauthRequest;
+import com.trias.resouce.body.response.QueryUserResponse;
 import com.trias.resouce.body.response.UserInfoVo;
 import com.trias.resouce.body.response.UserResourceResponseBody;
 import com.trias.resouce.config.LocalConfig;
+import com.trias.resouce.exception.IllegalRoleException;
 import com.trias.resouce.exception.OauthNoResposeException;
 import com.trias.resouce.mapper.UserInfoMapper;
 import com.trias.resouce.model.Resource;
@@ -42,6 +49,7 @@ import com.trias.resouce.model.User;
 import com.trias.resouce.service.UserService;
 import com.trias.resouce.util.HttpUtils;
 import com.trias.resouce.util.OauthUtil;
+import com.trias.resouce.util.RSAUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -79,10 +87,18 @@ public class UserServiceImpl implements UserService {
 		List<Resource> resourceList = userInfoMapper.getResourceByUserRole(nameList);
 		responseBody.setResourceList(resourceList);
 		User user = userInfoMapper.getUserByName(authentication.getName());
-		if(user == null) {
+		if (user == null) {
 			user = new User();
 			user.setUsername(authentication.getName());
 			userInfoMapper.insertUser(user);
+		}
+		if (!user.getUsername().equals("admin")
+				&& (StringUtils.isBlank(user.getPrivateKey()) || StringUtils.isBlank(user.getAddress()))) {
+			SecureInfo info = EcdsaUtils.generateSecureInfo();
+			user.setAddress(info.getAddress());
+			user.setPrivateKey(info.getPrivateKey());
+			user.setSign(RSAUtil.sign(user.getAddress()));
+			userInfoMapper.updateUserByName(user);
 		}
 		responseBody.setUserInfo(user);
 		return responseBody;
@@ -190,5 +206,33 @@ public class UserServiceImpl implements UserService {
 		return authHeader;
 	}
 
-}
+	@Override
+	public CommonResponse queryUserList(QueryUserRequest request) {
 
+		String operator = SecurityContextHolder.getContext().getAuthentication().getName();
+		String roleName = userInfoMapper.getUserRoleByName(operator);
+		if (!"ROLE_ADMIN".equals(roleName)) {
+			throw new IllegalRoleException("Permission denied!");
+		}
+		List<User> userList = userInfoMapper.getUserList(request);
+		int totalCount = userInfoMapper.getUserCount(request);
+		QueryUserResponse reponse = new QueryUserResponse();
+		reponse.setUserList(userList);
+		reponse.setTotalCount(totalCount);
+		return CommonResponse.CreateResponse("success", 1, reponse);
+	}
+
+	@Override
+	public CommonResponse updateUser(RegisterOauthRequest request) {
+		String operator = SecurityContextHolder.getContext().getAuthentication().getName();
+		String roleName = userInfoMapper.getUserRoleByName(operator);
+		if (!operator.equals(request.getUsername()) && !"ROLE_ADMIN".equals(roleName)) {// 非管理员修改他人信息，拒绝
+			throw new IllegalRoleException("Can't modify other's information!");
+		}
+		User user = new User();
+		BeanUtils.copyProperties(request, user);
+		userInfoMapper.updateUserByName(user);
+		return CommonResponse.CreateResponse("success", 1, user);
+	}
+
+}

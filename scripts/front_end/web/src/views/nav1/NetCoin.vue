@@ -21,17 +21,17 @@
             </el-select>
         </el-form-item>
         <el-form-item label="Balance: " label-width="150px;">
-            <el-input v-model="form.account" class="input-large left-float" placeholder="Input the account"
-                      @change="setAccount" :readonly="true"/>
+            <el-input v-model="form.address" class="input-large left-float" placeholder="Input the address"
+                      @change="setAddress" :readonly="true"/>
             <div class="div-balance">{{form.balance}}</div>
             <el-button @click="getBalance" type="success">Get Balance</el-button>
         </el-form-item>
         <el-form-item label="Trans: " label-width="150px;">
             <label>&nbsp;&nbsp;&nbsp;&nbsp;From: &nbsp;</label>
-            <el-input v-model="form.source" class="input-large" placeholder="Input source account"
+            <el-input v-model="form.source" class="input-large" placeholder="Input source address"
                       @change="setSource" :readonly="true"/>
             <label>To: </label>
-            <el-input v-model="form.target" class="input-large" placeholder="Input target account"
+            <el-input v-model="form.target" class="input-large" placeholder="Input target address"
                       @change="setTarget"/>
             <label>Balance: </label>
             <el-input v-model="form.tarnsBalance" type="number" class="input-medium" placeholder="Input balance"
@@ -59,9 +59,9 @@
         data() {
             return {
                 form: {
-                    account: this.$store.state.userInfo.account,
+                    address: this.$store.state.userInfo.address,
                     balance: "0",
-                    source: this.$store.state.userInfo.account,
+                    source: this.$store.state.userInfo.address,
                     target: "",
                     tarnsBalance: ""
                 },
@@ -81,12 +81,12 @@
             choosePort(data) {
                 requestPort = data;
             },
-            setAccount(val) {
-                this.form.account = val;
+            setAddress(val) {
+                this.form.address = val;
             },
             getBalance() {
-                if (!this.form.account) {
-                    this.$alert("Please input account info", this.messageOption.warmUp());
+                if (!this.form.address) {
+                    this.$alert("Please input address info", this.messageOption.warmUp());
                     return;
                 }
                 if (!this.checkServerAndPort()) {
@@ -96,7 +96,7 @@
                 requestHost = requestServer + ":" + requestPort;
                 requestUrl = requestHost + "/get_balance";
                 let request = {};
-                let requestData = {"account": this.form.account};
+                let requestData = {"address": this.form.address};
                 request.requestUrl = requestUrl;
                 request.requestData = JSON.stringify(requestData);
                 request.requestMethod = this.requestMethod.GET;

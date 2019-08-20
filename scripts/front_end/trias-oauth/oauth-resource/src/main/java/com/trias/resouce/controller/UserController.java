@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.trias.resouce.body.CommonResponse;
 import com.trias.resouce.body.request.OauthLoginRequestBody;
+import com.trias.resouce.body.request.QueryUserRequest;
 import com.trias.resouce.body.request.RegisterOauthRequest;
 import com.trias.resouce.body.response.UserResourceResponseBody;
 import com.trias.resouce.exception.IllegalRoleException;
@@ -85,6 +86,28 @@ public class UserController {
 		request.setUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 		try {
 			return userService.addition(request);
+		} catch (Exception e) {
+			logger.error("addition happens an error:'{}'", new Object[] { e });
+			return CommonResponse.CreateResponse("System error", 0, null);
+		}
+	}
+	
+	@RequestMapping(value = "/list", method = RequestMethod.POST)
+	@ResponseBody
+	public CommonResponse userList(@RequestBody QueryUserRequest request) {
+		try {
+			return userService.queryUserList(request);
+		} catch (Exception e) {
+			logger.error("addition happens an error:'{}'", new Object[] { e });
+			return CommonResponse.CreateResponse("System error", 0, null);
+		}
+	}
+	
+	@RequestMapping(value = "/updateUser", method = RequestMethod.POST)
+	@ResponseBody
+	public CommonResponse updateUser(@RequestBody RegisterOauthRequest request) {
+		try {
+			return userService.updateUser(request);
 		} catch (Exception e) {
 			logger.error("addition happens an error:'{}'", new Object[] { e });
 			return CommonResponse.CreateResponse("System error", 0, null);

@@ -9,6 +9,7 @@ import Deployment from "./views/nav2/Deployment";
 import Experiment from "./views/nav2/Experiment";
 import Addition from "./views/Addition"
 import Register from "./views/Register"
+import UserManagement from "./views/management/UserManagement"
 
 let routes = [
     {
@@ -62,8 +63,19 @@ let routes = [
             {path: "/server/devOps", component: DevOps, name: "DevOps"},
             {path: "/server/deployment", component: Deployment, name: "Deployment"},
             {path: "/server/experiment", component: Experiment, name: "Experiment"},
+            {path: "/server/userManagement", component: UserManagement, name: "UserManagement"},
         ],
         rootName: "server"
+    },
+    {
+        path: '/management',
+        component: Home,
+        name: 'Management',
+        iconCls: 'el-icon-s-platform',
+        children: [
+            {path: "/management/userManagement", component: UserManagement, name: "UserManagement"},
+        ],
+        rootName: "management"
     },
     {
         path: '*',
