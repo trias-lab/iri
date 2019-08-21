@@ -97,7 +97,7 @@ npm run build
 ## How to run in dev/product environment
 ### First server
 - cd ~/iri/scripts/front_end/server
-- go run main.go
+- go run main.go -host ```http://127.0.0.1:14700```
 ### dev
 - modify proxy file ~/config/proxyConfig.js
     - modify target with your address
