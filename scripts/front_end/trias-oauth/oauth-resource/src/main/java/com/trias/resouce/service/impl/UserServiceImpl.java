@@ -67,6 +67,8 @@ public class UserServiceImpl implements UserService {
 	private static final String GRANT_TYPE = "password";
 
 	private static final String REGISTER_ACTION = "/user/register";
+	
+	private static final String USER_ADMIN = "admin";
 
 	@Autowired
 	private UserInfoMapper userInfoMapper;
@@ -92,7 +94,7 @@ public class UserServiceImpl implements UserService {
 			user.setUsername(authentication.getName());
 			userInfoMapper.insertUser(user);
 		}
-		if (!user.getUsername().equals("admin")
+		if (!user.getUsername().equals(USER_ADMIN)
 				&& (StringUtils.isBlank(user.getPrivateKey()) || StringUtils.isBlank(user.getAddress()))) {
 			SecureInfo info = EcdsaUtils.generateSecureInfo();
 			user.setAddress(info.getAddress());

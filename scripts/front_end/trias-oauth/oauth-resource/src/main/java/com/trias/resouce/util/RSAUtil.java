@@ -12,21 +12,21 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class RSAUtil {
 
-	private static final String PRIVATE_KEY = "MIICXQIBAAKBgQC88tqCOKwlnMLhfq/yGyxfQ1rGQXhcxYmnPhfsqkqD0IhMIgbV\r\n"
-			+ "CoMY4SSUNuJolzxQDRcvdECB/4tGvNOVdRAffwXQf1aiV2WtTnqrDNlIHW+x365i\r\n"
-			+ "KpsnvTTMPAIeFNhX/y0xT5rjyuAmRK4rdQ2+lVhWnqwIjdtjRWneGhDwKQIDAQAB\r\n"
-			+ "AoGASwDgCjcy5o9OsLJYZ3Ov7nTPMMnGXJUxakj0uEZ049RAdnA/ZAwTNCoTGh6b\r\n"
-			+ "S0dVcrVvka/E95WYFNFZ8AcTCa25CNgKEK+B/gNmujSh/7pQI3s9rw3UnsECAOn7\r\n"
-			+ "4n2/RqYKewKQwE3NQMtxbfoSoCOwbvc495oOx08XeTeCzHECQQD4iw7Xg6Ps/BSq\r\n"
-			+ "cF5OzRKp9nMHWWXvK/fwx+NiV0eOiJfOcvS1hMgsBcrPjtfeHNuIeRpP1YEsPKnT\r\n"
-			+ "2lI0TRrdAkEAwp4UBQY00+9h2t+5UZL4d3DN6/3a1BpJg+7alOn1wIo4Ddd7bE0M\r\n"
-			+ "bmSZqYLHs8mNbNmy45tjqP/EfugUBV9XvQJBAKaYx20MTx/15IBOa9iUO3Nzv6zo\r\n"
-			+ "bpw/s6VQxwjPCibvRhpbEc5uX6Kqi0RPMkEuxLSYwFtM+JXHX+qih8GJAX0CQQCI\r\n"
-			+ "suJa+RYIO1+fjn+r1bDirIBnn8KiMuiqXA56hK9Sk4N17YJK+v+dVto8H5lIJm1J\r\n"
-			+ "JMyrZM0muqh5f2f4shR9AkBmvToX9cEO/n4xOkPtetz/v2Iu33jdmOrSTDEdrZXX\r\n"
-			+ "2aefNFMVkMipBiVvdbriznFTDkiRfApXdPSSEBOVhTtx";
+	private static final String PRIVATE_KEY = "MIICXQIBAAKBgQCqUIn2OxSbMRA9DWAczrgU53UZHMEUUrulnWemruG6Y6qsYDYo"
+			+ "CZvoEooi137rdk6PeNYOjIRwEKmgr5OWuyHcRqe5MLhuPfbtzzoSPBpFsxa87V/D"
+			+ "HYgUStqbAVqbCiLQMutsVO/r7fmBZojM63YmNS9JTyDtarSuedQmfw5rdQIDAQAB"
+			+ "AoGBAJEDXESMT2JIJzRkhBZjKLebz8dfBUMBooZD/LIeq1HhdLuqe9IhRF8YEgfS"
+			+ "hl2D8SYV0+S1Xjpw5Y1MkZTApvWcmbW4cBz4XScBzGhUSz50ENMpwqWbnk7lkJEs"
+			+ "FRHkhSZdZH1lU2K6gvno+lXsreajq3fOqSsZSilgxiGO1e4tAkEA0cRl9xfJhSfm"
+			+ "uucSYCYVOBrqUoSnhSKffPUGxAfZ1fWdfk3eJZmiu9Z07zAqdQkA+0s83V7NG5fw"
+			+ "bY1IXfvV8wJBAM/aIA61xc1GJXpZT8PcbkC2sGjshDxTVRXVusq3Tds6u37UXbKx"
+			+ "qNY1lMlIMCQPG/X8wFjaBAApKt+zOUrKivcCQBmdlSIGappzE+7w9sJ9BAxU5RZs"
+			+ "kpRkdPtqZIgduVEybCgXVDBdQY0UlDT9OcIO9mq5dlZGFF/xPu/x18t6TFcCQG0w"
+			+ "bT7NBsg7XVzUpi6CEfk0/59fAGigbkY2LRZpDSFpzS1naoGBCuzc4PiMT53hwhKL"
+			+ "YJBMl2VuOvOhNyuvEykCQQDJAVIZlT/h6VsRtO0bqXqOVRHHMMPoxbVdo9ul/m2D"
+			+ "G33qItoRtFRKp7oOu3jp8sTiiLKLTSsNMMizn+GRYRAf";
 
-	public static final String SIGN_ALGORITHMS = "SHA1WithRSA";
+	public static final String SIGN_ALGORITHMS = "SHA256withRSA";
 
 	/**
 	 * @param content:签名的参数内容
@@ -37,14 +37,17 @@ public class RSAUtil {
 		String charset = "utf-8";
 		try {
 			java.security.Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-			PKCS8EncodedKeySpec priPKCS8 = new PKCS8EncodedKeySpec(Base64.decode(PRIVATE_KEY));
+			RSAPrivateKeyStructure asn1PrivKey = new RSAPrivateKeyStructure(
+					(ASN1Sequence) ASN1Sequence.fromByteArray(Base64.decode(PRIVATE_KEY)));
+			RSAPrivateKeySpec rsaPrivKeySpec = new RSAPrivateKeySpec(asn1PrivKey.getModulus(),
+					asn1PrivKey.getPrivateExponent());
 			KeyFactory keyf = KeyFactory.getInstance("RSA");
-			PrivateKey priKey = keyf.generatePrivate(priPKCS8);
+			PrivateKey priKey = keyf.generatePrivate(rsaPrivKeySpec);
 
 			java.security.Signature signature = java.security.Signature.getInstance(SIGN_ALGORITHMS);
 
 			signature.initSign(priKey);
-			signature.update(content.getBytes(charset));
+			signature.update(content.getBytes());
 
 			byte[] signed = signature.sign();
 
@@ -68,7 +71,7 @@ public class RSAUtil {
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			byte[] encodedKey = Base64.decode(publicKey);
 			PublicKey pubKey = keyFactory.generatePublic(new X509EncodedKeySpec(encodedKey));
-			java.security.Signature signature = java.security.Signature.getInstance("SHA256withRSA");
+			java.security.Signature signature = java.security.Signature.getInstance(SIGN_ALGORITHMS);
 			signature.initVerify(pubKey);
 			signature.update(content.getBytes());
 			boolean bverify = signature.verify(Base64.decode(sign));
@@ -78,30 +81,6 @@ public class RSAUtil {
 		}
 
 		return false;
-	}
-
-	public static String sign(String content, String privateKey) {
-		String charset = "utf-8";
-		try {
-			java.security.Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-			RSAPrivateKeyStructure asn1PrivKey = new RSAPrivateKeyStructure((ASN1Sequence) ASN1Sequence.fromByteArray(Base64.decode(privateKey)));
-			RSAPrivateKeySpec rsaPrivKeySpec = new RSAPrivateKeySpec(asn1PrivKey.getModulus(), asn1PrivKey.getPrivateExponent());
-			KeyFactory keyf = KeyFactory.getInstance("RSA");
-			PrivateKey priKey = keyf.generatePrivate(rsaPrivKeySpec);
-
-			java.security.Signature signature = java.security.Signature.getInstance("SHA256withRSA");
-
-			signature.initSign(priKey);
-			signature.update(content.getBytes());
-
-			byte[] signed = signature.sign();
-
-			return Base64.encode(signed);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return null;
 	}
 
 }

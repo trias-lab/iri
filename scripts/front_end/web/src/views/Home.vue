@@ -9,8 +9,8 @@
                     <el-dropdown trigger="hover">
                         <span class="el-dropdown-link userinfo-inner">{{$store.state.userInfo.username}}</span>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item @click.native="logout">Logout</el-dropdown-item>
                             <el-dropdown-item @click.native="settings">Settings</el-dropdown-item>
+                            <el-dropdown-item @click.native="logout">Logout</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                 </el-col>
@@ -60,6 +60,7 @@
                 </el-form-item>
                 <el-form-item label="Address">
                     <el-input v-model="user.address" class="input-small" :readonly="true"/>
+                    <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.address" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
                 </el-form-item>
                 <el-form-item label="Sign">
                     <el-input v-model="user.sign" class="input-large" :readonly="true"/>
@@ -138,7 +139,7 @@
                 this.editUserDialog = true;
             },
             onCopy(e){
-                console.log(e);
+                this.$alert("success!",this.messageOption.success);
             },
             onError(e){
                 console.log(e);
