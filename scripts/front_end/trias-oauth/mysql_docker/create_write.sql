@@ -2,7 +2,6 @@ create database trias_cli default character set utf8 collate utf8_general_ci;
 create database trias default character set utf8 collate utf8_general_ci;
 use trias_cli;
 source /mysql/trias_cli-init.sql;
-source /mysql/trias_cli_user_ddl.sql;
 use trias;
 source /mysql/trias_server-init.sql;
 source /mysql/trias-server_ddl.sql;
