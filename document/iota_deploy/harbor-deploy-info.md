@@ -26,7 +26,10 @@ sudo ./install.sh
 安装成功后，我们执行下面命令发现一些容器已经起来了，因为harbor是依赖于这些容器的：
 ```  
 ![](https://img-blog.csdnimg.cn/2018120612283573.png?raw=true)
-这时候，我们在主机的浏览器上可以通过：http://（ip地址）来访问harbor页面，用户名：admin，密码就是你刚刚自己设置的，然后登录:  
+
+```
+这时候，我们在主机的浏览器上可以通过："http://ipaddress"来访问harbor页面，用户名：admin，密码就是你刚刚自己设置的，然后登录:
+```  
 ![](https://img-blog.csdnimg.cn/20181206123142373.png?raw=true)
 ![](https://github.com/wangyh2016/storm/blob/master/harbor.png?raw=true)
 这样你就可以在这个页面管理自己的仓库了.
@@ -56,12 +59,12 @@ sudo docker tag tomcat 192.168.***.***/runtime/tomcat
 ```  
 ![](https://github.com/wangyh2016/storm/blob/master/harbor-login.png?raw=true)
 登录成功后，以后你就可以将刚刚打好标签的镜像push到你的harbor了：
-```    
+```  
 sudo docker push 192.168.***.***/runtime/tomcat
 稍等一会，你就可以在你的harbor界面下，发现项目runtime下有了：
 ```  
 ![](https://img-blog.csdnimg.cn/20181206130905487.png?raw=true)
-```   
+```  
 同样，你也可以从你的harbor中去pull你的镜像，很简单就是正常的docker命令：
 sudo docker pull 192.168.***.***/runtime/tomcat
 ```   
