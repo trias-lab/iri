@@ -8,9 +8,26 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"flag"
+	"os"
 )
 
+var (
+	host string
+)
+
+func init() {
+	flag.StringVar(&host, "host", "", "Iota server host, http://127.0.0.1:14700")
+}
+
 func main() {
+	flag.Parse()
+	if host == "" {
+		fmt.Fprintln(os.Stderr, "Usage: go run main.go -host [-file] \nOption:")
+		flag.PrintDefaults()
+		return
+	}
+
 	http.HandleFunc("/AddNode", AddNode)
 	http.HandleFunc("/QueryNodes", QueryNodes)
 	http.HandleFunc("/QueryNodeDetail", QueryNodeDetail)
@@ -38,6 +55,7 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 		return;
 	}
 
+    addNodeRequest.Url = host
 	var o v.OCli
 	response := o.AddAttestationInfoFunction(addNodeRequest)
 
@@ -59,8 +77,11 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	if validPrivilege(queryNodesRequest.Address, queryNodesRequest.Sign) == false{
+	    fmt.Println("privilege valid failed, address:", queryNodesRequest.Address, ", sign: ", queryNodesRequest.Sign)
 		return;
 	}
+
+	queryNodesRequest.Url = host
 	var o v.OCli
 	response := o.GetRankFunction(queryNodesRequest)
 
@@ -80,7 +101,6 @@ func validPrivilege(addr string, sign string) bool{
 			fmt.Println("has no privilege. address:", address)
 			return false;
 		}
-		fmt.Println("privilege valid success !" )
 	}
 	return true;
 }
@@ -97,6 +117,7 @@ func QueryNodeDetail(writer http.ResponseWriter, request *http.Request) {
 		request.Body.Close()
 	}
 
+    detailRequest.RequestUrl = host
 	var o v.OCli
 	response := o.QueryNodeDetail(detailRequest)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
