@@ -273,7 +273,7 @@ public class API {
                             }
                         })){
                             log.error("Failed to verify signature!");
-                            return AbstractResponse.createEmptyResponse();
+                            throw new RuntimeException("Failed to verify signature.");
                         }
                     }
 
