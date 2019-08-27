@@ -66,6 +66,10 @@
                     <el-input v-model="user.sign" class="input-large" :readonly="true"/>
                     <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.sign" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
                 </el-form-item>
+                <el-form-item label="PrivateKey">
+                    <el-input v-model="user.privateKey" class="input-large" :readonly="true"/>
+                    <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.sign" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
+                </el-form-item>
                 <el-form-item label="Email" prop="email">
                     <el-input v-model="user.email" class="input-small" placeholder="Email"/>
                 </el-form-item>

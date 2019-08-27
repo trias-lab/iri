@@ -96,7 +96,7 @@
                 requestHost = requestServer + ":" + requestPort;
                 requestUrl = requestHost + "/get_balance";
                 let request = {};
-                let requestData = {"address": this.form.address};
+                let requestData = {"account": this.form.address};
                 request.requestUrl = requestUrl;
                 request.requestData = JSON.stringify(requestData);
                 request.requestMethod = this.requestMethod.GET;
