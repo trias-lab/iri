@@ -2,6 +2,7 @@ package com.iota.iri.storage;
 
 import com.iota.iri.conf.BaseIotaConfig;
 import com.iota.iri.model.Hash;
+import com.iota.iri.model.RawTransactionHash;
 import com.iota.iri.model.StateDiff;
 import com.iota.iri.model.persistables.*;
 import com.iota.iri.storage.localinmemorygraph.LocalInMemoryGraphProvider;
@@ -29,6 +30,7 @@ public class Tangle {
                 put("bundle", Bundle.class);
                 put("obsoleteTag", ObsoleteTag.class);
                 put("tag", Tag.class);
+                put("rawtransaction", RawTransaction.class);
             }};
 
     public static final Map.Entry<String, Class<? extends Persistable>> METADATA_COLUMN_FAMILY =

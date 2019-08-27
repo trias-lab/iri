@@ -9,6 +9,7 @@ import com.iota.iri.model.persistables.Bundle;
 import com.iota.iri.model.persistables.ObsoleteTag;
 import com.iota.iri.model.persistables.Tag;
 import com.iota.iri.model.persistables.Transaction;
+import com.iota.iri.model.persistables.RawTransaction;
 import com.iota.iri.storage.Persistable;
 import com.iota.iri.utils.Converter;
 
@@ -18,32 +19,33 @@ public enum HashFactory {
     BUNDLE(Bundle.class),
     TAG(Tag.class),
     OBSOLETETAG(ObsoleteTag.class),
-    
+    RAWTRANSACTION(RawTransaction.class),
+
     /**
-     * Creates from generic class, should be passed in the create() function. 
+     * Creates from generic class, should be passed in the create() function.
      * Will return NULL_HASH if other functions are used
      */
 	GENERIC;
-    
+
     private static final Logger log = LoggerFactory.getLogger(HashFactory.class);
-    
+
     private Class<? extends Persistable> clazz;
 
     HashFactory(Class<? extends Persistable> clazz) {
         this.clazz = clazz;
     }
-    
+
     HashFactory() {
-        
+
     }
-    
+
     /**
      * Creates a Hash using the provided trits
      * @param trytes the source data
      * @return the hash
      */
     public Hash create(String trytes) {
-        
+
         byte[] trits = new byte[Hash.SIZE_IN_TRITS];
         Converter.trits(trytes, trits, 0);
         return create(clazz, trits, 0, Hash.SIZE_IN_TRITS);
@@ -59,7 +61,7 @@ public enum HashFactory {
     public Hash create(byte[] source, int sourceOffset, int sourceSize) {
         return create(clazz, source, sourceOffset, sourceSize);
     }
-    
+
     /**
      * Creates a Hash using the provided trits
      * @param trits the source data
@@ -69,7 +71,7 @@ public enum HashFactory {
     public Hash create(byte[] trits, int sourceOffset) {
         return create(clazz, trits, sourceOffset, Hash.SIZE_IN_TRITS);
     }
-    
+
     /**
      * Creates a Hash using the provided source.
      * Starts from the beginning, source size is based on source length
@@ -81,7 +83,7 @@ public enum HashFactory {
   	}
 
     /**
-     * 
+     *
      * @param modelClass The model this Hash represents
      * @param source the source data, bytes or trits. Based on the length of source data
      * @return the hash of the correct type
@@ -91,7 +93,7 @@ public enum HashFactory {
     }
 
     /**
-     * 
+     *
      * @param modelClass The model this Hash represents
      * @param source the source data, bytes or trits
      * @param sourceOffset the offset in the source
@@ -99,23 +101,26 @@ public enum HashFactory {
      * @return the hash of the correct type
      */
     public Hash create(Class<?> modelClass, byte[] source, int sourceOffset, int sourceSize) {
-        
+
         //Transaction is first since its the most used
         if (modelClass.equals(Transaction.class) || modelClass.equals(Approvee.class)) {
             return new TransactionHash(source, sourceOffset, sourceSize);
-            
+
         } else if (modelClass.equals(Address.class)) {
             return new AddressHash(source, sourceOffset, sourceSize);
-            
+
         } else if (modelClass.equals(Bundle.class)) {
             return new BundleHash(source, sourceOffset, sourceSize);
-            
+
         } else if (modelClass.equals(Tag.class)) {
             return new TagHash(source, sourceOffset, sourceSize);
-            
+
         } else if (modelClass.equals(ObsoleteTag.class)) {
-            return new ObsoleteTagHash(source, sourceOffset, sourceSize);  
-            
+            return new ObsoleteTagHash(source, sourceOffset, sourceSize);
+
+        } else if (modelClass.equals(RawTransaction.class)) {
+            return new RawTransactionHash(source, sourceOffset, sourceSize);
+
         } else {
             log.warn("Tried to construct hash from unknown class " + modelClass);
             //Default to transaction hash or NULL_HASH?

@@ -2,7 +2,7 @@
 
 rm -rf iri-1.5.5.jar
 cd ../../..
-mvn clean ; mvn package
+#mvn clean ; mvn package
 cp target/iri-1.5.5.jar scripts/examples/one_node
 cd scripts/examples/one_node
 rm -rf testnetdb*
