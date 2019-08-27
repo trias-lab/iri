@@ -35,6 +35,7 @@ import com.iota.iri.utils.MapIdentityManager;
 import com.iota.iri.validator.BundleValidator;
 import com.iota.iri.validator.Snapshot;
 import com.iri.utils.crypto.ellipticcurve.EcdsaUtils;
+import com.iri.utils.crypto.ellipticcurve.utils.BinaryAscii;
 import io.undertow.Undertow;
 import io.undertow.security.api.AuthenticationMechanism;
 import io.undertow.security.api.AuthenticationMode;
@@ -60,9 +61,12 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -98,6 +102,7 @@ public class API {
     private final int maxGetTrytes;
     private final int maxBodyLength;
     private final boolean testNet;
+    private final String DIGEST_SHA256 = "SHA-256";
 
     private final static String overMaxErrorMessage = "Could not complete request";
     private final static String invalidParams = "Invalid parameters";
@@ -250,7 +255,23 @@ public class API {
                     }
 
                     if (message.indexOf("sign") > 0){
-                        if(!verifySign(message)){
+                        if(tag.contains("TEE")){
+                            message = java.net.URLDecoder.decode(message, StandardCharsets.UTF_8.name());
+                        }
+                        final String tagg = tag;
+                        if(!verifySign(message, jsonObject -> {
+                            if(tagg.contains("TEE")){
+                                return jsonObject.getInt("tee_num");
+                            }else{
+                                return jsonObject.getInt("tx_num");
+                            }
+                        }, jsonObject -> {
+                            if(tagg.contains("TEE")){
+                                return jsonObject.getJSONArray("tee_content");
+                            }else{
+                                return jsonObject.getString("txn_content");
+                            }
+                        })){
                             log.error("Failed to verify signature!");
                             return AbstractResponse.createEmptyResponse();
                         }
@@ -1643,20 +1664,20 @@ public class API {
         }
     }
 
-    private boolean verifySign(String requstJson){
+    private <T> boolean verifySign(String requstJson, Function<JSONObject,Integer> numHandler, Function<JSONObject,T> contentHandler){
         JSONObject json = new JSONObject(requstJson);
-        Integer num = json.getInt("tx_num");
+        Integer num = numHandler.apply(json);
         if (num == null || num < 1){
             throw new RuntimeException("request need txn_num.");
         }
-        String contentStr = json.getString("txn_content");
-        if(num == 1) {
+        T contentStr = contentHandler.apply(json);
+        if(num == 1 && contentStr instanceof String) {
             return doVerify(contentStr);
         }
-        else if (num > 1 ){
-            JSONArray arr = new JSONArray(contentStr);
+        else if (num >= 1 && contentStr instanceof JSONArray){
+            JSONArray arr = (JSONArray) contentStr;
             for (Object obj : arr){
-                boolean r = doVerify((String) obj);
+                boolean r = doVerify(obj);
                 if (!r){
                     return false;
                 }
@@ -1668,12 +1689,27 @@ public class API {
         }
     }
 
-    private boolean doVerify(String contentStr){
-        JSONObject content = new JSONObject(contentStr);
+    private <T> boolean doVerify(T contentStr){
+        JSONObject content;
+        if (contentStr instanceof  String){
+            content = new JSONObject(contentStr);
+        }else if(contentStr instanceof JSONObject){
+            content = (JSONObject) contentStr;
+        }else {
+            throw new RuntimeException("unknown type : " + contentStr);
+        }
         String signature = (String) content.remove("sign");
-        String address = (String) content.remove("address");
+        String address = content.getString("address");
         String message = EcdsaUtils.getSortedStringFrom(content);
         log.debug("[message] {}", message);
+        try {
+            MessageDigest sha256 = MessageDigest.getInstance(DIGEST_SHA256);
+            sha256.update(message.getBytes());
+            message = BinaryAscii.hexFromBinary(sha256.digest());
+        } catch (NoSuchAlgorithmException e) {
+            log.error("code transfer error. message:" + message, e);
+            throw new RuntimeException("code transfer error. message:" + message, e);
+        }
         return CryptoExecutor.getCryptoInstance().verify(signature, address, message);
     }
 }
