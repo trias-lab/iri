@@ -1,59 +1,111 @@
 <template>
-    <el-row class="container">
-        <el-col :span="24" class="header">
-            <el-col :span="10" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'">
-                {{collapsed?'':sysName}}
+    <div>
+        <el-row class="container">
+            <el-col :span="24" class="header">
+                <el-col :span="10" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'">
+                    {{collapsed?'':sysName}}
+                </el-col>
+                <el-col :span="4" class="userinfo">
+                    <el-dropdown trigger="hover">
+                        <span class="el-dropdown-link userinfo-inner">{{$store.state.userInfo.username}}</span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item @click.native="settings">Settings</el-dropdown-item>
+                            <el-dropdown-item @click.native="logout">Logout</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </el-col>
             </el-col>
-            <el-col :span="4" class="userinfo">
-                <el-dropdown trigger="hover">
-                    <span class="el-dropdown-link userinfo-inner">{{$store.state.userInfo.username}}</span>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item @click.native="logout">Logout</el-dropdown-item>
-                    </el-dropdown-menu>
-                </el-dropdown>
+            <el-col :span="24" class="main">
+                <aside :class="collapsed?'menu-collapsed':'menu-expanded'">
+                    <!--导航菜单-->
+                    <el-menu :default-active="$route.path" class="el-menu-vertical-demo" @open="handleopen"
+                             @close="handleclose" @select="handleselect"
+                             unique-opened router v-show="!collapsed">
+                        <template v-for="(item,index) in $router.options.routes"
+                                  v-if="!item.hidden && $store.state.rootMap[item.rootName] === 1">
+                            <el-submenu :index="index+''">
+                                <template slot="title"><i :class="item.iconCls"></i>{{item.name}}</template>
+                                <el-menu-item v-for="child in item.children" :index="child.path" :key="child.path"
+                                              v-if="!child.hidden && $store.state.pathMap[child.path] === 1">
+                                    {{child.name}}
+                                </el-menu-item>
+                            </el-submenu>
+                        </template>
+                    </el-menu>
+                </aside>
+                <section class="content-container">
+                    <div class="grid-content bg-purple-light">
+                        <el-col :span="24" class="breadcrumb-container">
+                            <strong class="title">{{$route.name}}</strong>
+                            <el-breadcrumb separator="/" class="breadcrumb-inner">
+                                <el-breadcrumb-item v-for="item in $route.matched" :key="item.path">
+                                    {{ item.name }}
+                                </el-breadcrumb-item>
+                            </el-breadcrumb>
+                        </el-col>
+                        <el-col :span="24" class="content-wrapper">
+                            <transition name="fade" mode="out-in">
+                                <router-view></router-view>
+                            </transition>
+                        </el-col>
+                    </div>
+                </section>
             </el-col>
-        </el-col>
-        <el-col :span="24" class="main">
-            <aside :class="collapsed?'menu-collapsed':'menu-expanded'">
-                <!--导航菜单-->
-                <el-menu :default-active="$route.path" class="el-menu-vertical-demo" @open="handleopen"
-                         @close="handleclose" @select="handleselect"
-                         unique-opened router v-show="!collapsed">
-                    <template v-for="(item,index) in $router.options.routes" v-if="!item.hidden && $store.state.rootMap[item.rootName] === 1">
-                    <el-submenu :index="index+''">
-                        <template slot="title"><i :class="item.iconCls"></i>{{item.name}}</template>
-                        <el-menu-item v-for="child in item.children" :index="child.path" :key="child.path"
-                                      v-if="!child.hidden && $store.state.pathMap[child.path] === 1">{{child.name}}
-                        </el-menu-item>
-                    </el-submenu>
-                </template>
-                </el-menu>
-            </aside>
-            <section class="content-container">
-                <div class="grid-content bg-purple-light">
-                    <el-col :span="24" class="breadcrumb-container">
-                        <strong class="title">{{$route.name}}</strong>
-                        <el-breadcrumb separator="/" class="breadcrumb-inner">
-                            <el-breadcrumb-item v-for="item in $route.matched" :key="item.path">
-                                {{ item.name }}
-                            </el-breadcrumb-item>
-                        </el-breadcrumb>
-                    </el-col>
-                    <el-col :span="24" class="content-wrapper">
-                        <transition name="fade" mode="out-in">
-                            <router-view></router-view>
-                        </transition>
-                    </el-col>
-                </div>
-            </section>
-        </el-col>
-    </el-row>
+        </el-row>
+
+        <el-dialog title="Edit" :visible.sync="editUserDialog" width="30%" style="text-align: left">
+            <el-form :model="user" :rules="rules" ref="user">
+                <el-form-item label="Username">
+                    <el-input v-model="user.username" class="input-small" :readonly="true"/>
+                </el-form-item>
+                <el-form-item label="Address">
+                    <el-input v-model="user.address" class="input-small" :readonly="true"/>
+                    <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.address" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
+                </el-form-item>
+                <el-form-item label="Sign">
+                    <el-input v-model="user.sign" class="input-large" :readonly="true"/>
+                    <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.sign" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
+                </el-form-item>
+                <el-form-item label="PrivateKey">
+                    <el-input v-model="user.privateKey" class="input-large" :readonly="true"/>
+                    <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.sign" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
+                </el-form-item>
+                <el-form-item label="Email" prop="email">
+                    <el-input v-model="user.email" class="input-small" placeholder="Email"/>
+                </el-form-item>
+                <el-form-item>
+                    <el-radio-group v-model="user.sex">
+                        <el-radio label="1">Male</el-radio>
+                        <el-radio label="0">Female</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item>
+                    <el-button style="float: right" @click="editUserDialog = false">Cancel</el-button>
+                    <el-button type="primary" @click="updateUser" style="float: right;margin-right: 10px;">Submit
+                    </el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+    </div>
 </template>
 
 <script>
     import Cookies from "js-cookie"
+
     export default {
         data() {
+            let checkEmail = (rule, value, callback) => {
+                let reg = new RegExp(
+                    "^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$"
+                );
+                if (!value) {
+                    callback(new Error("邮箱地址不能为空"));
+                } else if (!reg.test(value)) {
+                    callback(new Error("请输入正确的邮箱地址"));
+                } else {
+                    callback();
+                }
+            };
             return {
                 sysName: 'TRIAS',
                 collapsed: false,
@@ -68,6 +120,14 @@
                     type: [],
                     resource: '',
                     desc: ''
+                },
+                editUserDialog: false,
+                user: this.$store.state.userInfo,
+                rules: {
+                    email: [
+                        {required: true, message: "Please type in email", trigger: "blur"},
+                        {required: true, validator: checkEmail, message: "Email not correct", trigger: "blur"}
+                    ]
                 }
             }
         },
@@ -75,9 +135,18 @@
             onSubmit() {
                 console.log('submit!');
             },
-            logout(){
+            logout() {
                 Cookies.remove("UserToken");
                 this.$router.push("/login")
+            },
+            settings() {
+                this.editUserDialog = true;
+            },
+            onCopy(e){
+                this.$alert("success!",this.messageOption.success);
+            },
+            onError(e){
+                console.log(e);
             },
             handleopen() {
                 //console.log('handleopen');
@@ -86,6 +155,20 @@
                 //console.log('handleclose');
             },
             handleselect: function (a, b) {
+            },
+            updateUser() {
+                let url = "/trias-resource/user/updateUser";
+                this.axios.post(url, this.user, {headers: {'Authorization': 'Bearer ' + Cookies.get("UserToken")}}).then((res) => {
+                    if (res.data["code"] === 1) {
+                        this.$alert("success", this.messageOption.success)
+                        this.editUserDialog = false;
+                    } else {
+                        this.$alert(res.data["message"], this.messageOption.warning);
+                    }
+                }).catch((err) => {
+                    console.error(err);
+                    this.$alert("Update user fail", this.messageOption.error);
+                })
             },
 
             //折叠导航栏
@@ -115,24 +198,24 @@
             background: $color-primary;
             color: #fff;
 
-        .userinfo {
-            text-align: right;
-            padding-right: 35px;
-            float: right;
+            .userinfo {
+                text-align: right;
+                padding-right: 35px;
+                float: right;
 
-            .userinfo-inner {
-                cursor: pointer;
-                color: #fff;
+                .userinfo-inner {
+                    cursor: pointer;
+                    color: #fff;
 
-                img {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 20px;
-                    margin: 10px 0px 10px 10px;
-                    float: right;
+                    img {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 20px;
+                        margin: 10px 0px 10px 10px;
+                        float: right;
+                    }
                 }
             }
-        }
 
             .logo {
                 //width:230px;
@@ -249,5 +332,15 @@
                 }
             }
         }
+    }
+
+    .input-small {
+        width: 250px;
+        margin-right: 5px;
+    }
+
+    .input-large {
+        width: 350px;
+        margin-right: 5px;
     }
 </style>

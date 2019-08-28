@@ -14,12 +14,14 @@ import localConfig from "./common/config/config"
 import Viz from "viz.js";
 import Cookies from "js-cookie";
 import "font-awesome/css/font-awesome.min.css";
+import VueClipboard from "vue-clipboard2";
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 Vue.use(localConfig);
 Vue.use(Vueaxios, axios);
+Vue.use(VueClipboard);
 Vue.prototype.$echarts = Echarts;
 Vue.prototype.$viz = Viz;
 
@@ -63,7 +65,7 @@ router.beforeEach((to, from, next) => {
                 } else {
                     let data = response["data"];
                     store.commit("setUserInfo", data);
-                    if (!data.userInfo.account) {
+                    if (!data.userInfo.email) {
                         next({path: "/addition"});
                         return;
                     }
@@ -73,6 +75,11 @@ router.beforeEach((to, from, next) => {
                     }
                     next();
                 }
+            }).fail(function (err) {
+                console.log(err);
+                Cookies.remove("UserToken");
+                console.log("Invalid user or token timeout,please login");
+                next({path: "/login"})
             });
         }
     } else {
