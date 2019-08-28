@@ -22,9 +22,12 @@ type AddNodeRequest struct {
 	Attester string `json:"attester,omitempty"`
 	Attestee string `json:"attestee,omitempty"`
 	Score    string `json:"score,omitempty"`
+	Time     string `json:"time,omitempty"`
+	Nonce    string  `json:"nonce,omitempty"`
 	Address  string `json:"address,omitempty"`
-	Url      string `json:"url,omitempty"`
+	AuthSign string `json:"authSign,omitempty"`
 	Sign     string `json:"sign,omitempty"`
+	Host     string `json:"host,omitempty"`
 }
 
 type QueryNodesRequest struct {
@@ -32,7 +35,7 @@ type QueryNodesRequest struct {
 	NumRank int64  `json:"numRank"`
 	Url     string `json:"url,omitempty"`
 	Address string `json:"address,omitempty"`
-	Sign     string `json:"sign,omitempty"`
+	AuthSign     string `json:"authSign,omitempty"`
 }
 
 type NodeDetailRequest struct {
@@ -51,12 +54,23 @@ type AddAtInfo interface {
 
 func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 	mess := Message{}
-
-	info := make([]string, 3)
-	info[0] = request.Attester
-	info[1] = request.Attestee
-	info[2] = request.Score
-	err1 := nr.AddAttestationInfo("", request.Url, info)
+	newReq := new(AddNodeRequest)
+	newReq.Attester = request.Attester
+	newReq.Attestee = request.Attestee
+	newReq.Score = request.Score
+	newReq.Time = request.Time
+	newReq.Nonce = request.Nonce
+	newReq.Address = request.Address
+	newReq.Sign = request.Sign
+	info := make([]string, 7)
+	info[0] = newReq.Attester
+	info[1] = newReq.Attestee
+	info[2] = newReq.Score
+	info[3] = newReq.Address
+	info[4] = newReq.Nonce
+	info[5] = newReq.Time
+	info[6] = newReq.Sign
+	err1 := nr.AddAttestationInfo("", request.Host, info)
 	if err1 != nil {
 		mess = Message{Code: 0, Message: "Failed to add node"}
 		return mess

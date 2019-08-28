@@ -17,12 +17,12 @@ var (
 )
 
 func init() {
-	flag.StringVar(&host, "host", "", "Iota server host, http://127.0.0.1:14700")
+	flag.StringVar(&host, "host", "", "Iota server host, e.g. http://127.0.0.1:14700")
 }
 
 func main() {
 	flag.Parse()
-	if host == "" {
+	if host == ""{
 		fmt.Fprintln(os.Stderr, "Usage: go run main.go -host [-file] \nOption:")
 		flag.PrintDefaults()
 		return
@@ -51,11 +51,14 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 		request.Body.Close()
 	}
 
-	if validPrivilege(addNodeRequest.Address, addNodeRequest.Sign) == false{
-		return;
+	var s string
+	if addNodeRequest.AuthSign != s {
+		if validPrivilege(addNodeRequest.Address, addNodeRequest.AuthSign) == false {
+			return;
+		}
 	}
 
-    addNodeRequest.Url = host
+    addNodeRequest.Host = host
 	var o v.OCli
 	response := o.AddAttestationInfoFunction(addNodeRequest)
 
@@ -76,9 +79,12 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 		request.Body.Close()
 	}
 
-	if validPrivilege(queryNodesRequest.Address, queryNodesRequest.Sign) == false{
-	    fmt.Println("privilege valid failed, address:", queryNodesRequest.Address, ", sign: ", queryNodesRequest.Sign)
-		return;
+	var s string
+	if queryNodesRequest.AuthSign != s {
+		if validPrivilege(queryNodesRequest.Address, queryNodesRequest.AuthSign) == false{
+			fmt.Println("privilege valid failed, address:", queryNodesRequest.Address, ", sign: ", queryNodesRequest.AuthSign)
+			return;
+		}
 	}
 
 	queryNodesRequest.Url = host
