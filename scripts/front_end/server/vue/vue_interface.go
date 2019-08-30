@@ -5,6 +5,7 @@ import (
 	nr "github.com/triasteam/noderank"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -21,9 +22,9 @@ type DataTee struct {
 type AddNodeRequest struct {
 	Attester string `json:"attester,omitempty"`
 	Attestee string `json:"attestee,omitempty"`
-	Score    string `json:"score,omitempty"`
+	Score    int `json:"score,omitempty"`
 	Time     string `json:"time,omitempty"`
-	Nonce    string  `json:"nonce,omitempty"`
+	Nonce    int  `json:"nonce,omitempty"`
 	Address  string `json:"address,omitempty"`
 	AuthSign string `json:"authSign,omitempty"`
 	Sign     string `json:"sign,omitempty"`
@@ -65,9 +66,9 @@ func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 	info := make([]string, 7)
 	info[0] = newReq.Attester
 	info[1] = newReq.Attestee
-	info[2] = newReq.Score
+	info[2] = strconv.Itoa(newReq.Score)
 	info[3] = newReq.Address
-	info[4] = newReq.Nonce
+	info[4] = strconv.Itoa(newReq.Nonce)
 	info[5] = newReq.Time
 	info[6] = newReq.Sign
 	err1 := nr.AddAttestationInfo("", request.Host, info)
