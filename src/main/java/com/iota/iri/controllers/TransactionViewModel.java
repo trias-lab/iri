@@ -1,16 +1,13 @@
 package com.iota.iri.controllers;
 
+import com.iota.iri.hash.Sponge;
+import com.iota.iri.hash.SpongeFactory;
+import com.iota.iri.model.persistables.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.iota.iri.conf.BaseIotaConfig;
 import com.iota.iri.model.*;
-import com.iota.iri.model.persistables.Address;
-import com.iota.iri.model.persistables.Approvee;
-import com.iota.iri.model.persistables.Bundle;
-import com.iota.iri.model.persistables.ObsoleteTag;
-import com.iota.iri.model.persistables.Tag;
-import com.iota.iri.model.persistables.Transaction;
 import com.iota.iri.pluggables.utxo.TransactionData;
 import com.iota.iri.storage.Indexable;
 import com.iota.iri.storage.Persistable;
@@ -24,6 +21,7 @@ import com.iota.iri.pluggables.utxo.Txn;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
 
 public class TransactionViewModel {
 
@@ -181,6 +179,7 @@ public class TransactionViewModel {
         hashesList.add(new Pair<>(getTrunkTransactionHash(), new Approvee(hash)));
         hashesList.add(new Pair<>(getObsoleteTagValue(), new ObsoleteTag(hash)));
         hashesList.add(new Pair<>(getTagValue(), new Tag(hash)));
+        hashesList.add(new Pair<>(getRawTransactionHash(), new RawTransaction(hash)));
         setAttachmentData();
         setMetadata();
         return hashesList;
@@ -312,6 +311,18 @@ public class TransactionViewModel {
             transaction.tag = HashFactory.TAG.create(tagBytes, 0, TAG_SIZE_IN_BYTES);
         }
         return transaction.tag;
+    }
+
+    public Hash getRawTransactionHash() {
+        byte[] essenceTrits = new byte[1701];
+        System.arraycopy(trits(), 0, essenceTrits, 0, 1701);
+
+        Sponge sponge = SpongeFactory.create(SpongeFactory.Mode.KERL);
+
+        RawTransactionHash rawHash = RawTransactionHash.calculate(essenceTrits, 0, essenceTrits.length, sponge);
+
+        //RAW_TRANSACTION_HASH_MAP.pollLast()
+        return rawHash;
     }
 
     public long getAttachmentTimestamp() { return transaction.attachmentTimestamp; }

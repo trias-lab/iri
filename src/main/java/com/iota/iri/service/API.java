@@ -8,16 +8,14 @@ import com.iota.iri.Iota;
 import com.iota.iri.conf.APIConfig;
 import com.iota.iri.conf.BaseIotaConfig;
 import com.iota.iri.conf.ConsensusConfig;
-import com.iota.iri.controllers.AddressViewModel;
-import com.iota.iri.controllers.BundleViewModel;
-import com.iota.iri.controllers.TagViewModel;
-import com.iota.iri.controllers.TransactionViewModel;
+import com.iota.iri.controllers.*;
 import com.iota.iri.hash.Curl;
 import com.iota.iri.hash.PearlDiver;
 import com.iota.iri.hash.Sponge;
 import com.iota.iri.hash.SpongeFactory;
 import com.iota.iri.model.Hash;
 import com.iota.iri.model.HashFactory;
+import com.iota.iri.model.RawTransactionHash;
 import com.iota.iri.network.Neighbor;
 import com.iota.iri.pluggables.tee.BatchTee;
 import com.iota.iri.pluggables.tee.TEEFormatted;
@@ -1540,6 +1538,7 @@ public class API {
                         instance.timeOutCache.put(digest, tStart);
                         processed = Converter.asciiToTrytes(message);
                     }
+
                     break;
                 }
                 default:
@@ -1569,6 +1568,13 @@ public class API {
                 tx = msg.substring(i * txMessageSize, (i + 1) * txMessageSize);
             } else {
                 tx = msg.substring(i * txMessageSize);
+            }
+
+            // check replay attack
+            if (message.indexOf("sign") > 0) {
+                if (isReplayTxn(tx)) {
+                    continue;
+                }
             }
 
             Converter.copyTrits(i, currentIndexTrits, 0, currentIndexTrits.length);
@@ -1623,6 +1629,30 @@ public class API {
         log.debug("[time] tTipSel {} tPreProcess {} tBundleHash {} tPow {} tBroadCast {} tStore {} num {}", tTipSel-tStart, tPreProcess-tTipSel, tBundleHash-tPreProcess, tPow-tBundleHash, tBroadCast-tPow, tStore-tBroadCast, powResult.size());
 
         return AbstractResponse.createEmptyResponse();
+    }
+
+    // check replay attack
+    private boolean isReplayTxn(String tx) {
+        try {
+            // get hash of raw transaction
+            Sponge sponge = SpongeFactory.create(SpongeFactory.Mode.KERL);
+            int len = tx.length() * Converter.NUMBER_OF_TRITS_IN_A_TRYTE;
+            if (len % 243 != 0) {
+                len = (len / 243 + 1) * 243;
+            }
+            byte[] essenceTrits = new byte[len];
+            Converter.trits(tx, essenceTrits, 0);
+            RawTransactionHash rawHash = RawTransactionHash.calculate(essenceTrits, 0, essenceTrits.length, sponge);
+
+            RawTransactionHashViewModel rawTxnVM = RawTransactionHashViewModel.load(instance.tangle, rawHash);
+            if (rawTxnVM.getHashes().size() != 0) {
+                log.error("Have already saved in DB, this is an replay attack transaction");
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("Failed to check replay attack - " + e);
+        }
+        return false;
     }
 
     private synchronized AbstractResponse getBlocksInPeriodStatement(final long period) {
