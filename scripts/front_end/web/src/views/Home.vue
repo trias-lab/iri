@@ -53,7 +53,7 @@
             </el-col>
         </el-row>
 
-        <el-dialog title="Edit" :visible.sync="editUserDialog" width="30%" style="text-align: left">
+        <el-dialog title="Edit" :visible.sync="editUserDialog" width="50%" style="text-align: left">
             <el-form :model="user" :rules="rules" ref="user">
                 <el-form-item label="Username">
                     <el-input v-model="user.username" class="input-small" :readonly="true"/>
@@ -68,7 +68,7 @@
                 </el-form-item>
                 <el-form-item label="PrivateKey">
                     <el-input v-model="user.privateKey" class="input-large" :readonly="true"/>
-                    <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.sign" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
+                    <el-button class="m110" type="text" size="medium" v-clipboard:copy="user.privateKey" v-clipboard:success="onCopy" v-clipboard:error="onError">Copy</el-button>
                 </el-form-item>
                 <el-form-item label="Email" prop="email">
                     <el-input v-model="user.email" class="input-small" placeholder="Email"/>
