@@ -4,7 +4,7 @@
 #This demo is used helping to lean how to invoke "addNode" api.
 #Fist, sign up your acount of privilege server to retrieve address and private key which can sign you tranction data
 #and a privilege signature which is a perission to access the Go client.
-#second, using signmessage.sign_and_verify method to sign your data within address and private key which can be got 
+#second, using signmessage.sign_and_verify method to sign your data within address and private key which can be got
 #got from step 1.
 #Third, build the request.
 #--------------------------------------------------------------------------------------------------------------------
@@ -23,9 +23,8 @@ def buildRequest():
       req_json['time'] = "2213223191"
       req_json['nonce'] = 1
       req_json['address'] = "13KQh492C4V7ZeaVHkqoPxRS1fRpMrhqQB"
-                    
+
       return req_json
-                    
 
 
 #do post request, nothing throws means success.
