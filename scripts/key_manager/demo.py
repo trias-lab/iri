@@ -37,7 +37,7 @@ def main():
   #must have no space
   message = sha256(msg.replace(" ","")).hexdigest()
   print message
-  address = "13KQ1h492C4V7ZeaVHkqoPxRS1fRpMrhqQB"
+  address = "13KQh492C4V7ZeaVHkqoPxRS1fRpMrhqQB"
   privateKey = "KxSgY5kZnTYQfVc2eXnkqPuLwVyY221N3uSsQtRJx5kf2o2Eyde4"
   #the sign_and_verify method used to generage a sign, if private does not match address, it gos wrong
   sign =  signmessage.sign_and_verify(privateKey, message, address)
