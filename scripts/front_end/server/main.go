@@ -39,6 +39,7 @@ func main() {
 }
 
 func AddNode(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("main addnode  start")
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -50,24 +51,25 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(err)
 		request.Body.Close()
 	}
-
+	fmt.Println("main AddNodeRequest  content is ", *addNodeRequest)
 	var s string
 	if addNodeRequest.AuthSign != s {
 		if validPrivilege(addNodeRequest.Address, addNodeRequest.AuthSign) == false {
 			return;
 		}
 	}
-
+	fmt.Println("main addnode input streamnet request address is ", host)
     addNodeRequest.Host = host
 	var o v.OCli
 	response := o.AddAttestationInfoFunction(addNodeRequest)
-
+	fmt.Println("main response is ",response)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
 		fmt.Println(err)
 	}
 }
 
 func QueryNodes(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("main querynode start")
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -78,7 +80,7 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(err)
 		request.Body.Close()
 	}
-
+	fmt.Println("main queryNodesRequest content is ",*queryNodesRequest)
 	var s string
 	if queryNodesRequest.AuthSign != s {
 		if validPrivilege(queryNodesRequest.Address, queryNodesRequest.AuthSign) == false{
@@ -86,7 +88,7 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 			return;
 		}
 	}
-
+	fmt.Println("main querynode input iota request address is ", host)
 	queryNodesRequest.Url = host
 	var o v.OCli
 	response := o.GetRankFunction(queryNodesRequest)
