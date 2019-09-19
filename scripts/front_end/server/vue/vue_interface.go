@@ -3,6 +3,7 @@ package vue
 import (
 	"fmt"
 	nr "github.com/triasteam/noderank"
+	"github.com/caryxiao/go-zlog"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -71,7 +72,7 @@ func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 	info[4] = strconv.Itoa(newReq.Nonce)
 	info[5] = newReq.Time
 	info[6] = newReq.Sign
-	fmt.Println("vue info split content is ",info)
+	zlog.Logger.Info("vue info split content is ",info)
 	err1 := nr.AddAttestationInfo("", request.Host, info)
 	if err1 != nil {
 		mess = Message{Code: 0, Message: "Failed to add node"}
