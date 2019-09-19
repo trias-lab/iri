@@ -23,8 +23,8 @@ func init() {
 
 func main() {
 	zlog.SetLevel(5)
-        zlog.SetFormat("[%level%]: %time% - [%trace_id%] %msg%")
-        zlog.SetOutput(os.Stdout)
+	zlog.SetFormat("[%level%]: %time% - [%trace_id%] %msg%")
+	zlog.SetOutput(os.Stdout)
 	flag.Parse()
 	if host == ""{
 		fmt.Fprintln(os.Stderr, "Usage: go run main.go -host [-file] \nOption:")
