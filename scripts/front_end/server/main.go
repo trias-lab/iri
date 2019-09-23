@@ -3,6 +3,7 @@ package main
 import (
 	v "./vue"
 	auth "./auth"
+	"github.com/caryxiao/go-zlog"
 	"crypto"
 	"encoding/base64"
 	"encoding/json"
@@ -21,6 +22,9 @@ func init() {
 }
 
 func main() {
+	zlog.SetLevel(5)
+	zlog.SetFormat("[%level%]: %time% - [%trace_id%] %msg%")
+	zlog.SetOutput(os.Stdout)
 	flag.Parse()
 	if host == ""{
 		fmt.Fprintln(os.Stderr, "Usage: go run main.go -host [-file] \nOption:")
@@ -39,6 +43,7 @@ func main() {
 }
 
 func AddNode(writer http.ResponseWriter, request *http.Request) {
+	zlog.Logger.Info("main addnode  start")
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -50,24 +55,25 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(err)
 		request.Body.Close()
 	}
-
+	zlog.Logger.Info("main AddNodeRequest  content is ", *addNodeRequest)
 	var s string
 	if addNodeRequest.AuthSign != s {
 		if validPrivilege(addNodeRequest.Address, addNodeRequest.AuthSign) == false {
 			return;
 		}
 	}
-
+	zlog.Logger.Info("main addnode input streamnet request address is ", host)
     addNodeRequest.Host = host
 	var o v.OCli
 	response := o.AddAttestationInfoFunction(addNodeRequest)
-
+	zlog.Logger.Info("main response is ",response)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
 		fmt.Println(err)
 	}
 }
 
 func QueryNodes(writer http.ResponseWriter, request *http.Request) {
+	zlog.Logger.Info("main querynode start")
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println(err)
@@ -78,7 +84,7 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(err)
 		request.Body.Close()
 	}
-
+	zlog.Logger.Info("main queryNodesRequest content is ",*queryNodesRequest)
 	var s string
 	if queryNodesRequest.AuthSign != s {
 		if validPrivilege(queryNodesRequest.Address, queryNodesRequest.AuthSign) == false{
@@ -86,7 +92,7 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 			return;
 		}
 	}
-
+	zlog.Logger.Info("main querynode input iota request address is ", host)
 	queryNodesRequest.Url = host
 	var o v.OCli
 	response := o.GetRankFunction(queryNodesRequest)
