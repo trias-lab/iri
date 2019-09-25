@@ -30,6 +30,7 @@ WORKDIR /oauth_web/web/dist/
 RUN cp  -r index.html static /usr/share/nginx/html/trias-dag/
 WORKDIR /oauth_web/server
 RUN go get -u github.com/triasteam/noderank
+RUN go get -u github.com/caryxiao/go-zlog
 RUN apt-get install software-properties-common -y \
     && add-apt-repository ppa:nginx/stable -y \
     && apt-get update \
