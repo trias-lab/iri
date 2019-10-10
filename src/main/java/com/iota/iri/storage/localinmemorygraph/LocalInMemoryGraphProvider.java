@@ -607,15 +607,8 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
 
     private List<Hash> combineOrder() {
         List<Hash> ret = new ArrayList<>();
-
-        for(int i=0; i<stableOrder.size(); i++) {
-            ret.add(stableOrder.get(i));
-        }
-
-        for(int i=0; i<cachedTotalOrder.size(); i++) {
-            ret.add(cachedTotalOrder.get(i));
-        }
-
+        ret.addAll(stableOrder);
+        ret.addAll(cachedTotalOrder);
         return ret;
     }
 
@@ -1050,16 +1043,20 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         String gBefore="", gAfter="", order1="", order2="";
         try {
             List<Hash> totalOrderBefore = confluxOrder(getPivot(getGenesis()));
-            gBefore = printGraph(graph, "DOT");
-            order1 = printOrder(totalOrderBefore);
-
+            if(log.isDebugEnabled()) {
+                gBefore = printGraph(graph, "DOT");
+                order1 = printOrder(totalOrderBefore);
+            }
             buildTempGraphs(totalOrderBefore, curAncestor);
             reserveTempGraphs(totalOrderBefore, curAncestor);
             shiftTempGraphs();
-
-            gAfter = printGraph(graph, "DOT");
+            if(log.isDebugEnabled()){
+                gAfter = printGraph(graph, "DOT");
+            }
             List<Hash> totalOrderAfter = confluxOrder(getPivot(getGenesis()));
-            order2 = printOrder(totalOrderAfter);
+            if(log.isDebugEnabled()) {
+                order2 = printOrder(totalOrderAfter);
+            }
 
             List<Hash> toBePersisted = insertStableTotalOrder(totalOrderBefore, totalOrderAfter);
             toBePersisted = TransactionData.getInstance().siftIncludeTransactionBlock(toBePersisted);
