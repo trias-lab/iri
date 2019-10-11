@@ -9,7 +9,7 @@ cd StreamNet/
 docker build -t ${NAME}:${TAG} .
 
 2.start container
-sudo docker run -d -p 14700:14700 -p 13700:13700 --name ${NAME} -v ${DATAPATH}:/iri/data ${CONFPATH}:/iri/conf/neighbors ${NAME}:${TAG} /entrypoint.sh
+sudo docker run -d -p 14700:14700 -p 13700:13700 --name ${NAME} -v ${DATAPATH}:/iri/data -v ${CONFPATH}:/iri/conf/neighbors ${NAME}:${TAG} /entrypoint.sh
 
 ```  
 ## go client service ##
