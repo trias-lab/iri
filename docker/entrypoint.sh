@@ -13,8 +13,6 @@ neighbors=${neighbors::-1}
 
 exec java \
   $JAVA_OPTIONS \
-  -Xms$JAVA_MIN_MEMORY \
-  -Xmx$JAVA_MAX_MEMORY \
   -Djava.net.preferIPv4Stack=true \
   -jar $DOCKER_IRI_JAR_PATH \
   --remote --remote-limit-api "$DOCKER_IRI_REMOTE_LIMIT_API" \
@@ -30,7 +28,10 @@ exec java \
   --entrypoint-selector-algorithm "KATZ" \
   --tip-sel-algo "CONFLUX" \
   --ipfs-txns false \
-  --batch-txns true \
+  --batch-txns false \
   --neighbors "$neighbors" \
-  --max-peers 21
+  --max-peers 40 \
+  --weight-calculation-algorithm "IN_MEM" \
+  --ancestor-forward-enable true \
+  --ancestor-create-frequency 1000
   "$@"
