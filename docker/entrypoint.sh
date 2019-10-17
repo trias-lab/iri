@@ -13,6 +13,8 @@ neighbors=${neighbors::-1}
 
 exec java \
   $JAVA_OPTIONS \
+  -XX:NewSize=1024m \
+  -XX:OldSize=2048m \
   -Djava.net.preferIPv4Stack=true \
   -jar $DOCKER_IRI_JAR_PATH \
   --remote --remote-limit-api "$DOCKER_IRI_REMOTE_LIMIT_API" \
