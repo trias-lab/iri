@@ -1,8 +1,8 @@
 package main
 
 import (
-	v "./vue"
-	auth "./auth"
+	v "github.com/triasteam/StreamNet/scripts/frontend/server/vue"
+	auth "github.com/triasteam/StreamNet/scripts/frontend/server/auth"
 	"github.com/caryxiao/go-zlog"
 	"crypto"
 	"encoding/base64"
