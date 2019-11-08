@@ -10,6 +10,7 @@ docker build -t ${NAME}:${TAG} .
 
 2.start container
 sudo docker run -d -p 14700:14700 -p 13700:13700 --name ${NAME} -v ${DATAPATH}:/iri/data -v ${CONFPATH}:/iri/conf/neighbors ${NAME}:${TAG} /entrypoint.sh
+#sudo docker run -itd --net=host  --name ${NAME} -v ${SCRIPTPATH}/data:/iri/data -v ${SCRIPTPATH}/conf/neighbors:/iri/conf/neighbors ${NAME}:${TAG} /entrypoint.sh
 
 ```  
 ## go client service ##
@@ -20,6 +21,8 @@ sudo docker build -t ${NAME}:${TAG}  -f  go_docker/Dockerfile .
 
 2.start container
 sudo  docker run -itd -p 8000:8000 -e "HOST_IP=$IP" --name  ${NAME}  ${NAME}:${TAG}
+#sudo  docker run -itd --net=host -e "HOST_IP=127.0.0.1" --name  ${NAME}  ${NAME}:${TAG}
+
 ```  
 ## Leviatom web service ##
 ```bash
