@@ -66,7 +66,7 @@ http://address:8000/QueryNode \
 
 ### 2.1 Cluster deployment 
 
-Please refer [[Cluster deployment]](https://github.com/triasteam/StreamNet/blob/dev/document/iota_deploy/cluster_deploy.md) for details of how to deploy multiple nodes.
+Please refer [[Cluster deployment]](https://github.com/triasteam/StreamNet/blob/dev/document/iota_deploy/README.md) for details of how to deploy multiple nodes.
 
 ### 2.2 Frontend deployment
 
