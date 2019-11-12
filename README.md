@@ -27,7 +27,7 @@ Make sure to have Maven and Java 8 installed on your computer.
 git clone https://github.com/triasteam/StreamNet.git
 cd StreamNet/scripts/examples/one_node/
 ./conflux_dag.sh
-cd StreamNet/scripts/front_end/server
+cd  ../../front_end/server
 ./run_go.sh
 ```  
 #### 1.1.2 How to run docker  
@@ -49,6 +49,7 @@ http://address:8000/AddNode \
 -d "{\"Attester\":\"<NODE1>\",\"Attestee\":\"<NODE2>\",\"Score\":<SCORE>}"
 
 其中NODE1和NODE2为两个节点，Node1为Node2投了几分，SCORE为分数值
+eg:curl -s -X POST http://127.0.0.1:8000/AddNode -H 'Content-Type:application/json' -H 'cache-control: no-cache' -d "{\"Attester\":\"192.168.130.1\",\"Attestee\":\"192.168.130.2\",\"Score\":1}"
 ```
 QueryNode
 
@@ -60,6 +61,7 @@ http://address:8000/QueryNode \
 -d "{\"period\":<PERIOD>,\"numRank\":<MAX_NUMBER>}"
 
 其中period和numrank的意思是找到第几阶段的排名前多少位
+eg:curl -s -X POST http://127.0.0.1:8000/QueryNodes -H 'Content-Type:application/json' -H 'cache-control: no-cache' -d "{\"period\":1,\"numRank\":100}"
 ```
 
 ## 2. MISC
