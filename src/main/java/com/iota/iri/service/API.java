@@ -1657,23 +1657,14 @@ public class API {
 
     private synchronized AbstractResponse getBlocksInPeriodStatement(final long period) {
         LocalInMemoryGraphProvider provider = (LocalInMemoryGraphProvider)instance.tangle.getPersistenceProvider("LOCAL_GRAPH");
-        int blocksPerPeriod = (int)BaseIotaConfig.getInstance().getNumBlocksPerPeriod();
-
-//        List<Hash> retOrder = provider.totalTopOrder().subList(blocksPerPeriod*(p-1), blocksPerPeriod*p);
+        
         List<Hash> totalTopOrders = provider.totalTopOrder();
-        int totalSize = totalTopOrders.size();
-        int pageNum = totalSize / blocksPerPeriod + (totalSize % blocksPerPeriod > 0 ? 1 : 0);
-        // current page
-        int p;
-        if(period <= 0){
-            p = pageNum;
-        }else{
-            p = (int) period > pageNum ? pageNum : (int) period;
+        Long currentPage = period;
+        List<Hash> retOrder = pagingQuery(currentPage.intValue(), totalTopOrders);
+        if(retOrder == null || retOrder.isEmpty()){
+            return AbstractResponse.createEmptyResponse();
         }
-
-        List<Hash> retOrder = totalTopOrders.subList(blocksPerPeriod*(p-1),
-                blocksPerPeriod*p > totalSize ? totalSize : (blocksPerPeriod*p));
-
+        
         List<String> resArray = new ArrayList<String>();
         try {
             for(Hash h : retOrder) {
@@ -1686,7 +1677,7 @@ public class API {
             }
 
             String finalRes = new Gson().toJson(resArray);
-
+    
             return GetBlocksInPeriodResponse.create(finalRes);
         } catch(Exception e) {
             e.printStackTrace();
@@ -1742,5 +1733,40 @@ public class API {
         }
         return CryptoExecutor.getCryptoInstance().verify(signature, address, message);
     }
+
+    // paging method
+    private List<Hash> pagingQuery(int currentPage, List<Hash> hashList){
+        int pageSize = (int)BaseIotaConfig.getInstance().getNumBlocksPerPeriod();
+
+        int total = hashList.size();
+        if (hashList == null || hashList.isEmpty()){
+            return new ArrayList<>();
+        }
+
+        //total page
+        int totalPage = total / pageSize + (total % pageSize == 0 ? 0 : 1);
+        if (currentPage < 1) {
+            currentPage = totalPage;
+        }
+
+        int from = 0;
+        int to = 0;
+
+        if (total < 1){
+            return null;
+        }
+
+        if (currentPage >= totalPage){
+            from = (totalPage - 1) * pageSize;
+            to = total;
+        }else{
+            from = (currentPage - 1) * pageSize;
+            to = currentPage * pageSize;
+        }
+        log.error(String.format("===== truncate dag chain, total %d from %d to %d, request current page %d ======", 
+                               total, from, to, currentPage));
+        return hashList.subList(from, to);
+    }
+
 }
 
