@@ -1,3 +1,8 @@
+// Copyright by StreamNet team
+// StreamNet 接口层，可提供如下功能：
+// 1. 封装客户端新增验证交易请求；
+// 2. 封装客户端查询请求
+
 package main
 
 import (

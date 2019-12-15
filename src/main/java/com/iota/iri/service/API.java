@@ -1655,6 +1655,13 @@ public class API {
         return false;
     }
 
+    /**
+     * 分页的方式获取验证交易：
+     * 比如一共有101笔验证交易，按默认每页100个验证交易，则可分为两页。
+     * 但是为了做容错处理，当输入超过分页范围的数字时仍然可以得到第一页或者最后一页的交易节点。
+     * @param period
+     * @return
+     */
     private synchronized AbstractResponse getBlocksInPeriodStatement(final long period) {
         LocalInMemoryGraphProvider provider = (LocalInMemoryGraphProvider)instance.tangle.getPersistenceProvider("LOCAL_GRAPH");
         
