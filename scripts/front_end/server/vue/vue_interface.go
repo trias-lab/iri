@@ -1,3 +1,7 @@
+// Copyright by StreamNet team
+// 拼装对noderank访问的参数，
+// 该类是为了适配main.go 和 noderank.go 而开发的。无特殊逻辑
+
 package vue
 
 import (
