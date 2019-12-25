@@ -12,16 +12,18 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Message struct {
-	Code    int64
-	Message string
-	Data    interface{}
+	Code    int64 `json:"code"`
+	Timestamp int64 `json:"timestamp"`
+	Message string `json:"message"`
+	Data    interface{} `json:"data"`
 }
 type DataTee struct {
-	DataScore interface{}
-	DataCtx   interface{}
+	DataScore interface{} `json:"dataScore"`
+	DataCtx   interface{} `json:"dataCtx"`
 }
 
 type AddNodeRequest struct {
@@ -90,11 +92,11 @@ func (o *OCli) GetRankFunction(request *QueryNodesRequest) Message {
 	mess := Message{}
 	teescore, teectx, err1 := nr.GetRank(request.Url, request.Period, request.NumRank)
 	if teectx == nil || err1 != nil || teescore == nil {
-		mess = Message{Code: 0, Message: "Failed to query node data"}
+		mess = Message{Code: 1,Timestamp:time.Now().Unix(), Message: "Failed to query node data"}
 		return mess
 	}
 	data := DataTee{teescore, teectx}
-	mess = Message{Code: 1, Message: "Query node data successfully", Data: data}
+	mess = Message{Code: 0, Timestamp:time.Now().Unix(), Message: "Query node data successfully", Data: data}
 	return mess
 }
 
