@@ -28,6 +28,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.io.*;
 
+/**
+ * Dag 内存模型处理类：提供存储/检索/构建dag全拓扑序功能
+ * 注：所有的输入均统称为交易，证实消息可以成为证实交易
+ *
+ * @Author yk
+ * @Date 2019-12-23
+ * @Versioin 1.0.0
+ */
 public class LocalInMemoryGraphProvider implements AutoCloseable, PersistenceProvider {
     private static final Logger log = LoggerFactory.getLogger(LocalInMemoryGraphProvider.class);
     private Map<Hash, Double> score;
@@ -89,11 +97,19 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         subParentRevGraph = new ConcurrentHashMap<>();
     }
 
+    /**
+     * 非算法必须，冗余作为打印输出使用
+     * @param nameMap
+     */
     //FIXME for debug
     public void setNameMap(HashMap<Hash, String> nameMap) {
         this.nameMap = nameMap;
     }
 
+    /**
+     * 关闭provider，清理资源
+     * @throws Exception
+     */
     @Override
     public void close() throws Exception {
         graph.clear();
@@ -110,6 +126,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         stableOrder.clear();
     }
 
+    /**
+     * 初始化，加载dag，启动genesis前推线程
+     * @throws Exception
+     */
     public void init() throws Exception {
         try {
             buildGraph();
@@ -139,6 +159,9 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return this.available;
     }
 
+    /**
+     * 停止provider，tangle停止时调用
+     */
     public void shutdown() {
         try {
             close();
@@ -147,74 +170,178 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param index
+     * @return
+     * @throws Exception
+     */
     public boolean save(Persistable model, Indexable index) throws Exception {
         return true;
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param index
+     * @throws Exception
+     */
     public void delete(Class<?> model, Indexable index) throws Exception {
         // TODO implement this
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param index
+     * @param item
+     * @return
+     * @throws Exception
+     */
     public boolean update(Persistable model, Indexable index, String item) throws Exception {
         // TODO this function is not implemented or referenced
         return true;
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param key
+     * @return
+     * @throws Exception
+     */
     public boolean exists(Class<?> model, Indexable key) throws Exception {
         // TODO implement this
         return false;
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param indexModel
+     * @return
+     * @throws Exception
+     */
     public Pair<Indexable, Persistable> latest(Class<?> model, Class<?> indexModel) throws Exception {
         // TODO implement this
         return new Pair<Indexable, Persistable>(new TransactionHash(), new Transaction());
     }
 
+    /**
+     * 无需实现
+     * @param modelClass
+     * @param otherClass
+     * @return
+     * @throws Exception
+     */
     public Set<Indexable> keysWithMissingReferences(Class<?> modelClass, Class<?> otherClass) throws Exception {
         // TODO implement this
         return new HashSet<Indexable>();
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param index
+     * @return
+     * @throws Exception
+     */
     public Persistable get(Class<?> model, Indexable index) throws Exception {
         // TODO implement this
         return new Transaction();
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param index
+     * @return
+     * @throws Exception
+     */
     public boolean mayExist(Class<?> model, Indexable index) throws Exception {
         // TODO implement this
         return false;
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @return
+     * @throws Exception
+     */
     public long count(Class<?> model) throws Exception {
         // TODO implement this
         return (long) 0;
     }
 
+    /**
+     * 无需实现
+     * @param modelClass
+     * @param value
+     * @return
+     */
     public Set<Indexable> keysStartingWith(Class<?> modelClass, byte[] value) {
         // TODO implement this
         return new HashSet<Indexable>();
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param key
+     * @return
+     * @throws Exception
+     */
     public Persistable seek(Class<?> model, byte[] key) throws Exception {
         // TODO implement this
         return new Transaction();
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param index
+     * @return
+     * @throws Exception
+     */
     public Pair<Indexable, Persistable> next(Class<?> model, Indexable index) throws Exception {
         // TODO implement this
         return new Pair<Indexable, Persistable>(new TransactionHash(), new Transaction());
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param index
+     * @return
+     * @throws Exception
+     */
     public Pair<Indexable, Persistable> previous(Class<?> model, Indexable index) throws Exception {
         // TODO implement this
         return new Pair<Indexable, Persistable>(new TransactionHash(), new Transaction());
     }
 
+    /**
+     * 无需实现
+     * @param model
+     * @param indexModel
+     * @return
+     * @throws Exception
+     */
     public Pair<Indexable, Persistable> first(Class<?> model, Class<?> indexModel) throws Exception {
         // TODO implement this
         return new Pair<Indexable, Persistable>(new TransactionHash(), new Transaction());
     }
 
+    /**
+     * 批量保存交易：
+     * 借用iota的TransactionViewModel转换出新交易的Hash以及ParentBranch Hash，ReferenceBranch Hash，
+     * 将以上关系添加到Dag中。
+     * @param models
+     * @return
+     * @throws Exception
+     */
     public boolean saveBatch(List<Pair<Indexable, Persistable>> models) throws Exception {
         for (Pair<Indexable, Persistable> entry : models) {
             if (entry.hi.getClass().equals(com.iota.iri.model.persistables.Transaction.class)) {
@@ -253,6 +380,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return true;
     }
 
+    /**
+     * 初始化时构建dag逻辑：
+     * 从tangle中获取交易以及他们之间的关系
+     */
     // TODO for public  :: Get the graph using the BFS method
     public void buildGraph() {
         try {
@@ -279,6 +410,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
+    /**
+     * 构建从genesis开始的pivot主链
+     *
+     */
     // base on graph
     public void buildPivotChain() {
         try {
@@ -415,6 +550,9 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         topOrderStreaming = topOrder;
     }
 
+    /**
+     * 计算每一个dag节点的得分
+     */
     public void computeScore() {
         graphLock.readLock().lock();
         try {
@@ -444,6 +582,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
+    /**
+     * 获取制定深度的pivot节点，pivot主链上的每一个接待代表一个深度，从genesis=0开始。
+     * @param depth
+     * @return
+     */
     public Hash getPivotalHash(int depth) {
         Hash ret = null;
         buildPivotChain();
@@ -461,6 +604,12 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return ret;
     }
 
+    /**
+     * 打印dag内存结构，调试使用
+     * @param graph
+     * @param type
+     * @return
+     */
     //FIXME for debug :: for graphviz visualization
     public String printGraph(Map<Hash, Set<Hash>> graph, String type) {
         String ret = "";
@@ -541,6 +690,13 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
+    /**
+     * 全拓扑序算法之一：
+     * 获取邻居节点。
+     * 邻居节点的含义是指具有相同父节点的所有子节点
+     * @param block
+     * @return
+     */
     public List<Hash> getSiblings(Hash block) {
         try {
             Persistable persistable = this.tangle.find(Transaction.class, block.bytes());
@@ -578,6 +734,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return ret;
     }
 
+    /**
+     * 获取某节点的子节点
+     * @param block
+     * @return
+     */
     public Set<Hash> getChild(Hash block) {
         if (revGraph.containsKey(block)) {
             return revGraph.get(block);
@@ -605,6 +766,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return 0;
     }
 
+    /**
+     * 组合历史和当前缓存的拓扑序，由genesis算法衍生出来的。
+     * @return
+     */
     private List<Hash> combineOrder() {
         List<Hash> ret = new ArrayList<>();
         ret.addAll(stableOrder);
@@ -612,6 +777,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return ret;
     }
 
+    /**
+     * 如果发生了genesis节点的变化则重新组合全拓扑序，否则重新重新计算。
+     * @return
+     */
     public List<Hash> totalTopOrder() {
         if(freshScore) {
             return combineOrder();
@@ -628,6 +797,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return combineOrder();
     }
 
+    /**
+     * 基于Conflux算法计算得到的序列，该序列与已本地保存的拓扑序组合后得到
+     * @param block
+     * @return
+     */
     public List<Hash> confluxOrder(Hash block) {
         LinkedList<Hash> list = new LinkedList<>();
         Set<Hash> covered = new HashSet<Hash>();
@@ -658,6 +832,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return list;
     }
 
+    /**
+     * 构建子图。子图的含义是可达到指定节点的其他所有节点构成的图。
+     * @param blocks
+     * @return
+     */
     public Map<Hash, Set<Hash>> buildSubGraph(List<Hash> blocks) {
         Map<Hash, Set<Hash>> subMap = new HashMap<>();
         for(Hash h : blocks) {
@@ -674,6 +853,12 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return subMap;
     }
 
+    /**
+     * 从某一节点出发追溯其子节点，得到得分最大的那个。
+     *
+     * @param start
+     * @return
+     */
     private Hash getMax(Hash start) {
         double tmpMaxScore = -1;
         Hash s = null;
@@ -694,6 +879,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return s;
     }
 
+    /**
+     * 从某节点出发得到得分最大的tip节点，该节点到tip节点的路径即为pivot链
+     * @param start
+     * @return
+     */
     public List<Hash> pivotChain(Hash start) {
         graphLock.readLock().lock();
         try {
@@ -716,6 +906,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
+    /**
+     * 从某节点出发得到得分最大的tip节点
+     * @param start
+     * @return
+     */
     public Hash getPivot(Hash start) {
         graphLock.readLock().lock();
         try {
@@ -735,6 +930,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         }
     }
 
+    /**
+     * 由于genesis会随着节点数增加而前推并不固定，因此需要根据其特征计算得到。
+     * @return
+     */
     public Hash getGenesis() {
         try {
             if (ancestors != null && !ancestors.empty()) {
@@ -751,6 +950,11 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return null;
     }
 
+    /**
+     * 获取某节点所有的直接/间接的父（含引用）节点
+     * @param hash
+     * @return
+     */
     public Set<Hash> past(Hash hash) {
         if (graph.get(hash) == null) {
             return Collections.emptySet();
@@ -771,6 +975,13 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return past;
     }
 
+    /**
+     *
+     * @param block
+     * @param parent
+     * @param covered
+     * @return
+     */
     public List<Hash> getDiffSet(Hash block, Hash parent, Set<Hash> covered) {
         if (graph.get(block) == null) {
             return Collections.emptyList();
@@ -823,6 +1034,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return false;
     }
 
+    /**
+     * 获取tip节点数。
+     * @return
+     */
     public int getNumOfTips() {
         int ret = 0;
         for(Hash h : graph.keySet()) {
@@ -864,6 +1079,10 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return this.graph;
     }
 
+    /**
+     * 未使用
+     * @return
+     */
     // if belongs to the same bundle, condense it
     public HashMap<Hash, Set<Hash>> getCondensedGraph() {
         HashMap<Hash, Set<Hash>> ret = new HashMap<>();
@@ -1123,6 +1342,12 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return stableOrder;
     }
 
+    /**
+     * Genesis前推线程：
+     * 每过一段时间该线程会自动计算最新的1000个块的父pivot，如果比genesis时间大则直接更新该节点为genesis节点，同时
+     * 更新内存中的Dag。
+     *
+     */
     class AncestorEngine implements Runnable {
         @Override
         public void run() {
