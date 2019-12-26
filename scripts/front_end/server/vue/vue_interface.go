@@ -81,10 +81,10 @@ func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 	zlog.Logger.Info("vue info split content is ",info)
 	err1 := nr.AddAttestationInfo("", request.Host, info)
 	if err1 != nil {
-		mess = Message{Code: 0, Message: "Failed to add node"}
+		mess = Message{Code: 1, Timestamp:time.Now().Unix(), Message: "Failed to add node"}
 		return mess
 	}
-	mess = Message{Code: 1, Message: "Node added successfully"}
+	mess = Message{Code: 0, Timestamp:time.Now().Unix(), Message: "Node added successfully"}
 	return mess
 }
 
