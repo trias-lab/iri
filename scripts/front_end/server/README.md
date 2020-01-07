@@ -35,3 +35,6 @@
    ```
 
    升级特定的包，例如 ```go get -u github.com/triasteam/noderank```
+
+## go proxy
+设置国内的代理 ```go env -w GOPROXY=https://goproxy.cn,direct```
