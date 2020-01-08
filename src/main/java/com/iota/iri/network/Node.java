@@ -805,7 +805,6 @@ public class Node {
 
                 System.arraycopy(pair != null ? pair.getKey().bytes() : transactionViewModel.getHash().bytes(), 0,
                         packet.getData(), TransactionViewModel.SIZE, reqHashSize);
-                log.info("----- sending Transaction {} and request {}", transactionViewModel.getHash(), pair != null ? pair.getKey().bytes() : transactionViewModel.getHash().bytes());
                 neighbor.send(packet);
             }
         }
@@ -881,7 +880,6 @@ public class Node {
                             System.arraycopy(transactionViewModel.getHash().bytes(), 0, tipRequestingPacket.getData(), TransactionViewModel.SIZE,
                                     reqHashSize);
 
-                            log.info("----- sending to all neighbors {}", transactionViewModel.getHash());
                             neighbors.forEach(n -> n.send(tipRequestingPacket));
                         }
                     }
