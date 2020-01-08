@@ -9,3 +9,32 @@
 
 ## 监听的端口号
   * 0.0.0.0:8000
+
+
+
+## go module 使用说明
+
+1. 初始化
+
+   ```go mod init```
+
+   会生成 go.mod 文件。
+
+   frontend/server 已经初始化过了，更新依赖包的时候不需要做这步。
+
+2. 查看可以升级的包
+
+   ```go list -u -m all```
+
+   返回的结果中，后面带中括号的说明有更新的版本，例如```github.com/triasteam/noderank v0.0.0-20190906024305-85df08f373bc [v0.0.0-20200107072013-c47cd297dd02]```， noderank 是可以从当前的 20190906024305-85df08f373bc 版本升级到 20200107072013-c47cd297dd02 版本
+
+3. 升级包
+
+   ```text
+   go get -u XXXXXXXXXXXXXXXXXXXXX
+   ```
+
+   升级特定的包，例如 ```go get -u github.com/triasteam/noderank```
+
+## go proxy
+设置国内的代理 ```go env -w GOPROXY=https://goproxy.cn,direct```
