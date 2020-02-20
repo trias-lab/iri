@@ -2,19 +2,18 @@
 // StreamNet 接口层，可提供如下功能：
 // 1. 封装客户端新增验证交易请求；
 // 2. 封装客户端查询请求
-
 package main
 
 import (
-	v "github.com/triasteam/StreamNet/scripts/frontend/server/vue"
-	auth "github.com/triasteam/StreamNet/scripts/frontend/server/auth"
-	"github.com/caryxiao/go-zlog"
 	"crypto"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
-	"net/http"
 	"flag"
+	"fmt"
+	"github.com/caryxiao/go-zlog"
+	auth "github.com/triasteam/StreamNet/scripts/frontend/server/auth"
+	v "github.com/triasteam/StreamNet/scripts/frontend/server/vue"
+	"net/http"
 	"os"
 )
 
@@ -31,7 +30,7 @@ func main() {
 	zlog.SetFormat("[%level%]: %time% - [%trace_id%] %msg%")
 	zlog.SetOutput(os.Stdout)
 	flag.Parse()
-	if host == ""{
+	if host == "" {
 		fmt.Fprintln(os.Stderr, "Usage: go run main.go -host [-file] \nOption:")
 		flag.PrintDefaults()
 		return
@@ -47,6 +46,7 @@ func main() {
 	}
 }
 
+// AddNode 新增证实数据请求处理
 func AddNode(writer http.ResponseWriter, request *http.Request) {
 	zlog.Logger.Info("main addnode  start")
 	defer func() {
@@ -64,19 +64,20 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 	var s string
 	if addNodeRequest.AuthSign != s {
 		if validPrivilege(addNodeRequest.Address, addNodeRequest.AuthSign) == false {
-			return;
+			return
 		}
 	}
 	zlog.Logger.Info("main addnode input streamnet request address is ", host)
-    addNodeRequest.Host = host
+	addNodeRequest.Host = host
 	var o v.OCli
 	response := o.AddAttestationInfoFunction(addNodeRequest)
-	zlog.Logger.Info("main response is ",response)
+	zlog.Logger.Info("main response is ", response)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
 		fmt.Println(err)
 	}
 }
 
+// QueryNodes 排名查询请求处理
 func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 	zlog.Logger.Info("main querynode start")
 	defer func() {
@@ -89,12 +90,12 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(err)
 		request.Body.Close()
 	}
-	zlog.Logger.Info("main queryNodesRequest content is ",*queryNodesRequest)
+	zlog.Logger.Info("main queryNodesRequest content is ", *queryNodesRequest)
 	var s string
 	if queryNodesRequest.AuthSign != s {
-		if validPrivilege(queryNodesRequest.Address, queryNodesRequest.AuthSign) == false{
+		if validPrivilege(queryNodesRequest.Address, queryNodesRequest.AuthSign) == false {
 			fmt.Println("privilege valid failed, address:", queryNodesRequest.Address, ", sign: ", queryNodesRequest.AuthSign)
-			return;
+			return
 		}
 	}
 	zlog.Logger.Info("main querynode input iota request address is ", host)
@@ -107,21 +108,22 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func validPrivilege(addr string, sign string) bool{
+func validPrivilege(addr string, sign string) bool {
 	if sign != "" {
 		address := addr
 		base64Sig := sign
-		sig,_ := base64.StdEncoding.DecodeString(base64Sig);
+		sig, _ := base64.StdEncoding.DecodeString(base64Sig)
 		var r auth.RSAUtil
 		b := r.Verify([]byte(address), sig, crypto.SHA256, "./auth/public_key.pem")
 		if b != nil {
 			fmt.Println("has no privilege. address:", address)
-			return false;
+			return false
 		}
 	}
-	return true;
+	return true
 }
 
+// QueryNodeDetail ...
 func QueryNodeDetail(writer http.ResponseWriter, request *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -134,7 +136,7 @@ func QueryNodeDetail(writer http.ResponseWriter, request *http.Request) {
 		request.Body.Close()
 	}
 
-    detailRequest.RequestUrl = host
+	detailRequest.RequestUrl = host
 	var o v.OCli
 	response := o.QueryNodeDetail(detailRequest)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
