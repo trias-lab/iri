@@ -6,6 +6,9 @@ import com.iota.iri.model.Hash;
 import com.iota.iri.storage.Indexable;
 import com.iota.iri.storage.Tangle;
 
+/**
+ * Hashes view model.
+ */
 public interface HashesViewModel {
     boolean store(Tangle tangle) throws Exception;
     int size();

@@ -9,6 +9,9 @@ import com.iota.iri.utils.Pair;
 
 import java.util.Set;
 
+/**
+ * Raw transaction hash view model.
+ */
 public class RawTransactionHashViewModel implements HashesViewModel {
     private RawTransaction self;
     private Indexable hash;

@@ -11,6 +11,9 @@ import com.iota.iri.model.safe.TritSafe;
 import com.iota.iri.storage.Indexable;
 import com.iota.iri.utils.Converter;
 
+/**
+ * AbstractHash as key in storage.
+ */
 public abstract class AbstractHash implements Hash, Serializable {
     private final Object lock = new Object();
 

@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
- * (c) 2016 Come-from-Beyond and Paul Handy
  *
  * Curl belongs to the sponge function family.
  *

@@ -2,6 +2,9 @@ package com.iota.iri.service.dto;
 
 import com.iota.iri.model.Hash;
 
+/**
+ * GetTransactionsToApproveResponse class.
+ */
 public class GetTransactionsToApproveResponse extends AbstractResponse {
 
     private String trunkTransaction;
@@ -13,7 +16,7 @@ public class GetTransactionsToApproveResponse extends AbstractResponse {
 		res.branchTransaction = branchTransactionToApprove.toString();
 		return res;
 	}
-	
+
     /**
      * The branch transaction
      *
@@ -22,7 +25,7 @@ public class GetTransactionsToApproveResponse extends AbstractResponse {
 	public String getBranchTransaction() {
 		return branchTransaction;
 	}
-	
+
     /**
      * The trunk transaction
      *

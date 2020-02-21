@@ -5,10 +5,13 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Neighbor class.
+ */
 public abstract class Neighbor {
 
     private final InetSocketAddress address;
-    
+
     private long numberOfAllTransactions;
     private long numberOfNewTransactions;
     private long numberOfInvalidTransactions;
@@ -23,7 +26,7 @@ public abstract class Neighbor {
     public void setFlagged(boolean flagged) {
         this.flagged = flagged;
     }
-    
+
     private final static AtomicInteger numPeers = new AtomicInteger(0);
     public static int getNumPeers() {
         return numPeers.get();
@@ -65,15 +68,15 @@ public abstract class Neighbor {
     public int hashCode() {
         return address.hashCode();
     }
-    
+
     public InetSocketAddress getAddress() {
 		return address;
 	}
-    
+
     void incAllTransactions() {
     	numberOfAllTransactions++;
     }
-    
+
     void incNewTransactions() {
     	numberOfNewTransactions++;
     }
@@ -97,7 +100,7 @@ public abstract class Neighbor {
     public long getNumberOfAllTransactions() {
 		return numberOfAllTransactions;
 	}
-    
+
     public long getNumberOfInvalidTransactions() {
 		return numberOfInvalidTransactions;
 	}
@@ -113,7 +116,7 @@ public abstract class Neighbor {
 	public long getNumberOfRandomTransactionRequests() {
         return randomTransactionRequests;
     }
-	
+
 	public long getNumberOfSentTransactions() {
 	    return numberOfSentTransactions;
 	}

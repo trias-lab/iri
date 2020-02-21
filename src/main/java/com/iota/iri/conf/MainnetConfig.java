@@ -1,5 +1,8 @@
 package com.iota.iri.conf;
 
+/**
+ * Configuration for Mainnet.
+ */
 public class MainnetConfig extends BaseIotaConfig {
 
     public MainnetConfig() {

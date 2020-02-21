@@ -2,6 +2,9 @@ package com.iota.iri.service.dto;
 
 import com.iota.iri.model.Hash;
 
+/**
+ * GetNodeInfoResponse class.
+ */
 public class GetNodeInfoResponse extends AbstractResponse {
 
 	private String appName;
@@ -25,14 +28,14 @@ public class GetNodeInfoResponse extends AbstractResponse {
     private long time;
     private int tips;
     private int transactionsToRequest;
-    
+
     private String[] features;
     private String coordinatorAddress;
 
 	public static AbstractResponse create(String appName, String appVersion, int jreAvailableProcessors, long jreFreeMemory,
 	        String jreVersion, long maxMemory, long totalMemory, Hash latestMilestone, int latestMilestoneIndex,
 	        Hash latestSolidSubtangleMilestone, int latestSolidSubtangleMilestoneIndex, int milestoneStartIndex,
-	        int neighbors, int packetsQueueSize, long currentTimeMillis, int tips, 
+	        int neighbors, int packetsQueueSize, long currentTimeMillis, int tips,
 	        int numberOfTransactionsToRequest,  String[] features, String coordinatorAddress) {
 		final GetNodeInfoResponse res = new GetNodeInfoResponse();
 		res.appName = appName;
@@ -56,7 +59,7 @@ public class GetNodeInfoResponse extends AbstractResponse {
 		res.time = currentTimeMillis;
 		res.tips = tips;
 		res.transactionsToRequest = numberOfTransactionsToRequest;
-		
+
 		res.features = features;
 		res.coordinatorAddress = coordinatorAddress;
 		return res;
@@ -70,10 +73,10 @@ public class GetNodeInfoResponse extends AbstractResponse {
 	public String getAppName() {
 		return appName;
 	}
-    
+
     /**
      * The version of the IOTA software you're currently running.
-     * 
+     *
      * @return The app version.
      */
 	public String getAppVersion() {
@@ -144,8 +147,8 @@ public class GetNodeInfoResponse extends AbstractResponse {
 	}
 
     /**
-     * The hash of the latest transaction which is solid and is used for sending transactions. 
-     * For a milestone to become solid your local node must basically approve the subtangle of coordinator-approved transactions, 
+     * The hash of the latest transaction which is solid and is used for sending transactions.
+     * For a milestone to become solid your local node must basically approve the subtangle of coordinator-approved transactions,
      *  and have a consistent view of all referenced transactions.
      *
      * @return The latest subtangle milestone hash.
@@ -156,7 +159,7 @@ public class GetNodeInfoResponse extends AbstractResponse {
 
     /**
      * Index of the latest solid subtangle.
-     * 
+     *
      * @return The latest subtangle milestone index.
      */
 	public int getLatestSolidSubtangleMilestoneIndex() {
@@ -209,9 +212,9 @@ public class GetNodeInfoResponse extends AbstractResponse {
 	}
 
     /**
-     * When a node receives a transaction from one of its neighbors, this transaction is referencing two other transactions t1 and t2 (trunk and branch transaction). 
+     * When a node receives a transaction from one of its neighbors, this transaction is referencing two other transactions t1 and t2 (trunk and branch transaction).
      * If either t1 or t2 (or both) is not in the node's local database, then the transaction hash of t1 (or t2 or both) is added to the queue of the "transactions to request".
-     * At some point, the node will process this queue and ask for details about transactions in the "transaction to request" queue from one of its neighbors. 
+     * At some point, the node will process this queue and ask for details about transactions in the "transaction to request" queue from one of its neighbors.
      * By this means, nodes solidify their view of the tangle (i.e. filling in the unknown parts).
      *
      * @return The transactions to request.
@@ -219,9 +222,9 @@ public class GetNodeInfoResponse extends AbstractResponse {
 	public int getTransactionsToRequest() {
 		return transactionsToRequest;
 	}
-	
+
 	/**
-	 * Every node can have features enabled or disabled. 
+	 * Every node can have features enabled or disabled.
 	 * This list will contain all the required information about the features of a node.
 	 * @return The list of features of this node
 	 */

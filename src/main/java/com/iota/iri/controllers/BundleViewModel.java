@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Bundle view model.
+ */
 public class BundleViewModel implements HashesViewModel {
     private Bundle self;
     private Indexable hash;

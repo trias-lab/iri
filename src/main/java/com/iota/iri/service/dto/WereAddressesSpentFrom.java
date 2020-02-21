@@ -1,5 +1,8 @@
 package com.iota.iri.service.dto;
 
+/**
+ * WereAddressesSpentFrom class.
+ */
 public class WereAddressesSpentFrom extends AbstractResponse {
 
     private boolean [] states;

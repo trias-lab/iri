@@ -13,6 +13,9 @@ import com.iota.iri.model.persistables.RawTransaction;
 import com.iota.iri.storage.Persistable;
 import com.iota.iri.utils.Converter;
 
+/**
+ * Hash factory using factory design model.
+ */
 public enum HashFactory {
     TRANSACTION(Transaction.class),
     ADDRESS(Address.class),

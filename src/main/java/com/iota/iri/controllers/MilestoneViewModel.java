@@ -11,6 +11,9 @@ import com.iota.iri.utils.Pair;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Milestone view model.
+ */
 public class MilestoneViewModel {
     private final Milestone milestone;
     private static final Map<Integer, MilestoneViewModel> milestones = new ConcurrentHashMap<>();

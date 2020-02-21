@@ -8,6 +8,9 @@ import com.iota.iri.utils.Serializer;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Transaction class for storage.
+ */
 public class Transaction implements Persistable {
     public static final int SIZE = 1604;
 

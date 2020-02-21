@@ -2,23 +2,26 @@ package com.iota.iri.service.dto;
 
 import java.util.List;
 
+/**
+ * GetNeighborsResponse class.
+ */
 public class GetNeighborsResponse extends AbstractResponse {
 
     private Neighbor[] neighbors;
 
     /**
-     * The list of neighbors, including the following stats: 
+     * The list of neighbors, including the following stats:
      *  address, connectionType,
-     *  numberOfAllTransactions, numberOfRandomTransactionRequests, 
+     *  numberOfAllTransactions, numberOfRandomTransactionRequests,
      *  numberOfNewTransactions, numberOfInvalidTransactions, numberOfSentTransactions
-     * 
+     *
      * @see {@link com.iota.iri.service.dto.GetNeighborsResponse.Neighbor}
      * @return the neighbors
      */
     public Neighbor[] getNeighbors() {
         return neighbors;
     }
-    
+
     static class Neighbor {
 
         private String address;
@@ -32,7 +35,7 @@ public class GetNeighborsResponse extends AbstractResponse {
 
         /**
          * The address of your neighbor
-         * 
+         *
          * @return the address
          */
         public String getAddress() {
@@ -41,7 +44,7 @@ public class GetNeighborsResponse extends AbstractResponse {
 
         /**
          * Number of all transactions sent (invalid, valid, already-seen)
-         * 
+         *
          * @return the number
          */
         public long getNumberOfAllTransactions() {
@@ -50,7 +53,7 @@ public class GetNeighborsResponse extends AbstractResponse {
 
         /**
          * New transactions which were transmitted.
-         * 
+         *
          * @return the number
          */
         public long getNumberOfNewTransactions() {
@@ -58,9 +61,9 @@ public class GetNeighborsResponse extends AbstractResponse {
         }
 
         /**
-         * Invalid transactions your neighbor has sent you. 
+         * Invalid transactions your neighbor has sent you.
          * These are transactions with invalid signatures or overall schema.
-         * 
+         *
          * @return the number
          */
         public long getNumberOfInvalidTransactions() {
@@ -79,7 +82,7 @@ public class GetNeighborsResponse extends AbstractResponse {
 
         /**
          * Amount of transactions send through your neighbor
-         * 
+         *
          * @return the number
          */
         public long getNumberOfSentTransactions() {
@@ -88,7 +91,7 @@ public class GetNeighborsResponse extends AbstractResponse {
 
         /**
          * The method type your neighbor is using to connect (TCP / UDP)
-         * 
+         *
          * @return the connection type
          */
         public String getConnectionType() {

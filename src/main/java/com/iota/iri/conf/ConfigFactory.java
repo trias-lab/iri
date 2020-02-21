@@ -13,6 +13,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Config factory using the factory design model.
+ */
 public class ConfigFactory {
 
     public static IotaConfig createIotaConfig(boolean isTestnet) {
