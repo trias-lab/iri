@@ -2,24 +2,29 @@
 // StreamNet 接口层，可提供如下功能：
 // 1. 封装客户端新增验证交易请求；
 // 2. 封装客户端查询请求
+// 3. 注意，由于相对目录问题，必须要在该文件目录下执行此文件
 
 package main
 
 import (
 	v "github.com/triasteam/StreamNet/scripts/frontend/server/vue"
 	auth "github.com/triasteam/StreamNet/scripts/frontend/server/auth"
-	"github.com/caryxiao/go-zlog"
+	"github.com/trias-lab/trias-ca-go-sdk/tck"
 	"crypto"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"flag"
 	"os"
+
 )
 
 var (
 	host string
+	rootCertPath string
+	userCertPath string
 )
 
 func init() {
@@ -47,6 +52,43 @@ func main() {
 	}
 }
 
+func ca_verify(signedData []byte, targetData []byte){
+	rootCertPath = "./root.cert"
+	userCertPath = "./user.cert"
+
+	//get local root cert
+	rootCABytes, err := ioutil.ReadFile(rootCertPath)
+	if err != nil {
+		fmt.Println("read root cert failed. ")
+		//download root ca from CA Server
+		//todo
+	}
+	fmt.Println(string(rootCABytes))
+
+	//get local root cert
+	userCABytes, err := ioutil.ReadFile(userCertPath)
+	if err != nil {
+		fmt.Println("read root cert failed. ")
+		//download root ca from CA Server
+		//todo
+	}
+	fmt.Println(string(userCABytes))
+
+	// create kit to sign and verify signature
+	tckit, _ := tck.NewTCKit(rootCertPath, userCertPath)
+
+	// verify signature
+	result, err := tckit.Verify(signedData, targetData)
+
+	if err != nil{
+		fmt.Println("verify sign data failed. err : ", err)
+		//如果验证失败根据根据情况重新处理，抛出异常。外部调用方需要重新调用
+		return
+	}
+
+	fmt.Println("verify result.", result)
+}
+
 func AddNode(writer http.ResponseWriter, request *http.Request) {
 	zlog.Logger.Info("main addnode  start")
 	defer func() {
@@ -69,7 +111,11 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 	}
 	zlog.Logger.Info("main addnode input streamnet request address is ", host)
     addNodeRequest.Host = host
-	var o v.OCli
+
+    //todo 空数据，待服务端启动后才可以调试
+	ca_verify([]byte{}, []byte{});
+
+    var o v.OCli
 	response := o.AddAttestationInfoFunction(addNodeRequest)
 	zlog.Logger.Info("main response is ",response)
 	if err := json.NewEncoder(writer).Encode(response); err != nil {
