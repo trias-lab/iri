@@ -2,8 +2,11 @@ package com.iota.iri.service.dto;
 
 import java.util.List;
 
+/**
+ * GetBalancesResponse class.
+ */
 public class GetBalancesResponse extends AbstractResponse {
-	
+
 	private List<String> balances;
 	private List<String> references;
 	private int milestoneIndex;
@@ -15,7 +18,7 @@ public class GetBalancesResponse extends AbstractResponse {
 		res.milestoneIndex = milestoneIndex;
 		return res;
 	}
-	
+
     /**
      * The referencing tips
      *
@@ -24,7 +27,7 @@ public class GetBalancesResponse extends AbstractResponse {
 	public List<String> getReferences() {
 		return references;
 	}
-	
+
     /**
      * The index with which the confirmed balance was determined
      *
@@ -33,7 +36,7 @@ public class GetBalancesResponse extends AbstractResponse {
 	public int getMilestoneIndex() {
 		return milestoneIndex;
 	}
-	
+
     /**
      * The balances as a list in the same order as the addresses were provided as input
      *

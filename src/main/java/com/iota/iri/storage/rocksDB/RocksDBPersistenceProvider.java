@@ -27,6 +27,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+/**
+ * RocksDBPersistenceProvider class.
+ */
 public class RocksDBPersistenceProvider implements PersistenceProvider {
 
     private static final Logger log = LoggerFactory.getLogger(RocksDBPersistenceProvider.class);

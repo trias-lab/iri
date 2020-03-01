@@ -14,7 +14,7 @@ import java.security.SecureRandom;
 import java.util.*;
 
 /**
- * Created by paul on 3/27/17.
+ * Transaction requester class for synchronization.
  */
 public class TransactionRequester {
 

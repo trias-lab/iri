@@ -8,6 +8,9 @@ import java.util.Set;
 
 import com.iota.iri.model.Hash;
 
+/**
+ * Tips view model.
+ */
 public class TipsViewModel {
 
     public static final int MAX_TIPS = 5000;
@@ -98,7 +101,7 @@ public class TipsViewModel {
             return tips.size();
         }
     }
-    
+
     public int solidSize() {
         synchronized (sync) {
             return solidTips.size();

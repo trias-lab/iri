@@ -10,7 +10,7 @@ import com.iota.iri.utils.Pair;
 import java.util.Set;
 
 /**
- * Created by paul on 5/15/17.
+ * Address view model.
  */
 public class AddressViewModel implements HashesViewModel {
     private Address self;

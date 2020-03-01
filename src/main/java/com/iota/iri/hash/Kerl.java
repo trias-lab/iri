@@ -8,6 +8,9 @@ import java.security.DigestException;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
+/**
+ * A Sponge implementation, Kerl.
+ */
 public final class Kerl implements Sponge {
 
     public static final int BIT_HASH_LENGTH = 384;

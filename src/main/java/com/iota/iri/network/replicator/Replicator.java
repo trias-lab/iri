@@ -5,10 +5,13 @@ import com.iota.iri.network.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * replicator class, for tcp receiving and forwarding messages.
+ */
 public class Replicator {
-    
+
     public static final int NUM_THREADS = 32;
-    
+
     private static final Logger log = LoggerFactory.getLogger(Replicator.class);
     private final ReplicatorSinkPool replicatorSinkPool;
     private final int port;
@@ -26,11 +29,11 @@ public class Replicator {
         new Thread(replicatorSourcePool.init(port)).start();
         log.info("Started ReplicatorSourcePool");
     }
-    
+
     public void shutdown() throws InterruptedException {
         // TODO
         replicatorSourcePool.shutdown();
         replicatorSinkPool.shutdown();
     }
-    
+
 }

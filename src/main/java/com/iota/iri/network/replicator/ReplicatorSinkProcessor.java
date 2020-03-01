@@ -12,6 +12,9 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.zip.CRC32;
 
+/**
+ * ReplicatorSinkProcessor class for tcp forwarding process.
+ */
 class ReplicatorSinkProcessor implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(ReplicatorSinkProcessor.class);

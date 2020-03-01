@@ -1,5 +1,8 @@
 package com.iota.iri.hash;
 
+/**
+ * Sponge interface, for hash calculation.
+ */
 public interface Sponge {
     int HASH_LENGTH = 243;
 

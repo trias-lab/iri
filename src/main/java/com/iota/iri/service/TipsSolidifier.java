@@ -8,6 +8,9 @@ import com.iota.iri.storage.Tangle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Tips solidifier class.
+ */
 public class TipsSolidifier {
 
     private final Logger log = LoggerFactory.getLogger(TipsSolidifier.class);
@@ -27,6 +30,9 @@ public class TipsSolidifier {
         this.tipsViewModel = tipsViewModel;
     }
 
+    /**
+     * Initialization.
+     */
     public void init() {
         solidityRescanHandle = new Thread(() -> {
 
@@ -54,6 +60,11 @@ public class TipsSolidifier {
         solidityRescanHandle.start();
     }
 
+    /**
+     * Scan tips for solidity.
+     *
+     * @throws Exception
+     */
     private void scanTipsForSolidity() throws Exception {
         int size = tipsViewModel.nonSolidSize();
         if (size != 0) {
@@ -70,6 +81,9 @@ public class TipsSolidifier {
         }
     }
 
+    /**
+     * Shutdown method.
+     */
     public void shutdown() {
         shuttingDown = true;
         try {

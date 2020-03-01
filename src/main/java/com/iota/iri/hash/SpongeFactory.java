@@ -1,7 +1,7 @@
 package com.iota.iri.hash;
 
 /**
- * Created by paul on 7/27/17.
+ * Sponge factory using factory design model.
  */
 public abstract class SpongeFactory {
     public enum Mode {

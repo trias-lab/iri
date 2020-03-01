@@ -9,14 +9,14 @@ import java.util.Arrays;
  * <p>
  *     The IOTA protocol is represented in Trits and Trytes, while data is stored and broadcast in Bytes.
  *     This class is used to convert between the representations.
- * </p>
+ * <p>
  * <p>
  *     This class also provides additional conversion tools:
  *     <ul>
  *         <li>Converting Trits to numerical values based on <i>Balanced ternary</i> arithmetic</li>
  *         <li>Converting ascii to a Tryte string</li>
  *     </ul>
- * </p>
+ * <p>
  */
 public class Converter {
 
