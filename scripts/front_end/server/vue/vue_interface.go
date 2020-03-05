@@ -1,7 +1,6 @@
 // Copyright by StreamNet team
 // 拼装对noderank访问的参数，
 // 该类是为了适配main.go 和 noderank.go 而开发的。无特殊逻辑
-// OriData为签名前的数据，Sign为签名数据， AuthSign 已过时
 package vue
 
 import (
@@ -15,17 +14,21 @@ import (
 	"time"
 )
 
+// Message ...
 type Message struct {
 	Code      int64       `json:"code"`
 	Timestamp int64       `json:"timestamp"`
 	Message   string      `json:"message"`
 	Data      interface{} `json:"data"`
 }
+
+// DataTee ...
 type DataTee struct {
 	DataScore interface{} `json:"dataScore"`
 	DataCtx   interface{} `json:"dataCtx"`
 }
 
+// AddNodeRequest ...
 type AddNodeRequest struct {
 	Attester string `json:"attester,omitempty"`
 	Attestee string `json:"attestee,omitempty"`
@@ -33,36 +36,39 @@ type AddNodeRequest struct {
 	Time     string `json:"time,omitempty"`
 	Nonce    int    `json:"nonce,omitempty"`
 	Address  string `json:"address,omitempty"`
-	AuthSign string `json:"authSign,omitempty"`
-	OriData  string `json:"oriData,omitempty"`
-	Sign     string `json:"sign,omitempty"`
 	Host     string `json:"host,omitempty"`
-}
-
-type QueryNodesRequest struct {
-	Period   int64  `json:"period"`
-	NumRank  int64  `json:"numRank"`
-	Url      string `json:"url,omitempty"`
-	Address  string `json:"address,omitempty"`
-	AuthSign string `json:"authSign,omitempty"`
-	OriData  string `json:"oriData,omitempty"`
 	Sign     string `json:"sign,omitempty"`
+	OriData  string `json:"oriData,omitempty"`
 }
 
+// QueryNodesRequest ...
+type QueryNodesRequest struct {
+	Period  int64  `json:"period"`
+	NumRank int64  `json:"numRank"`
+	Url     string `json:"url,omitempty"`
+	Address string `json:"address,omitempty"`
+	Sign    string `json:"sign,omitempty"`
+	OriData string `json:"oriData,omitempty"`
+}
+
+// NodeDetailRequest ...
 type NodeDetailRequest struct {
 	RequestUrl    string `json:"requestUrl,omitempty"`
 	RequestData   string `json:"requestData,omitempty"`
 	RequestMethod string `json:"requestMethod,omitempty"`
 }
 
+// OCli ...
 type OCli struct {
 }
 
+// AddAtInfo ...
 type AddAtInfo interface {
 	AddAttestationInfoFunction(_data []byte) Message
 	GetRankFunction(_data []byte) Message
 }
 
+// AddAttestationInfoFunction 新增证实数据包装类，负责组装参数
 func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 	mess := Message{}
 	newReq := new(AddNodeRequest)
@@ -91,6 +97,7 @@ func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 	return mess
 }
 
+// GetRankFunction 排名查询包装类
 func (o *OCli) GetRankFunction(request *QueryNodesRequest) Message {
 	mess := Message{}
 	teescore, teectx, err1 := nr.GetRank(request.Url, request.Period, request.NumRank)
@@ -103,6 +110,7 @@ func (o *OCli) GetRankFunction(request *QueryNodesRequest) Message {
 	return mess
 }
 
+// QueryNodeDetail ...
 func (o *OCli) QueryNodeDetail(request *NodeDetailRequest) Message {
 	if request.RequestUrl == "" {
 		return Message{Code: 0, Message: "RequestUrl is empty"}
