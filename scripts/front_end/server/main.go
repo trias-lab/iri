@@ -61,6 +61,7 @@ func main() {
 	}
 }
 
+// AddNode 新增证实数据请求处理
 func AddNode(writer http.ResponseWriter, request *http.Request) {
 	//zlog.Logger.Info("main addnode  start")
 	defer func() {
@@ -74,6 +75,7 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(err)
 		request.Body.Close()
 	}
+
 	//zlog.Logger.Info("main AddNodeRequest  content is ", *addNodeRequest)
 	if ca {
 		caResult, err := caVerify([]byte(addNodeRequest.Sign), []byte(addNodeRequest.OriData))
@@ -94,6 +96,7 @@ func AddNode(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// QueryNodes 排名查询请求处理
 func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 	//zlog.Logger.Info("main querynode start")
 	defer func() {
@@ -106,9 +109,9 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println(err)
 		request.Body.Close()
 	}
-	//zlog.Logger.Info("main queryNodesRequest content is ", *queryNodesRequest)
 
-	if ca {
+	//zlog.Logger.Info("main queryNodesRequest content is ", *queryNodesRequest)
+  if ca {
 		caResult, err := caVerify([]byte(queryNodesRequest.Sign), []byte(queryNodesRequest.OriData))
 		if !caResult || err != nil {
 			fmt.Println("verify CA certification failed, ", err)
@@ -126,6 +129,7 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// QueryNodeDetail ...
 func QueryNodeDetail(writer http.ResponseWriter, request *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -163,7 +167,7 @@ func caVerify(signedData []byte, targetData []byte) (bool, error) {
 		_, err = ioutil.ReadFile(dir + rootCertFile)
 	}
 
-	//get local root cert
+	//get local user cert
 	_, err = ioutil.ReadFile(dir + userCertFile)
 	if err != nil {
 		fmt.Println("read user cert failed. ", err)
@@ -192,7 +196,7 @@ func caVerify(signedData []byte, targetData []byte) (bool, error) {
 
 	if err != nil {
 		fmt.Println("verify sign data failed. err : ", err)
-		//如果验证失败根据根据情况重新处理，抛出异常。外部调用方需要重新调用
+		//如果验证失败根据根据情况重新处理并打印异常。外部调用方需要重新调用
 		return false, err
 	}
 

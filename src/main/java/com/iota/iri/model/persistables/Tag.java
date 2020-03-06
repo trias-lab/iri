@@ -3,7 +3,7 @@ package com.iota.iri.model.persistables;
 import com.iota.iri.model.Hash;
 
 /**
- * Created by paul on 5/15/17.
+ * Tag class as hashes.
  */
 public class Tag extends Hashes {
     public Tag(Hash hash) {

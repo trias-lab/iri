@@ -15,7 +15,7 @@ import java.util.*;
 
 
 /**
- * Created by paul on 3/3/17 for iri.
+ * The tangle class.
  */
 public class Tangle {
     private static final Logger log = LoggerFactory.getLogger(Tangle.class);

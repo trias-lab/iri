@@ -2,6 +2,9 @@ package com.iota.iri.model.persistables;
 
 import com.iota.iri.model.Hash;
 
+/**
+ * ObsoleteTag as hashes.
+ */
 public class ObsoleteTag extends Tag {
 
     public ObsoleteTag(Hash hash) {

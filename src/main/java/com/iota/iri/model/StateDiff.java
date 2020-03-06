@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * StateDiff class.
+ */
 public class StateDiff implements Persistable {
     public Map<Hash, Long> state;
 

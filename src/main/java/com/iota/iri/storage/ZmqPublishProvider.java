@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+/**
+ * ZMQ as PersistenceProvider.
+ */
 public class ZmqPublishProvider implements PersistenceProvider {
 
     private static final Logger log = LoggerFactory.getLogger(ZmqPublishProvider.class);

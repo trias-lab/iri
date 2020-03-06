@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.CRC32;
 
+/**
+ * ReplicatorSourceProcessor class for tcp receiving process.
+ */
 class ReplicatorSourceProcessor implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(ReplicatorSourceProcessor.class);

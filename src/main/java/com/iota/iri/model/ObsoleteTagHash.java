@@ -1,5 +1,8 @@
 package com.iota.iri.model;
 
+/**
+ * ObsoleteTagHash class.
+ */
 public class ObsoleteTagHash extends AbstractHash {
 
     protected ObsoleteTagHash(byte[] tagBytes, int offset, int tagSizeInBytes) {

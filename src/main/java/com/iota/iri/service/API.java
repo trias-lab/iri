@@ -72,6 +72,9 @@ import java.util.stream.IntStream;
 
 import static io.undertow.Handlers.path;
 
+/**
+ * API processing class.
+ */
 @SuppressWarnings("unchecked")
 public class API {
 
@@ -129,6 +132,11 @@ public class API {
         features = Feature.calculateFeatureNames(instance.configuration);
     }
 
+    /**
+     * Initialization.
+     *
+     * @throws IOException {@link IOException}
+     */
     public void init() throws IOException {
         readPreviousEpochsSpentAddresses(testNet);
 
@@ -188,6 +196,12 @@ public class API {
         }
     }
 
+    /**
+     * Http requests procession method.
+     *
+     * @param exchange {@link HttpServerExchange}
+     * @throws IOException
+     */
     private void processRequest(final HttpServerExchange exchange) throws IOException {
         final ChannelInputStream cis = new ChannelInputStream(exchange.getRequestChannel());
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
@@ -206,6 +220,14 @@ public class API {
         sendResponse(exchange, response, beginningTime);
     }
 
+    /**
+     * Parsing the requests from the command.
+     *
+     * @param requestString json string
+     * @param sourceAddress the address from where the request is sent
+     * @return {@link AbstractResponse}
+     * @throws UnsupportedEncodingException
+     */
     private AbstractResponse process(final String requestString, InetSocketAddress sourceAddress) throws UnsupportedEncodingException {
 
         try {
@@ -452,6 +474,13 @@ public class API {
         return WereAddressesSpentFrom.create(states);
     }
 
+    /**
+     * Check if the address was ever spent from.
+     *
+     * @param address one address to check if it was ever spent from.
+     * @return true or false
+     * @throws Exception
+     */
     private boolean wasAddressSpentFrom(Hash address) throws Exception {
         if (previousEpochsSpentAddresses.containsKey(address)) {
             return true;
@@ -475,6 +504,13 @@ public class API {
         return false;
     }
 
+    /**
+     * Find the tail in tangle with hash.
+     *
+     * @param hash {@link Hash}
+     * @return {@link Hash}
+     * @throws Exception
+     */
     private Hash findTail(Hash hash) throws Exception {
         TransactionViewModel tx = TransactionViewModel.fromHash(instance.tangle, hash);
         final Hash bundleHash = tx.getBundleHash();
@@ -572,6 +608,14 @@ public class API {
     }
 
 
+    /**
+     * Get the int value in request according to paramName.
+     *
+     * @param request a map
+     * @param paramName key value in the map
+     * @return int value
+     * @throws ValidationException
+     */
     private int getParameterAsInt(Map<String, Object> request, String paramName) throws ValidationException {
         validateParamExists(request, paramName);
         final int result;
@@ -583,6 +627,15 @@ public class API {
         return result;
     }
 
+    /**
+     * Get the string value in request according to paramName, and validate it.
+     *
+     * @param request a map
+     * @param paramName key value in the map
+     * @param size the string length
+     * @return string value
+     * @throws ValidationException
+     */
     private String getParameterAsStringAndValidate(Map<String, Object> request, String paramName, int size) throws ValidationException {
         validateParamExists(request, paramName);
         String result = (String) request.get(paramName);
@@ -590,24 +643,56 @@ public class API {
         return result;
     }
 
+    /**
+     * Get the string value in request according to paramName.
+     *
+     * @param request a map
+     * @param paramName key value in the map
+     * @return string value
+     * @throws ValidationException
+     */
     private String getParameterAsString(Map<String, Object> request, String paramName) throws ValidationException {
         validateParamExists(request, paramName);
         String result = (String) request.get(paramName);
         return result;
     }
 
+    /**
+     * Validate the trytes.
+     *
+     * @param paramName string value
+     * @param size string length
+     * @param result string value get from request
+     * @throws ValidationException
+     */
     private void validateTrytes(String paramName, int size, String result) throws ValidationException {
         if (!validTrytes(result,size,ZERO_LENGTH_NOT_ALLOWED)) {
             throw new ValidationException("Invalid " + paramName + " input");
         }
     }
 
+    /**
+     * Check if the request contain the key value.
+     *
+     * @param request a map
+     * @param paramName key value in the map
+     * @throws ValidationException
+     */
     private void validateParamExists(Map<String, Object> request, String paramName) throws ValidationException {
         if (!request.containsKey(paramName)) {
             throw new ValidationException(invalidParams);
         }
     }
 
+    /**
+     * Get the string list in request according to paramName.
+     *
+     * @param request a map
+     * @param paramName key value in the map
+     * @param size string length
+     * @return list of string
+     * @throws ValidationException
+     */
     private List<String> getParameterAsList(Map<String, Object> request, String paramName, int size) throws ValidationException {
         validateParamExists(request, paramName);
         final List<String> paramList = (List<String>) request.get(paramName);
@@ -626,6 +711,11 @@ public class API {
 
     }
 
+    /**
+     * Check if the subtangle is valid.
+     *
+     * @return true or false
+     */
     public boolean invalidSubtangleStatus() {
         String tipSel = BaseIotaConfig.getInstance().getTipSelector();
         if(tipSel.equals("CONFLUX")) {
@@ -1471,7 +1561,6 @@ public class API {
     }
 
    /**
-     * <b>Only available on testnet.</b>
      * Creates, attaches, and broadcasts a transaction with this message
      *
      * @param address The address to add the message to
@@ -1664,14 +1753,14 @@ public class API {
      */
     private synchronized AbstractResponse getBlocksInPeriodStatement(final long period) {
         LocalInMemoryGraphProvider provider = (LocalInMemoryGraphProvider)instance.tangle.getPersistenceProvider("LOCAL_GRAPH");
-        
+
         List<Hash> totalTopOrders = provider.totalTopOrder();
         Long currentPage = period;
         List<Hash> retOrder = pagingQuery(currentPage.intValue(), totalTopOrders);
         if(retOrder == null || retOrder.isEmpty()){
             return AbstractResponse.createEmptyResponse();
         }
-        
+
         List<String> resArray = new ArrayList<String>();
         try {
             for(Hash h : retOrder) {
@@ -1684,7 +1773,7 @@ public class API {
             }
 
             String finalRes = new Gson().toJson(resArray);
-    
+
             return GetBlocksInPeriodResponse.create(finalRes);
         } catch(Exception e) {
             e.printStackTrace();
@@ -1717,6 +1806,13 @@ public class API {
         }
     }
 
+    /**
+     * Verify of the sign.
+     *
+     * @param contentStr the input string
+     * @param <T> general type
+     * @return general type
+     */
     private <T> boolean doVerify(T contentStr){
         JSONObject content;
         if (contentStr instanceof  String){
@@ -1741,7 +1837,13 @@ public class API {
         return CryptoExecutor.getCryptoInstance().verify(signature, address, message);
     }
 
-    // paging method
+    /**
+     * paging method.
+     *
+     * @param currentPage page number
+     * @param hashList list of hash
+     * @return list of hash
+     */
     private List<Hash> pagingQuery(int currentPage, List<Hash> hashList){
         int pageSize = (int)BaseIotaConfig.getInstance().getNumBlocksPerPeriod();
 
@@ -1770,7 +1872,7 @@ public class API {
             from = (currentPage - 1) * pageSize;
             to = currentPage * pageSize;
         }
-        log.error(String.format("===== truncate dag chain, total %d from %d to %d, request current page %d ======", 
+        log.error(String.format("===== truncate dag chain, total %d from %d to %d, request current page %d ======",
                                total, from, to, currentPage));
         return hashList.subList(from, to);
     }

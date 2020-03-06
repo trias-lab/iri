@@ -1,7 +1,7 @@
 package com.iota.iri.service.dto;
 
 /**
- * Created by paul on 2/10/17.
+ * IXIResponse class.
  */
 public class IXIResponse extends AbstractResponse {
     private Object ixi;

@@ -3,6 +3,9 @@ package com.iota.iri;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * IXI Events.
+ */
 public enum IxiEvent {
     CREATE_MODULE("ENTRY_CREATE"),
     MODIFY_MODULE("ENTRY_MODIFY"),

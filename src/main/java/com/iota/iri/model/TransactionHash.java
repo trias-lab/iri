@@ -4,6 +4,9 @@ import com.iota.iri.hash.Sponge;
 import com.iota.iri.hash.SpongeFactory;
 import com.iota.iri.utils.Converter;
 
+/**
+ * TransactionHash class as key in storage.
+ */
 public class TransactionHash extends AbstractHash {
     public TransactionHash()
     {
@@ -20,7 +23,7 @@ public class TransactionHash extends AbstractHash {
 
     public void setBytes(byte[] bytes) {
     }
-	
+
     /**
      * Calculates a transaction hash from an array of bytes. Uses the entire trits array
      * @param mode The mode we absorb the trits with
@@ -33,7 +36,7 @@ public class TransactionHash extends AbstractHash {
 
     /**
      * Calculates a transaction hash from an array of bytes
-     * @param bytes The bytes that contain this transactionHash 
+     * @param bytes The bytes that contain this transactionHash
      * @param tritsLength The length of trits the bytes represent
      * @param sponge The way we absorb the trits with
      * @return The {@link TransactionHash}

@@ -11,6 +11,9 @@ import com.iota.iri.network.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * ReplicatorSourcePool for tcp receiving.
+ */
 public class ReplicatorSourcePool implements Runnable {
 
     private final ReplicatorSinkPool replicatorSinkPool;

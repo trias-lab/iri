@@ -3,7 +3,7 @@ package com.iota.iri.model.persistables;
 import com.iota.iri.model.Hash;
 
 /**
- * Created by paul on 5/15/17.
+ * Approvee as hashes.
  */
 public class Approvee extends Hashes{
     public Approvee(Hash hash) {

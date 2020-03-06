@@ -5,6 +5,9 @@ import com.iota.iri.hash.SpongeFactory;
 import com.iota.iri.model.persistables.RawTransaction;
 import com.iota.iri.utils.Converter;
 
+/**
+ * RawTransactionHash class.
+ */
 public class RawTransactionHash extends AbstractHash {
     public RawTransactionHash(byte[] bytes, int offset, int sizeInBytes) {
         super(bytes, offset, sizeInBytes);

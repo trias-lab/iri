@@ -18,6 +18,9 @@ import java.util.*;
 
 //import org.neo4j.driver.v1.Transaction;
 
+/**
+ * Neo4jPersistenceProvider class.
+ */
 public class Neo4jPersistenceProvider implements AutoCloseable, PersistenceProvider
 {
     GraphDatabaseService graphDb;

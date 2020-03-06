@@ -9,7 +9,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 /**
- * Created by paul on 4/15/17.
+ * UDPNeighbor class for UDP communicating.
  */
 public class UDPNeighbor extends Neighbor {
     private static final Logger log = LoggerFactory.getLogger(UDPNeighbor.class);

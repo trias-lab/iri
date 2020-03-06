@@ -23,6 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
+/**
+ * Transaction view model.
+ */
 public class TransactionViewModel {
 
     private final Transaction transaction;

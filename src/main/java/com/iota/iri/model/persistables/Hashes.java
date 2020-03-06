@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Created by paul on 3/8/17 for iri.
+ * Hash class for storage.
  */
 public class Hashes implements Persistable {
     public Set<Hash> set = new LinkedHashSet<>();

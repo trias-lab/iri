@@ -6,7 +6,7 @@ import com.iota.iri.utils.Pair;
 import java.util.*;
 
 /**
- * Created by paul on 3/2/17 for iri.
+ * Persistence storage implement.
  */
 public interface PersistenceProvider {
 

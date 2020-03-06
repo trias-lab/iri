@@ -5,6 +5,9 @@ import java.util.List;
 
 import static com.iota.iri.hash.PearlDiver.State.*;
 
+/**
+ * Pow class, get the nonce.
+ */
 public class PearlDiver {
 
     enum State {

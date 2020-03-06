@@ -1,7 +1,10 @@
 package com.iota.iri.service.dto;
 
+/**
+ * RemoveNeighborsResponse class.
+ */
 public class RemoveNeighborsResponse extends AbstractResponse {
-	
+
 	private int removedNeighbors;
 
 	public static AbstractResponse create(int numberOfRemovedNeighbors) {
@@ -9,7 +12,7 @@ public class RemoveNeighborsResponse extends AbstractResponse {
 		res.removedNeighbors = numberOfRemovedNeighbors;
 		return res;
 	}
-	
+
     /**
      * The number of removed neighbors.
      *

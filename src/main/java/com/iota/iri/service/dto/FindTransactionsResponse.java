@@ -2,8 +2,11 @@ package com.iota.iri.service.dto;
 
 import java.util.List;
 
+/**
+ * FindTransactionsResponse class.
+ */
 public class FindTransactionsResponse extends AbstractResponse {
-	
+
 	private String [] hashes;
 
 	public static AbstractResponse create(List<String> elements) {
@@ -11,9 +14,9 @@ public class FindTransactionsResponse extends AbstractResponse {
 		res.hashes = elements.toArray(new String[] {});
 		return res;
 	}
-	
+
     /**
-      * The transaction hashes which are returned depend on your input. 
+      * The transaction hashes which are returned depend on your input.
       * For each specified input value, the command will return the following:
       * <code>bundles</code>: returns the list of transactions which contain the specified bundle hash.
       * <code>addresses</code>: returns the list of transactions which have the specified address as an input/output field.
