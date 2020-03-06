@@ -37,7 +37,7 @@ func TestAddNode(t *testing.T) {
 	// create a signature
 	signedData, _ := tckit.Sign(prik, []byte(sourceData))
 	r := url.QueryEscape(string(signedData))
-	//fmt.Println("signed data is :", r)
+	fmt.Println("signed data is :", r)
 
 	body := struct {
 		Attester string `json:"attester,omitempty"`
