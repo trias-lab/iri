@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Tag view model.
+ */
 public class TagViewModel implements HashesViewModel {
     private Tag self;
     private Indexable hash;

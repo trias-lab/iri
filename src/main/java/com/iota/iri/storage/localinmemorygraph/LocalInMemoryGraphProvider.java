@@ -32,9 +32,9 @@ import java.io.*;
  * Dag 内存模型处理类：提供存储/检索/构建dag全拓扑序功能
  * 注：所有的输入均统称为交易，证实消息可以成为证实交易
  *
- * @Author yk
- * @Date 2019-12-23
- * @Versioin 1.0.0
+ * @author yk
+ * @date 2019-12-23
+ * @version 1.0.0
  */
 public class LocalInMemoryGraphProvider implements AutoCloseable, PersistenceProvider {
     private static final Logger log = LoggerFactory.getLogger(LocalInMemoryGraphProvider.class);
@@ -1081,7 +1081,7 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
 
     /**
      * 未使用
-     * @return
+     * @return hashmap
      */
     // if belongs to the same bundle, condense it
     public HashMap<Hash, Set<Hash>> getCondensedGraph() {

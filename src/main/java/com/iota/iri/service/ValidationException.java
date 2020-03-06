@@ -1,5 +1,8 @@
 package com.iota.iri.service;
 
+/**
+ * Validation Exception.
+ */
 public class ValidationException extends Exception {
 
     /**

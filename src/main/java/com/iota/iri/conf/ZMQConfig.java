@@ -1,5 +1,8 @@
 package com.iota.iri.conf;
 
+/**
+ * Configuration for ZMQ.
+ */
 public interface ZMQConfig extends Config {
 
     boolean isZmqEnabled();

@@ -1,7 +1,10 @@
 package com.iota.iri.service.dto;
 
+/**
+ * AddedNeighborsResponse class.
+ */
 public class AddedNeighborsResponse extends AbstractResponse {
-	
+
 	private int addedNeighbors;
 
 	public static AbstractResponse create(int numberOfAddedNeighbors) {
@@ -18,5 +21,5 @@ public class AddedNeighborsResponse extends AbstractResponse {
 	public int getAddedNeighbors() {
 		return addedNeighbors;
 	}
-	
+
 }

@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.iota.iri.network.Neighbor;
 import com.iota.iri.network.Node;
 
+/**
+ * ReplicatorSinkPool class for tcp forwarding.
+ */
 public class ReplicatorSinkPool  implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(ReplicatorSinkPool.class);

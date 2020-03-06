@@ -17,7 +17,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by paul on 4/16/17.
+ * udp replicator for udp receiving and forwarding messages.
  */
 public class UDPReceiver {
     private static final Logger log = LoggerFactory.getLogger(UDPReceiver.class);

@@ -54,7 +54,7 @@ import java.io.IOException;
 
 
 /**
- * Created by paul on 5/19/17.
+ * The working IOTA class.
  */
 public class Iota {
     private static final Logger log = LoggerFactory.getLogger(Iota.class);
@@ -95,6 +95,11 @@ public class Iota {
         timeOutCache = new HashMap<String, Long>();
     }
 
+    /**
+     * Initialization.
+     *
+     * @throws Exception
+     */
     public void init() throws Exception {
         initializeTangle();
         tangle.init();
@@ -118,6 +123,11 @@ public class Iota {
         TransactionData.getInstance().restoreTxs();
     }
 
+    /**
+     * Get the things from DB after startup.
+     *
+     * @throws Exception
+     */
     private void rescanDb() throws Exception {
         //delete all transaction indexes
         tangle.clearColumn(com.iota.iri.model.persistables.Address.class);
@@ -143,6 +153,11 @@ public class Iota {
         }
     }
 
+    /**
+     * Shutdown function.
+     *
+     * @throws Exception
+     */
     public void shutdown() throws Exception {
         milestoneTracker.shutDown();
         tipsSolidifier.shutdown();
@@ -154,6 +169,9 @@ public class Iota {
         messageQ.shutdown();
     }
 
+    /**
+     * Initialize the tangle.
+     */
     private void initializeTangle() {
         switch (configuration.getMainDb()) {
             case "rocksdb": {
@@ -182,6 +200,12 @@ public class Iota {
         }
     }
 
+    /**
+     * Create TipSelector.
+     *
+     * @param config {@link TipSelConfig}
+     * @return {@link TipSelector}
+     */
     private TipSelector createTipSelector(TipSelConfig config) {
         // TODO use factory
         EntryPointSelector entryPointSelector = new EntryPointSelectorImpl(tangle, milestoneTracker);
@@ -210,6 +234,11 @@ public class Iota {
         return tipSel;
     }
 
+    /**
+     * Create LedgerValidator.
+     *
+     * @return {@link LedgerValidator}
+     */
     private LedgerValidator createLedgerValidator() {
         LedgerValidator validator = new LedgerValidatorImpl(tangle, milestoneTracker, transactionRequester, messageQ);
         if(BaseIotaConfig.getInstance().getLedgerValidator().equals("NULL")){

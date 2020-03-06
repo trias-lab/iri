@@ -6,6 +6,9 @@ import com.iota.iri.storage.Tangle;
 
 import java.util.Map;
 
+/**
+ * State diff view model.
+ */
 public class StateDiffViewModel {
     private StateDiff stateDiff;
     private Hash hash;

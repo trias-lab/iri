@@ -7,6 +7,9 @@ import com.iota.iri.storage.Persistable;
 import com.iota.iri.utils.Serializer;
 import org.apache.commons.lang3.ArrayUtils;
 
+/**
+ * Milestone for storage
+ */
 public class Milestone implements Persistable {
     public IntegerIndex index;
     public Hash hash;

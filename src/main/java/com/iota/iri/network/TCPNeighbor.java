@@ -13,7 +13,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by paul on 4/15/17.
+ * TCPNeighbor class for TCP communicating.
  */
 public class TCPNeighbor extends Neighbor {
     private static final Logger log = LoggerFactory.getLogger(TCPNeighbor.class);

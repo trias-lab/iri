@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
+/**
+ * Configuration for Testnet.
+ */
 public class TestnetConfig extends BaseIotaConfig {
 
     protected String coordinator = Defaults.COORDINATOR_ADDRESS;

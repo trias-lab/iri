@@ -26,6 +26,12 @@ public class IRI {
     public static final String TESTNET_NAME = "IRI Testnet";
     public static final String VERSION = "1.5.5";
 
+    /**
+     * The main method in IRI.
+     *
+     * @param args the list of startup parameters
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         // Logging is configured first before any references to Logger or LoggerFactory.
         // Any public method or field accessors needed in IRI should be put in IRI and then delegate to IRILauncher. That
@@ -34,6 +40,9 @@ public class IRI {
         IRILauncher.main(args);
     }
 
+    /**
+     * Set the logging level.
+     */
     private static void configureLogging() {
         String config = System.getProperty("logback.configurationFile");
         String level = System.getProperty("logging-level", "").toUpperCase();
@@ -59,6 +68,9 @@ public class IRI {
         }
     }
 
+    /**
+     * The IRI launcher class.
+     */
     private static class IRILauncher {
         private static final Logger log = LoggerFactory.getLogger(IRILauncher.class);
 
@@ -66,6 +78,12 @@ public class IRI {
         public static API api;
         public static IXI ixi;
 
+        /**
+         * The main method in IRILauncher.
+         *
+         * @param args the list of startup parameters
+         * @throws Exception
+         */
         public static void main(String [] args) throws Exception {
             IotaConfig config = createConfiguration(args);
             BaseIotaConfig.setInstance((BaseIotaConfig)config);
@@ -88,6 +106,9 @@ public class IRI {
             }
         }
 
+        /**
+         * The hook function, and it will be called when shutting down.
+         */
         private static void shutdownHook() {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 log.info("Shutting down IOTA node, please hold tight...");
@@ -101,6 +122,12 @@ public class IRI {
             }, "Shutdown Hook"));
         }
 
+        /**
+         * Parsing the configuration from the startup parameters.
+         *
+         * @param args the startup parameters
+         * @return {@link IotaConfig}
+         */
         private static IotaConfig createConfiguration(String[] args) {
             IotaConfig iotaConfig = null;
             String message = "Configuration is created using ";
@@ -135,6 +162,12 @@ public class IRI {
             return iotaConfig;
         }
 
+        /**
+         * Choose the config file from the startup parameter '-c' or IotaConfig.CONFIG_FILE.
+         *
+         * @param args the startup parameters
+         * @return {@link java.io.File}
+         */
         private static File chooseConfigFile(String[] args) {
             int index = Math.max(ArrayUtils.indexOf(args, "-c"), ArrayUtils.indexOf(args, "--config"));
             if (index != -1) {

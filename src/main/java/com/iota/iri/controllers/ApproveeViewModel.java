@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Approvee view model.
+ */
 public class ApproveeViewModel implements HashesViewModel {
     private Approvee self;
     private Indexable hash;

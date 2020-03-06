@@ -3,7 +3,7 @@ package com.iota.iri.storage;
 import java.io.Serializable;
 
 /**
- * Created by paul on 5/6/17.
+ * Indexable interface as Key in DB.
  */
 public interface Indexable extends Comparable<Indexable>, Serializable {
     byte[] bytes();

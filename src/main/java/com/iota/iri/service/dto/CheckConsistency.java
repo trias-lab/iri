@@ -1,9 +1,12 @@
 package com.iota.iri.service.dto;
 
+/**
+ * CheckConsistency class.
+ */
 public class CheckConsistency extends AbstractResponse {
 
     private boolean state;
-    
+
     private String info;
 
     public static AbstractResponse create(boolean state, String info) {
@@ -21,7 +24,7 @@ public class CheckConsistency extends AbstractResponse {
     public boolean getState() {
         return state;
     }
-    
+
     /**
      * Information about the state
      *

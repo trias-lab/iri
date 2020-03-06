@@ -27,6 +27,9 @@ import java.util.regex.Pattern;
 import static com.sun.jmx.mbeanserver.Util.cast;
 import static java.nio.file.StandardWatchEventKinds.*;
 
+/**
+ * Events processing class.
+ */
 public class IXI {
 
     private static final Logger log = LoggerFactory.getLogger(IXI.class);

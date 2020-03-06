@@ -5,6 +5,9 @@ import com.iota.iri.utils.Converter;
 
 import java.util.Arrays;
 
+/**
+ * HashPerfix implement HashId.
+ */
 public final class HashPrefix implements HashId {
     public static final int PREFIX_LENGTH = 44;
     private final byte[] bytes;

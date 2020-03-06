@@ -8,6 +8,9 @@ import com.iota.iri.utils.Converter;
 
 import static com.iota.iri.model.Hash.SIZE_IN_TRITS;
 
+/**
+ * RawTransaction as hashes.
+ */
 public class RawTransaction extends Hashes {
     public RawTransaction(){}
     public RawTransaction(Hash hash) {
