@@ -10,6 +10,7 @@ import (
 	"github.com/trias-lab/trias-ca-go-sdk/tck"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -35,7 +36,8 @@ func TestAddNode(t *testing.T) {
 
 	// create a signature
 	signedData, _ := tckit.Sign(prik, []byte(sourceData))
-	fmt.Println("signed data is :", string(signedData))
+	r := url.QueryEscape(string(signedData))
+	//fmt.Println("signed data is :", r)
 
 	body := struct {
 		Attester string `json:"attester,omitempty"`
@@ -49,16 +51,16 @@ func TestAddNode(t *testing.T) {
 		OriData  string `json:"oriData,omitempty"`
 		Host     string `json:"host,omitempty"`
 	}{
-		"10.11.1.1",
-		"10.11.1.2",
+		"10.11.1.3",
+		"10.11.1.4",
 		1,
 		"2019-10-10",
 		10,
 		"OKJUHGGGJKM9KHY9JN",
 		"adfjkmkclkleoldjasldjfel",
-		"127.0.0.1:8000",
-		string(signedData),
+		r,
 		"abc",
+		"127.0.0.1:8000",
 	}
 
 	queryNodeBody := struct {
@@ -73,7 +75,7 @@ func TestAddNode(t *testing.T) {
 		100,
 		"127.0.0.1:14700",
 		"KNKHEDSEV9DD9SAM",
-		string(signedData),
+		r,
 		"abc",
 	}
 
