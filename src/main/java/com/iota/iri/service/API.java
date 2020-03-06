@@ -257,22 +257,22 @@ public class API {
                             message = java.net.URLDecoder.decode(message, StandardCharsets.UTF_8.name());
                         }
                         final String tagg = tag;
-                        if(!verifySign(message, jsonObject -> {
-                            if(tagg.contains("TEE")){
-                                return jsonObject.getInt("tee_num");
-                            }else{
-                                return jsonObject.getInt("tx_num");
-                            }
-                        }, jsonObject -> {
-                            if(tagg.contains("TEE")){
-                                return jsonObject.getJSONArray("tee_content");
-                            }else{
-                                return jsonObject.getString("txn_content");
-                            }
-                        })){
-                            log.error("Failed to verify signature!");
-                            throw new RuntimeException("Failed to verify signature.");
-                        }
+//                        if(!verifySign(message, jsonObject -> {
+//                            if(tagg.contains("TEE")){
+//                                return jsonObject.getInt("tee_num");
+//                            }else{
+//                                return jsonObject.getInt("tx_num");
+//                            }
+//                        }, jsonObject -> {
+//                            if(tagg.contains("TEE")){
+//                                return jsonObject.getJSONArray("tee_content");
+//                            }else{
+//                                return jsonObject.getString("txn_content");
+//                            }
+//                        })){
+//                            log.error("Failed to verify signature!");
+//                            throw new RuntimeException("Failed to verify signature.");
+//                        }
                     }
 
                     address = Converter.asciiToTrytes(address);
@@ -1692,6 +1692,7 @@ public class API {
         }
     }
 
+    @Deprecated
     private <T> boolean verifySign(String requstJson, Function<JSONObject,Integer> numHandler, Function<JSONObject,T> contentHandler){
         JSONObject json = new JSONObject(requstJson);
         Integer num = numHandler.apply(json);

@@ -9,7 +9,7 @@ public class TEE {
     String ts;
     int nonce;
     String address;
-    String sign;
+//    String sign;
 
     public String getDigetst() {
         return "[" + attester + "," + attestee + "]";
