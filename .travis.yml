@@ -32,7 +32,7 @@ install:
     - sudo pip install pyota
     - sudo pip install docker
     - sudo pip install mock
-    - sudo pip install cryptography==2.5
+    - sudo pip install cryptography==2.8
     - sudo pip install sh
     - sudo pip install six --upgrade
     - sudo pip install ecdsa
