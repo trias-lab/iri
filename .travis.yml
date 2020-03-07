@@ -26,17 +26,17 @@ install:
     - sudo apt-get update
     - sudo apt-get install python-pip
     - sudo apt-get install python-dev
-    - sudo pip install ipfsapi
-    - sudo pip install flask
-    - sudo pip install -U pyOpenSSL
-    - sudo pip install pyota
-    - sudo pip install docker
-    - sudo pip install mock
-    - sudo pip install cryptography==2.5
-    - sudo pip install sh
-    - sudo pip install six --upgrade
-    - sudo pip install ecdsa
-    - sudo pip install pycrypto
+    - sudo pip install ipfsapi==0.4.4
+    - sudo pip install flask==1.1.1
+    - sudo pip install -U pyOpenSSL==19.1.0
+    - sudo pip install pyota==2.1.0
+    - sudo pip install docker==4.2.0
+    - sudo pip install mock==4.0.1
+    - sudo pip install cryptography==2.8
+    - sudo pip install sh==1.12.14
+    - sudo pip install six==1.14.0 --upgrade
+    - sudo pip install ecdsa==0.15
+    - sudo pip install pycrypto==2.6.1
   # update go version
     - gimme 1.11.5
     - source ~/.gimme/envs/go1.11.5.env
