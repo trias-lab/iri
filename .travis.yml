@@ -37,6 +37,7 @@ install:
     - sudo pip install six==1.14.0 --upgrade
     - sudo pip install ecdsa==0.15
     - sudo pip install pycrypto==2.6.1
+
   # update go version
     - gimme 1.11.5
     - source ~/.gimme/envs/go1.11.5.env
