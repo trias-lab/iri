@@ -84,11 +84,7 @@ script:
   - git clone https://github.com/triasteam/iri-regression-tests.git
   - cd iri-regression-tests
   # checkout special branch
-  - echo branch is $objBranch
-  - echo git show-ref refs/heads/$objBranch
-  - git branch -r
-  - git show-ref refs/heads/add_ca
-  - exists=$(git show-ref refs/heads/$objBranch) || true
+  - exists=$(git show-ref refs/remotes/origin/$objBranch) || true
   - echo $exists
   -  |
      if [ -n "$exists" ]; then
