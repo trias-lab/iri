@@ -84,7 +84,9 @@ script:
   - git clone https://github.com/triasteam/iri-regression-tests.git
   - cd iri-regression-tests
   # checkout special branch
+  - echo branch is $objBranch
   - exists=$(git show-ref refs/heads/$objBranch) || true
+  - echo $exists
   -  |
      if [ -n "$exists" ]; then
        echo pr will merge $objBranch to master if existed
