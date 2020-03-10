@@ -75,8 +75,28 @@ script:
   - JACOCO_V=$(mvn help:evaluate -Dexpression=jacoco.version | grep -E '^[0-9.]+')
   - export _JAVA_OPTIONS="$_JAVA_OPTIONS -javaagent:$HOME/.m2/repository/org/jacoco/org.jacoco.agent/$JACOCO_V/org.jacoco.agent-$JACOCO_V-runtime.jar=destfile=$PWD/target/jacoco.exec,output=file,append=true,dumponexit=true"
   - echo $_JAVA_OPTIONS
+  # get branch
+  - export objBranch=$TRAVIS_BRANCH
+  -  |
+     if [ ${TRAVIS_PULL_REQUEST} != false ]; then
+       export objBranch=${TRAVIS_PULL_REQUEST_BRANCH}
+     fi
   - git clone https://github.com/triasteam/iri-regression-tests.git
   - cd iri-regression-tests
+  # checkout special branch
+  - exists=$(git show-ref refs/heads/$objBranch) || true
+  -  |
+     if [ -n "$exists" ]; then
+       echo pr will merge $objBranch to master if existed
+       git checkout $objBranch
+       git checkout master
+       git merge $objBranch || true
+     fi
+  -  |
+     if [ -z "$exists" ]; then
+       echo push will checkout master
+       git checkout master
+     fi
   #- git checkout -f master
   - mkdir iri
   - cp -rf ../target iri/target
