@@ -85,6 +85,8 @@ script:
   - cd iri-regression-tests
   # checkout special branch
   - echo branch is $objBranch
+  - echo git show-ref refs/heads/$objBranch
+  - git show-ref refs/heads/$objBranch
   - exists=$(git show-ref refs/heads/$objBranch) || true
   - echo $exists
   -  |
