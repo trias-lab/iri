@@ -85,7 +85,6 @@ script:
   - cd iri-regression-tests
   # checkout special branch
   - exists=$(git show-ref refs/remotes/origin/$objBranch) || true
-  - echo $exists
   -  |
      if [ -n "$exists" ]; then
        echo pr will merge $objBranch to master if existed
