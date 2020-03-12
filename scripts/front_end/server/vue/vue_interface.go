@@ -36,18 +36,19 @@ type AddNodeRequest struct {
 	Time     string `json:"time,omitempty"`
 	Nonce    int    `json:"nonce,omitempty"`
 	Address  string `json:"address,omitempty"`
-	AuthSign string `json:"authSign,omitempty"`
-	Sign     string `json:"sign,omitempty"`
 	Host     string `json:"host,omitempty"`
+	Sign     string `json:"sign,omitempty"`
+	OriData  string `json:"oriData,omitempty"`
 }
 
 // QueryNodesRequest ...
 type QueryNodesRequest struct {
-	Period   int64  `json:"period"`
-	NumRank  int64  `json:"numRank"`
-	Url      string `json:"url,omitempty"`
-	Address  string `json:"address,omitempty"`
-	AuthSign string `json:"authSign,omitempty"`
+	Period  int64  `json:"period"`
+	NumRank int64  `json:"numRank"`
+	Url     string `json:"url,omitempty"`
+	Address string `json:"address,omitempty"`
+	Sign    string `json:"sign,omitempty"`
+	OriData string `json:"oriData,omitempty"`
 }
 
 // NodeDetailRequest ...
@@ -76,16 +77,16 @@ func (o *OCli) AddAttestationInfoFunction(request *AddNodeRequest) Message {
 	newReq.Score = request.Score
 	newReq.Time = request.Time
 	newReq.Nonce = request.Nonce
-	newReq.Address = request.Address
-	newReq.Sign = request.Sign
-	info := make([]string, 7)
+	//newReq.Address = request.Address
+	//newReq.Sign = request.Sign
+	info := make([]string, 5)
 	info[0] = newReq.Attester
 	info[1] = newReq.Attestee
 	info[2] = strconv.Itoa(newReq.Score)
-	info[3] = newReq.Address
-	info[4] = strconv.Itoa(newReq.Nonce)
-	info[5] = newReq.Time
-	info[6] = newReq.Sign
+	//info[3] = newReq.Address
+	info[3] = strconv.Itoa(newReq.Nonce)
+	info[4] = newReq.Time
+	//info[6] = newReq.Sign
 	zlog.Logger.Info("vue info split content is ", info)
 	err1 := nr.AddAttestationInfo("", request.Host, info)
 	if err1 != nil {

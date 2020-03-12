@@ -26,17 +26,18 @@ install:
     - sudo apt-get update
     - sudo apt-get install python-pip
     - sudo apt-get install python-dev
-    - sudo pip install ipfsapi
-    - sudo pip install flask
-    - sudo pip install -U pyOpenSSL
-    - sudo pip install pyota
-    - sudo pip install docker
+    - sudo pip install ipfsapi==0.4.4
+    - sudo pip install flask==1.1.1
+    - sudo pip install -U pyOpenSSL==19.1.0
+    - sudo pip install pyota==2.1.0
+    - sudo pip install docker==4.2.0
     - sudo pip install mock
-    - sudo pip install cryptography==2.5
-    - sudo pip install sh
-    - sudo pip install six --upgrade
-    - sudo pip install ecdsa
-    - sudo pip install pycrypto
+    - sudo pip install cryptography==2.8
+    - sudo pip install sh==1.12.14
+    - sudo pip install six==1.14.0 --upgrade
+    - sudo pip install ecdsa==0.15
+    - sudo pip install pycrypto==2.6.1
+
   # update go version
     - gimme 1.11.5
     - source ~/.gimme/envs/go1.11.5.env
@@ -56,6 +57,10 @@ before_script:
 script:
   #run tests and integration tests
   # see  https://stackoverflow.com/questions/34405047/how-do-you-merge-into-another-branch-using-travis-with-git-commands?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+  - echo "before printing git account."
+  - git config user.name
+  - git config user.email
+  - echo "after printed git account."
   - build_head=$(git rev-parse HEAD)
   - git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
   - git fetch origin $TRAVIS_BRANCH
@@ -70,8 +75,30 @@ script:
   - JACOCO_V=$(mvn help:evaluate -Dexpression=jacoco.version | grep -E '^[0-9.]+')
   - export _JAVA_OPTIONS="$_JAVA_OPTIONS -javaagent:$HOME/.m2/repository/org/jacoco/org.jacoco.agent/$JACOCO_V/org.jacoco.agent-$JACOCO_V-runtime.jar=destfile=$PWD/target/jacoco.exec,output=file,append=true,dumponexit=true"
   - echo $_JAVA_OPTIONS
+  # get branch
+  - export objBranch=$TRAVIS_BRANCH
+  -  |
+     if [ ${TRAVIS_PULL_REQUEST} != false ]; then
+       export objBranch=${TRAVIS_PULL_REQUEST_BRANCH}
+     fi
   - git clone https://github.com/triasteam/iri-regression-tests.git
   - cd iri-regression-tests
+  # checkout special branch
+  - exists=$(git show-ref refs/remotes/origin/$objBranch) || true
+  -  |
+     if [ -n "$exists" ]; then
+       echo pr will merge $objBranch to master if existed
+       git checkout $objBranch
+       if [ ${TRAVIS_PULL_REQUEST} != false ]; then
+         git checkout master
+         git merge $objBranch || true
+       fi
+     fi
+  -  |
+     if [ -z "$exists" ]; then
+       echo push will checkout master
+       git checkout master
+     fi
   #- git checkout -f master
   - mkdir iri
   - cp -rf ../target iri/target
