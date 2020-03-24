@@ -1,0 +1,3 @@
+rootCertFile: rootCert.pem
+userCertFile: cert.pem
+dir: ./auth/
