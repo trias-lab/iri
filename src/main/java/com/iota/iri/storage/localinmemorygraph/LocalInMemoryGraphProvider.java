@@ -661,34 +661,34 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
 
 
     //FIXME for debug :: for graphviz visualization
-    void printRevGraph(Map<Hash, Set<Hash>> revGraph) {
-        for (Hash key : revGraph.keySet()) {
-            for (Hash val : revGraph.get(key)) {
-                if (nameMap != null) {
-                    System.out.println("\"" + nameMap.get(key) + "\"->" +
-                            "\"" + nameMap.get(val) + "\"");
-                } else {
-                    System.out.println("\"" + IotaUtils.abbrieviateHash(key, 4) + "\"->" +
-                            "\"" + IotaUtils.abbrieviateHash(val, 4) + "\"");
-                }
-            }
-        }
-    }
+//    void printRevGraph(Map<Hash, Set<Hash>> revGraph) {
+//        for (Hash key : revGraph.keySet()) {
+//            for (Hash val : revGraph.get(key)) {
+//                if (nameMap != null) {
+//                    System.out.println("\"" + nameMap.get(key) + "\"->" +
+//                            "\"" + nameMap.get(val) + "\"");
+//                } else {
+//                    System.out.println("\"" + IotaUtils.abbrieviateHash(key, 4) + "\"->" +
+//                            "\"" + IotaUtils.abbrieviateHash(val, 4) + "\"");
+//                }
+//            }
+//        }
+//    }
 
     //FIXME for debug :: for graphviz visualization
-    void printTopOrder(HashMap<Integer, Set<Hash>> topOrder) {
-        for (Integer key : topOrder.keySet()) {
-            System.out.print(key + ": ");
-            for (Hash val : topOrder.get(key)) {
-                if (nameMap != null) {
-                    System.out.print(nameMap.get(val) + " ");
-                } else {
-                    System.out.println(IotaUtils.abbrieviateHash(val, 4) + " ");
-                }
-            }
-            System.out.println();
-        }
-    }
+//    void printTopOrder(HashMap<Integer, Set<Hash>> topOrder) {
+//        for (Integer key : topOrder.keySet()) {
+//            System.out.print(key + ": ");
+//            for (Hash val : topOrder.get(key)) {
+//                if (nameMap != null) {
+//                    System.out.print(nameMap.get(val) + " ");
+//                } else {
+//                    System.out.println(IotaUtils.abbrieviateHash(val, 4) + " ");
+//                }
+//            }
+//            System.out.println();
+//        }
+//    }
 
     /**
      * 全拓扑序算法之一：
@@ -714,23 +714,24 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
     }
 
     public List<Hash> getChain(HashMap<Integer, Set<Hash>> topOrder) {
+        //FIXME 暂时无用，注释掉
         List<Hash> ret = new LinkedList<Hash>();
-        Hash b = (Hash) topOrder.get(1).toArray()[0];
-        ret.add(b);
-        while (true) {
-            Set<Hash> children = getChild(b);
-            if (children.isEmpty()) {
-                break;
-            }
-            double maxScore = 0;
-            for (Hash h : children) {
-                if (parentScore.get(h) > maxScore) {
-                    maxScore = parentScore.get(h);
-                    b = h;
-                }
-            }
-            ret.add(b);
-        }
+//        Hash b = (Hash) topOrder.get(1).toArray()[0];
+//        ret.add(b);
+//        while (true) {
+//            Set<Hash> children = getChild(b);
+//            if (children.isEmpty()) {
+//                break;
+//            }
+//            double maxScore = 0;
+//            for (Hash h : children) {
+//                if (parentScore.get(h) > maxScore) {
+//                    maxScore = parentScore.get(h);
+//                    b = h;
+//                }
+//            }
+//            ret.add(b);
+//        }
         return ret;
     }
 
@@ -1084,28 +1085,28 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
      * @return hashmap
      */
     // if belongs to the same bundle, condense it
-    public HashMap<Hash, Set<Hash>> getCondensedGraph() {
-        HashMap<Hash, Set<Hash>> ret = new HashMap<>();
-        for(Hash h : graph.keySet()) {
-            if((bundleMap.containsKey(h) && bundleMap.get(h).hi == 0) ||
-               !bundleMap.containsKey(h)) {
-                Set<Hash> to = new HashSet<>();
-                for(Hash m : graph.get(h)) {
-                    if(bundleMap.containsKey(m)) {
-                        to.add(bundleMap.get(m).low);
-                    } else {
-                        to.add(m);
-                    }
-                }
-                if(bundleMap.containsKey(h)) {
-                    ret.put(bundleMap.get(h).low, to);
-                } else {
-                    ret .put(h, to);
-                }
-            }
-        }
-        return ret;
-    }
+//    public HashMap<Hash, Set<Hash>> getCondensedGraph() {
+//        HashMap<Hash, Set<Hash>> ret = new HashMap<>();
+//        for(Hash h : graph.keySet()) {
+//            if((bundleMap.containsKey(h) && bundleMap.get(h).hi == 0) ||
+//               !bundleMap.containsKey(h)) {
+//                Set<Hash> to = new HashSet<>();
+//                for(Hash m : graph.get(h)) {
+//                    if(bundleMap.containsKey(m)) {
+//                        to.add(bundleMap.get(m).low);
+//                    } else {
+//                        to.add(m);
+//                    }
+//                }
+//                if(bundleMap.containsKey(h)) {
+//                    ret.put(bundleMap.get(h).low, to);
+//                } else {
+//                    ret .put(h, to);
+//                }
+//            }
+//        }
+//        return ret;
+//    }
 
     public List<Hash> getHashesFromBundle(List<String> bundleHashes) {
         List<Hash> ret = new ArrayList<>();
@@ -1120,13 +1121,13 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
         return ret;
     }
 
-    public Map<Hash, Hash> getParentGraph() {
-        return this.parentGraph;
-    }
+//    public Map<Hash, Hash> getParentGraph() {
+//        return this.parentGraph;
+//    }
 
-    public Map<Hash, Set<Hash>> getRevParentGraph() {
-        return this.parentRevGraph;
-    }
+//    public Map<Hash, Set<Hash>> getRevParentGraph() {
+//        return this.parentRevGraph;
+//    }
 
     public void buildTempGraphs(List<Hash> totalOrderBefore, Hash curAncestor) {
         subGraph.clear();
@@ -1428,20 +1429,20 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
             }
         }
 
-        private void printAllGraph(String tag, Hash ancestor) {
-            String ret = printGraph(graph, "DOT");
-            String ret1 = printGraph(parentRevGraph, "DOT");
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter("graph_" + tag + ".dot"));
-                BufferedWriter writer1 = new BufferedWriter(new FileWriter("rev_" + tag + ".dot"));
-                writer1.write(ret1);
-                writer.write(ret);
-                writer.close();
-                writer1.close();
-            } catch(Exception e) {
-
-            }
-        }
+//        private void printAllGraph(String tag, Hash ancestor) {
+//            String ret = printGraph(graph, "DOT");
+//            String ret1 = printGraph(parentRevGraph, "DOT");
+//            try {
+//                BufferedWriter writer = new BufferedWriter(new FileWriter("graph_" + tag + ".dot"));
+//                BufferedWriter writer1 = new BufferedWriter(new FileWriter("rev_" + tag + ".dot"));
+//                writer1.write(ret1);
+//                writer.write(ret);
+//                writer.close();
+//                writer1.close();
+//            } catch(Exception e) {
+//
+//            }
+//        }
 
         private Stack<Hash> appendNewAncestor(Stack<Hash> ancestors, Hash curAncestor) {
             if (ancestors == null) {
