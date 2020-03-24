@@ -735,4 +735,429 @@ public class LocalInMemoryGraphProviderTest {
             ee.printStackTrace();
         }
     }
+
+    /**
+     * after genesis forward, several options should be validate:
+     * 1. total order must not chang.
+     * 2. graph must be a sub instance of before start with new genesis.
+     */
+    @Test
+    public void testGenesisForwardWithLoadHistoryGenesis() {
+        try {
+            tangle1.shutdown();
+            BaseIotaConfig.getInstance().setStreamingGraphSupport(false);
+        } catch (Exception ee) {
+            ee.printStackTrace();
+        }
+        // start genesis forward engine。 Firstly, engine run parameters should be change immediately
+        BaseIotaConfig iotaConfig = BaseIotaConfig.getInstance();
+        try {
+            // set ancestor forward enable with true
+            Field[] allFields = iotaConfig.getClass().getDeclaredFields();
+            Field[] superClassAllFields = iotaConfig.getClass().getSuperclass().getDeclaredFields();
+            Field[] fields = new Field[allFields.length + superClassAllFields.length];
+            System.arraycopy(allFields, 0, fields, 0, allFields.length);
+            System.arraycopy(superClassAllFields, 0, fields, allFields.length, superClassAllFields.length);
+
+            for (Field field : fields) {
+                if (field.getName().equals("ancestorForwardEnable")) {
+                    field.setAccessible(true);
+                    field.setBoolean(iotaConfig, true);
+                    continue;
+                }
+                if (field.getName().equals("ancestorCreateFrequency")) {
+                    field.setAccessible(true);
+                    field.setDouble(iotaConfig, 1);
+                    continue;
+                }
+                if (field.getName().equals("ancestorForwardPeriod")) {
+                    field.setAccessible(true);
+                    field.setLong(iotaConfig, 5);
+                    continue;
+                }
+            }
+
+            setUp();
+        } catch (IllegalAccessException | NoSuchFieldException ex) {
+            ex.printStackTrace();
+        } catch (Exception ee) {
+            ee.printStackTrace();
+        }
+
+        TransactionViewModel a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2;
+        a = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
+        b = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        c = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        d = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        e = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        h = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(e.getHash(),
+                d.getHash()), getRandomTransactionHash());
+        f = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(d.getHash(),
+                e.getHash()), getRandomTransactionHash());
+        g = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(b.getHash(),
+                c.getHash()), getRandomTransactionHash());
+        i = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        j = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        m = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(j.getHash(),
+                i.getHash()), getRandomTransactionHash());
+        k = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(h.getHash(),
+                j.getHash()), getRandomTransactionHash());
+        l = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(i.getHash(),
+                h.getHash()), getRandomTransactionHash());
+        q = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        s = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                m.getHash()), getRandomTransactionHash());
+        p = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        n = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        o = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        r = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        u = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(p.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        v = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(n.getHash(),
+                o.getHash()), getRandomTransactionHash());
+        t = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(o.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        w = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(q.getHash(),
+                s.getHash()), getRandomTransactionHash());
+        x = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(s.getHash(),
+                u.getHash()), getRandomTransactionHash());
+        y = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(t.getHash(),
+                r.getHash()), getRandomTransactionHash());
+        z = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(v.getHash(),
+                t.getHash()), getRandomTransactionHash());
+        end1 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(x.getHash(),
+                w.getHash()), getRandomTransactionHash());
+        end2 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(y.getHash(),
+                z.getHash()), getRandomTransactionHash());
+
+        TransactionViewModel[] models = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2};
+        char[] modelChar = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'
+                , 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2'};
+        HashMap<Hash, String> tag = new HashMap<Hash, String>();
+        for (int offset = 0; offset < models.length; offset++) {
+            tag.put(models[offset].getHash(), String.valueOf(modelChar[offset]));
+        }
+        provider1.setNameMap(tag);
+
+        Arrays.stream(models).forEach(model -> {
+            try {
+                model.store(tangle1);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        System.out.println("=============genesis forward=======");
+
+        // genesis forward after 2 blocks
+        String dotGraph = provider1.printGraph(provider1.getGraph(), "DOT");
+        System.out.println(dotGraph);
+
+        // print total order
+        List<Hash> totalOrder = provider1.totalTopOrder();
+
+        totalOrder.stream().forEach(hash -> {
+            String cc = tag.get(hash);
+            System.out.print(cc + "<-");
+        });
+        System.out.println("=====total order end=====");
+
+        provider1.pivotChain(provider1.getGenesis()).stream().forEach(hash -> {
+            String cc = tag.get(hash);
+            System.out.print(cc + ":" + hash + "<-");
+        });
+        System.out.println("=====pivot chain end=====");
+
+        Assert.assertEquals(a.getHash(), provider1.getGenesis());
+
+        // because engine would start after 10 second, main thread will sleep 15 second
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
+        System.out.println("genesis is : " + tag.get(provider1.getGenesis()));
+
+        Assert.assertEquals(b.getHash(), provider1.getGenesis());
+
+        totalOrder.stream().forEach(hash -> {
+            String cc = tag.get(hash);
+            System.out.print(cc + "<-");
+        });
+        System.out.println("=====total order end=====");
+
+        provider1.pivotChain(provider1.getGenesis()).stream().forEach(hash -> {
+            String cc = tag.get(hash);
+            System.out.print(cc + ":" + hash + "<-");
+        });
+        System.out.println("=====pivot chain end=====");
+
+
+        try {
+            tearDown();
+            setUp();
+        } catch (Exception ee) {
+            ee.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testAllPrint(){
+        TransactionViewModel a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2;
+        a = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
+        b = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        c = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        d = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        e = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        h = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(e.getHash(),
+                d.getHash()), getRandomTransactionHash());
+        f = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(d.getHash(),
+                e.getHash()), getRandomTransactionHash());
+        g = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(b.getHash(),
+                c.getHash()), getRandomTransactionHash());
+        i = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        j = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        m = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(j.getHash(),
+                i.getHash()), getRandomTransactionHash());
+        k = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(h.getHash(),
+                j.getHash()), getRandomTransactionHash());
+        l = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(i.getHash(),
+                h.getHash()), getRandomTransactionHash());
+        q = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        s = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                m.getHash()), getRandomTransactionHash());
+        p = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        n = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        o = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        r = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        u = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(p.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        v = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(n.getHash(),
+                o.getHash()), getRandomTransactionHash());
+        t = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(o.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        w = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(q.getHash(),
+                s.getHash()), getRandomTransactionHash());
+        x = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(s.getHash(),
+                u.getHash()), getRandomTransactionHash());
+        y = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(t.getHash(),
+                r.getHash()), getRandomTransactionHash());
+        z = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(v.getHash(),
+                t.getHash()), getRandomTransactionHash());
+        end1 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(x.getHash(),
+                w.getHash()), getRandomTransactionHash());
+        end2 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(y.getHash(),
+                z.getHash()), getRandomTransactionHash());
+
+        TransactionViewModel[] models = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2};
+        char[] modelChar = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'
+                , 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2'};
+        HashMap<Hash, String> tag = new HashMap<Hash, String>();
+        for (int offset = 0; offset < models.length; offset++) {
+            tag.put(models[offset].getHash(), String.valueOf(modelChar[offset]));
+        }
+        provider1.setNameMap(tag);
+
+        Arrays.stream(models).forEach(model -> {
+            try {
+                model.store(tangle1);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        System.out.println("=============genesis forward=======");
+
+        // genesis forward after 2 blocks
+        String dotGraph = provider1.printGraph(provider1.getGraph(), "DOT");
+        provider1.printGraph(provider1.getGraph(), "JSON");
+        provider1.printOrder(provider1.totalTopOrder());
+    }
+
+    @Test
+    public void testGetTopOrder(){
+        TransactionViewModel a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2;
+        a = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
+        b = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        c = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        d = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        e = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        h = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(e.getHash(),
+                d.getHash()), getRandomTransactionHash());
+        f = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(d.getHash(),
+                e.getHash()), getRandomTransactionHash());
+        g = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(b.getHash(),
+                c.getHash()), getRandomTransactionHash());
+        i = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        j = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        m = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(j.getHash(),
+                i.getHash()), getRandomTransactionHash());
+        k = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(h.getHash(),
+                j.getHash()), getRandomTransactionHash());
+        l = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(i.getHash(),
+                h.getHash()), getRandomTransactionHash());
+        q = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        s = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                m.getHash()), getRandomTransactionHash());
+        p = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        n = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        o = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        r = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        u = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(p.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        v = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(n.getHash(),
+                o.getHash()), getRandomTransactionHash());
+        t = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(o.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        w = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(q.getHash(),
+                s.getHash()), getRandomTransactionHash());
+        x = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(s.getHash(),
+                u.getHash()), getRandomTransactionHash());
+        y = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(t.getHash(),
+                r.getHash()), getRandomTransactionHash());
+        z = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(v.getHash(),
+                t.getHash()), getRandomTransactionHash());
+        end1 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(x.getHash(),
+                w.getHash()), getRandomTransactionHash());
+        end2 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(y.getHash(),
+                z.getHash()), getRandomTransactionHash());
+
+        TransactionViewModel[] models = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2};
+        char[] modelChar = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'
+                , 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2'};
+        HashMap<Hash, String> tag = new HashMap<Hash, String>();
+        for (int offset = 0; offset < models.length; offset++) {
+            tag.put(models[offset].getHash(), String.valueOf(modelChar[offset]));
+        }
+        provider1.setNameMap(tag);
+
+        Arrays.stream(models).forEach(model -> {
+            try {
+                model.store(tangle1);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        System.out.println("=============genesis forward=======");
+
+        // genesis forward after 2 blocks
+        String dotGraph = provider1.printGraph(provider1.getGraph(), "DOT");
+        System.out.println(dotGraph);
+//        provider1.getChain()
+    }
+
+    @Test
+    public void testGetPivotalHash(){
+        TransactionViewModel a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2;
+        a = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
+        b = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        c = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        d = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        e = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        h = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(e.getHash(),
+                d.getHash()), getRandomTransactionHash());
+        f = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(d.getHash(),
+                e.getHash()), getRandomTransactionHash());
+        g = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(b.getHash(),
+                c.getHash()), getRandomTransactionHash());
+        i = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        j = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        m = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(j.getHash(),
+                i.getHash()), getRandomTransactionHash());
+        k = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(h.getHash(),
+                j.getHash()), getRandomTransactionHash());
+        l = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(i.getHash(),
+                h.getHash()), getRandomTransactionHash());
+        q = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        s = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                m.getHash()), getRandomTransactionHash());
+        p = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        n = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        o = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        r = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        u = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(p.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        v = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(n.getHash(),
+                o.getHash()), getRandomTransactionHash());
+        t = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(o.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        w = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(q.getHash(),
+                s.getHash()), getRandomTransactionHash());
+        x = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(s.getHash(),
+                u.getHash()), getRandomTransactionHash());
+        y = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(t.getHash(),
+                r.getHash()), getRandomTransactionHash());
+        z = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(v.getHash(),
+                t.getHash()), getRandomTransactionHash());
+        end1 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(x.getHash(),
+                w.getHash()), getRandomTransactionHash());
+        end2 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(y.getHash(),
+                z.getHash()), getRandomTransactionHash());
+
+        TransactionViewModel[] models = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2};
+        char[] modelChar = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'
+                , 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2'};
+        HashMap<Hash, String> tag = new HashMap<Hash, String>();
+        for (int offset = 0; offset < models.length; offset++) {
+            tag.put(models[offset].getHash(), String.valueOf(modelChar[offset]));
+        }
+        provider1.setNameMap(tag);
+
+        Arrays.stream(models).forEach(model -> {
+            try {
+                model.store(tangle1);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        Hash hash = provider1.getPivotalHash(1);
+        System.out.println(hash);
+    }
 }
