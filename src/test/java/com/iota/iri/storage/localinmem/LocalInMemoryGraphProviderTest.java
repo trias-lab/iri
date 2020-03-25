@@ -1,7 +1,6 @@
 package com.iota.iri.storage.localinmem;
 
 import com.iota.iri.conf.BaseIotaConfig;
-import com.iota.iri.conf.IotaConfig;
 import com.iota.iri.conf.TestnetConfig;
 import com.iota.iri.controllers.TransactionViewModel;
 import com.iota.iri.model.Hash;
@@ -10,12 +9,13 @@ import com.iota.iri.storage.localinmemorygraph.LocalInMemoryGraphProvider;
 import com.iota.iri.storage.rocksDB.RocksDBPersistenceProvider;
 import com.iota.iri.utils.IotaUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Has;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static com.iota.iri.controllers.TransactionViewModelTest.*;
@@ -791,7 +791,7 @@ public class LocalInMemoryGraphProviderTest {
     }
 
     //mock graph
-    private void mockGraph(Tangle tangle, HashMap<Hash, String> tagNameMap){
+    private void mockGraph(Tangle tangle, Map<Hash, String> tagNameMap){
         TransactionViewModel a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2;
         a = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
         b = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
