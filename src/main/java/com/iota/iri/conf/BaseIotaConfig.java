@@ -906,7 +906,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
 
     @JsonProperty
     @Parameter(names = "--ancestor-create-frequency", description = DbConfig.Descriptions.ANCESTOR_CREATE_FREQUENCY)
-    protected void setAncestorCreateFrequency(double ancestorCreateFrequency) {
+    public void setAncestorCreateFrequency(double ancestorCreateFrequency) {
         //FIXME 测试通过后加上此限制
 //        if (ancestorCreateFrequency < Defaults.ANCESTOR_CREATE_FREQUENCY){
 //            return;
@@ -921,7 +921,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
 
     @JsonProperty
     @Parameter(names = "--ancestor-forward-enable", description = DbConfig.Descriptions.ANCESTOR_FORWARD_ENABLE)
-    protected void setAncestorForwardEnable(boolean ancestorForwardEnable) {
+    public void setAncestorForwardEnable(boolean ancestorForwardEnable) {
         this.ancestorForwardEnable = ancestorForwardEnable;
     }
 
