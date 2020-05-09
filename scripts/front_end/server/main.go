@@ -15,6 +15,7 @@ import (
 	"github.com/trias-lab/trias-ca-go-sdk/message"
 	"github.com/trias-lab/trias-ca-go-sdk/tck"
 	v "github.com/triasteam/StreamNet/scripts/frontend/server/vue"
+	yaml "gopkg.in/yaml.v3"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -26,12 +27,16 @@ var (
 	ca           bool
 	rootCAServer string
 	userCAServer string
-)
-
-const (
 	rootCertFile = "rootCert.pem"
 	userCertFile = "cert.pem"
+	dir          = "./auth/"
 )
+
+type Config struct {
+	RootCertFile string `yaml:"rootCertFile"`
+	UserCertFile string `yaml:"userCertFile"`
+	Dir          string `yaml:"dir"`
+}
 
 func init() {
 	flag.StringVar(&host, "host", "", "Iota server host, e.g. http://127.0.0.1:14700")
@@ -51,10 +56,27 @@ func main() {
 		return
 	}
 
+	yamlFile, err := ioutil.ReadFile("config.yaml")
+	if err != nil {
+		zlog.Logger.Info("read yaml file failed, dir/filename set to default, err: ", err)
+	}
+
+	conf := Config{}
+	err = yaml.Unmarshal(yamlFile, &conf)
+	if err != nil {
+		zlog.Logger.Info("parse yaml file failed, dir/filename set to default, err: ", err)
+	}
+
+	if conf.RootCertFile != "" {
+		rootCertFile = conf.RootCertFile
+		userCertFile = conf.UserCertFile
+		dir = conf.Dir
+	}
+
 	http.HandleFunc("/AddNode", AddNode)
 	http.HandleFunc("/QueryNodes", QueryNodes)
 	http.HandleFunc("/QueryNodeDetail", QueryNodeDetail)
-	err := http.ListenAndServe("0.0.0.0:8000", nil)
+	err = http.ListenAndServe("0.0.0.0:8000", nil)
 
 	if err != nil {
 		fmt.Println(err)
@@ -111,7 +133,7 @@ func QueryNodes(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	//zlog.Logger.Info("main queryNodesRequest content is ", *queryNodesRequest)
-  if ca {
+	if ca {
 		caResult, err := caVerify([]byte(queryNodesRequest.Sign), []byte(queryNodesRequest.OriData))
 		if !caResult || err != nil {
 			fmt.Println("verify CA certification failed, ", err)
@@ -152,8 +174,6 @@ func QueryNodeDetail(writer http.ResponseWriter, request *http.Request) {
 
 // do varify CA
 func caVerify(signedData []byte, targetData []byte) (bool, error) {
-	dir := "./auth/"
-
 	//get local root cert
 	_, err := ioutil.ReadFile(dir + rootCertFile)
 	if err != nil {
