@@ -1,18 +1,19 @@
 package com.iota.iri.storage.localinmem;
 
 import com.iota.iri.conf.BaseIotaConfig;
+import com.iota.iri.conf.TestnetConfig;
 import com.iota.iri.controllers.TransactionViewModel;
 import com.iota.iri.model.Hash;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.storage.localinmemorygraph.LocalInMemoryGraphProvider;
 import com.iota.iri.storage.rocksDB.RocksDBPersistenceProvider;
+import com.iota.iri.utils.IotaUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.neo4j.cypher.internal.frontend.v2_3.ast.functions.Has;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,15 +28,15 @@ public class LocalInMemoryGraphProviderTest {
     private static Tangle tangle1;
     private static LocalInMemoryGraphProvider provider1;
 
-    @AfterClass
-    public static void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         tangle1.shutdown();
         dbFolder.delete();
         BaseIotaConfig.getInstance().setStreamingGraphSupport(false);
     }
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before()
+    public void setUp() throws Exception {
         BaseIotaConfig.getInstance().setStreamingGraphSupport(true);
         tangle1 = new Tangle();
         dbFolder.create();
@@ -558,4 +559,311 @@ public class LocalInMemoryGraphProviderTest {
         // reset in memory graph
         provider1.close();
     }
+
+    // Genesis前推测试
+    @Test
+    public void testInitWithGenesisForward() throws Exception {
+        // start genesis forward engine。 Firstly, engine run parameters should be change immediately
+        tangle1.shutdown();
+        TestnetConfig iotaConfig = (TestnetConfig) BaseIotaConfig.getInstance();
+        iotaConfig.setAncestorForwardEnable(true);
+        iotaConfig.setAncestorCreateFrequency(1.0);
+        iotaConfig.setAncestorForwardPeriod(1);
+        tangle1 = new Tangle();
+        provider1.init();
+    }
+
+    // build graph will get block from tangle and build graph in memory
+    @Test
+    public void testBuildGraph(){
+        // add block
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+        List<Hash> totalOrder = provider1.totalTopOrder();
+        provider1.buildGraph();
+        List<Hash> totalOrderAfterBuild = provider1.totalTopOrder();
+        Assert.assertEquals(totalOrder, totalOrderAfterBuild);
+    }
+
+    @Test
+    public void testComputeScore(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+        Hash anyBlock = tagNameMap.keySet().iterator().next();
+        double score1 = provider1.getScore(anyBlock);
+        provider1.computeScore();
+        double score2 = provider1.getScore(anyBlock);
+        Assert.assertEquals(score1, score2, 2);
+    }
+
+    @Test
+    public void testComputeScoreUseKATZ() throws Exception {
+        tangle1.shutdown();
+        tangle1 = new Tangle();
+        tangle1.addPersistenceProvider(new RocksDBPersistenceProvider(dbFolder.getRoot().getAbsolutePath(), logFolder
+                .getRoot().getAbsolutePath(), 1000, Tangle.COLUMN_FAMILIES, Tangle.METADATA_COLUMN_FAMILY));
+        provider1 = new LocalInMemoryGraphProvider("", tangle1);
+        tangle1.addPersistenceProvider(provider1);
+        TestnetConfig config = (TestnetConfig) BaseIotaConfig.getInstance();
+        config.setConfluxScoreAlgo("KATZ");
+        tangle1.init();
+
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+        Hash anyBlock = tagNameMap.keySet().iterator().next();
+        double score1 = provider1.getScore(anyBlock);
+        provider1.computeScore();
+        double score2 = provider1.getScore(anyBlock);
+        Assert.assertEquals(score1, score2, 2);
+    }
+
+    // todo 未覆盖完全
+    @Test
+    public void testGetPivotalHash(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+        Hash hash = provider1.getPivotalHash(1);
+        Hash vHash = tagNameMap.entrySet().stream().filter(e -> e.getValue().equals("v")).map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+        Assert.assertEquals(hash, vHash);
+    }
+
+    @Test
+    public void testPrintGraph(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+        provider1.setNameMap(tagNameMap);
+        Map<Hash, Set<Hash>> graph = provider1.getGraph();
+        String graphStr = provider1.printGraph(graph, "DOT");
+        System.out.println(graphStr);
+        graphStr = provider1.printGraph(graph, "JSON");
+        System.out.println(graphStr);
+    }
+
+    @Test
+    public void testPringOrder(){
+        List<Hash> hashes = new ArrayList<>();
+        for (int i=0; i < 10; i++){
+            hashes.add(IotaUtils.getRandomTransactionHash());
+        }
+        String s = provider1.printOrder(hashes);
+        System.out.println(s);
+    }
+
+    @Test
+    public void testGetSiblingsWithAbsentBlock(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+        List<Hash> hashes = provider1.getSiblings(IotaUtils.getRandomTransactionHash());
+        Assert.assertTrue(hashes.isEmpty());
+    }
+
+    /**
+     *  example :
+     *      g(1) - e(0)
+     *      /     /
+     *    /      b(2)
+     *   /    /  \
+     *  a(3)    f(0)
+     *      \
+     *       c(0)
+     *  like the graph, if choose the block e, the chain would be (a - b - e)
+     *  note: test case not same as the example before.
+     */
+    @Test
+    public void testGetChain(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        HashMap<Integer, Set<Hash>> topOrder = new HashMap<>();
+        Set<Hash> set = new HashSet<>();
+        Hash vHash = tagNameMap.entrySet().stream().filter(e -> e.getValue().equals("v")).map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+        set.add(vHash);
+        topOrder.put(1, set);
+
+        List<Hash> chain = provider1.getChain(topOrder);
+        chain.forEach(c -> System.out.println(tagNameMap.get(c)));
+    }
+
+    /**
+     * a tip means the latest block appended to graph
+     */
+    @Test
+    public void testGetNumOfTips(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        int numOfTips = provider1.getNumOfTips();
+        Assert.assertTrue(2 == numOfTips);
+    }
+
+    /**
+     * unused, just print it
+     */
+    @Test
+    public void testGetCondensedGraph(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        System.out.println(provider1.getCondensedGraph());
+    }
+
+    @Test
+    public void testGetHashedFromBundle(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        Hash hash = tagNameMap.keySet().iterator().next();
+        List<String> bundleHashes = Arrays.asList(hash.toString());
+        List<Hash> hashes = provider1.getHashesFromBundle(bundleHashes);
+        Assert.assertTrue(hashes.size() == 1 && hashes.get(0).equals(hash));
+    }
+
+    /**
+     * a sub graph with given genesis and blocks
+     */
+    @Test
+    public void testBuildTempGraphs(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        Hash genesis = tagNameMap.entrySet().stream().filter(e -> e.getValue().equals("a")).map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+        List<Hash> allBlocks = new ArrayList<>(tagNameMap.keySet());
+        allBlocks.remove(genesis);
+
+        provider1.buildTempGraphs(allBlocks, genesis);
+    }
+
+    @Test
+    public void testReverseTmpGraph(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        Hash genesis = tagNameMap.entrySet().stream().filter(e -> e.getValue().equals("a")).map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+        List<Hash> allBlocks = new ArrayList<>(tagNameMap.keySet());
+        allBlocks.remove(genesis);
+
+        provider1.reserveTempGraphs(allBlocks, genesis);
+    }
+
+    // todo add assert
+    @Test
+    public void testShiftTempGraph(){
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        provider1.shiftTempGraphs();
+    }
+
+    // todo assert
+    @Test
+    public void testInduceGraphFromAncestor() throws Exception {
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        Hash genesis = tagNameMap.entrySet().stream().filter(e -> e.getValue().equals("a")).map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+        provider1.induceGraphFromAncestor(genesis);
+    }
+
+    @Test
+    public void testGenesisForwardWithInnerClass() throws Exception {
+        tangle1.shutdown();
+        dbFolder.delete();
+        dbFolder1.delete();
+
+        BaseIotaConfig iotaConfig = BaseIotaConfig.getInstance();
+        iotaConfig.setAncestorForwardEnable(true);
+        iotaConfig.setAncestorCreateFrequency(1.0);
+        iotaConfig.setAncestorForwardPeriod(1); // time to last forward
+
+        tangle1 = new Tangle();
+        tangle1.addPersistenceProvider(new RocksDBPersistenceProvider(dbFolder.getRoot().getAbsolutePath(), logFolder
+                .getRoot().getAbsolutePath(), 1000, Tangle.COLUMN_FAMILIES, Tangle.METADATA_COLUMN_FAMILY));
+        tangle1.addPersistenceProvider(provider1);
+        tangle1.init();
+
+        HashMap<Hash, String> tagNameMap = new HashMap<>();
+        mockGraph(tangle1, tagNameMap);
+
+        Thread.sleep(12000);
+
+        Stack<Hash> historyGenesises = provider1.getAncestors();
+        System.out.println(historyGenesises);
+    }
+
+    //mock graph
+    private void mockGraph(Tangle tangle, Map<Hash, String> tagNameMap){
+        TransactionViewModel a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2;
+        a = new TransactionViewModel(getRandomTransactionTrits(), getRandomTransactionHash());
+        b = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        c = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        d = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        e = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(a.getHash(),
+                a.getHash()), getRandomTransactionHash());
+        h = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(e.getHash(),
+                d.getHash()), getRandomTransactionHash());
+        f = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(d.getHash(),
+                e.getHash()), getRandomTransactionHash());
+        g = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(b.getHash(),
+                c.getHash()), getRandomTransactionHash());
+        i = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        j = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(g.getHash(),
+                f.getHash()), getRandomTransactionHash());
+        m = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(j.getHash(),
+                i.getHash()), getRandomTransactionHash());
+        k = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(h.getHash(),
+                j.getHash()), getRandomTransactionHash());
+        l = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(i.getHash(),
+                h.getHash()), getRandomTransactionHash());
+        q = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        s = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                m.getHash()), getRandomTransactionHash());
+        p = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        n = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(m.getHash(),
+                k.getHash()), getRandomTransactionHash());
+        o = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        r = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(k.getHash(),
+                l.getHash()), getRandomTransactionHash());
+        u = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(p.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        v = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(n.getHash(),
+                o.getHash()), getRandomTransactionHash());
+        t = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(o.getHash(),
+                n.getHash()), getRandomTransactionHash());
+        w = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(q.getHash(),
+                s.getHash()), getRandomTransactionHash());
+        x = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(s.getHash(),
+                u.getHash()), getRandomTransactionHash());
+        y = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(t.getHash(),
+                r.getHash()), getRandomTransactionHash());
+        z = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(v.getHash(),
+                t.getHash()), getRandomTransactionHash());
+        end1 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(x.getHash(),
+                w.getHash()), getRandomTransactionHash());
+        end2 = new TransactionViewModel(getRandomTransactionWithTrunkAndBranch(y.getHash(),
+                z.getHash()), getRandomTransactionHash());
+
+        TransactionViewModel[] models = {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, end1, end2};
+        char[] modelChar = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'
+                , 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2'};
+
+        for (int offset = 0; offset < models.length; offset++) {
+            tagNameMap.put(models[offset].getHash(), String.valueOf(modelChar[offset]));
+        }
+
+        Arrays.stream(models).forEach(model -> {
+            try {
+                model.store(tangle);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
 }

@@ -661,34 +661,34 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
 
 
     //FIXME for debug :: for graphviz visualization
-    void printRevGraph(Map<Hash, Set<Hash>> revGraph) {
-        for (Hash key : revGraph.keySet()) {
-            for (Hash val : revGraph.get(key)) {
-                if (nameMap != null) {
-                    System.out.println("\"" + nameMap.get(key) + "\"->" +
-                            "\"" + nameMap.get(val) + "\"");
-                } else {
-                    System.out.println("\"" + IotaUtils.abbrieviateHash(key, 4) + "\"->" +
-                            "\"" + IotaUtils.abbrieviateHash(val, 4) + "\"");
-                }
-            }
-        }
-    }
-
-    //FIXME for debug :: for graphviz visualization
-    void printTopOrder(HashMap<Integer, Set<Hash>> topOrder) {
-        for (Integer key : topOrder.keySet()) {
-            System.out.print(key + ": ");
-            for (Hash val : topOrder.get(key)) {
-                if (nameMap != null) {
-                    System.out.print(nameMap.get(val) + " ");
-                } else {
-                    System.out.println(IotaUtils.abbrieviateHash(val, 4) + " ");
-                }
-            }
-            System.out.println();
-        }
-    }
+//    void printRevGraph(Map<Hash, Set<Hash>> revGraph) {
+//        for (Hash key : revGraph.keySet()) {
+//            for (Hash val : revGraph.get(key)) {
+//                if (nameMap != null) {
+//                    System.out.println("\"" + nameMap.get(key) + "\"->" +
+//                            "\"" + nameMap.get(val) + "\"");
+//                } else {
+//                    System.out.println("\"" + IotaUtils.abbrieviateHash(key, 4) + "\"->" +
+//                            "\"" + IotaUtils.abbrieviateHash(val, 4) + "\"");
+//                }
+//            }
+//        }
+//    }
+//
+//    //FIXME for debug :: for graphviz visualization
+//    void printTopOrder(HashMap<Integer, Set<Hash>> topOrder) {
+//        for (Integer key : topOrder.keySet()) {
+//            System.out.print(key + ": ");
+//            for (Hash val : topOrder.get(key)) {
+//                if (nameMap != null) {
+//                    System.out.print(nameMap.get(val) + " ");
+//                } else {
+//                    System.out.println(IotaUtils.abbrieviateHash(val, 4) + " ");
+//                }
+//            }
+//            System.out.println();
+//        }
+//    }
 
     /**
      * 全拓扑序算法之一：
@@ -1428,20 +1428,20 @@ public class LocalInMemoryGraphProvider implements AutoCloseable, PersistencePro
             }
         }
 
-        private void printAllGraph(String tag, Hash ancestor) {
-            String ret = printGraph(graph, "DOT");
-            String ret1 = printGraph(parentRevGraph, "DOT");
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter("graph_" + tag + ".dot"));
-                BufferedWriter writer1 = new BufferedWriter(new FileWriter("rev_" + tag + ".dot"));
-                writer1.write(ret1);
-                writer.write(ret);
-                writer.close();
-                writer1.close();
-            } catch(Exception e) {
-
-            }
-        }
+//        private void printAllGraph(String tag, Hash ancestor) {
+//            String ret = printGraph(graph, "DOT");
+//            String ret1 = printGraph(parentRevGraph, "DOT");
+//            try {
+//                BufferedWriter writer = new BufferedWriter(new FileWriter("graph_" + tag + ".dot"));
+//                BufferedWriter writer1 = new BufferedWriter(new FileWriter("rev_" + tag + ".dot"));
+//                writer1.write(ret1);
+//                writer.write(ret);
+//                writer.close();
+//                writer1.close();
+//            } catch(Exception e) {
+//
+//            }
+//        }
 
         private Stack<Hash> appendNewAncestor(Stack<Hash> ancestors, Hash curAncestor) {
             if (ancestors == null) {
