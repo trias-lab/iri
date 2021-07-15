@@ -5,4 +5,4 @@ pyota==2.0.7
 docker==3.7.0
 PyYAML==3.10
 pycrypto==2.6.1
-ecdsa==0.13.2
+ecdsa==0.13.3
